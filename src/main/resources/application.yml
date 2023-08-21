@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:sqlite:C:\Users\19035\Desktop\VenueManagementSystem\main.db
+    driver-class-name: org.sqlite.JDBC
+    type: com.alibaba.druid.pool.DruidDataSource
+  thymeleaf:
+    cache: false
+
+mybatis:
+  type-aliases-package: com.klp.vms.entity
