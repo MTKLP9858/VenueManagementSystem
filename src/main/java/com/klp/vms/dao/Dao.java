@@ -12,11 +12,11 @@ public interface Dao<T> {
 
     void disConnect();
 
-    void execInsert(T insertValue) throws SQLException;
+    void execInsert(T insertValue) throws Exception;
 
-    void execDelete(String KeyColumn) throws SQLException;
+    void execDelete(String KeyColumn) throws Exception;
 
-    List<T> execQuery(String column, String value) throws SQLException;
+    List<T> execQuery(String column, String value) throws Exception;
 
-    void execUpdate(String column, String value, String KeyColumn) throws SQLException;
+    void execUpdate(String column, String value, String KeyColumn) throws Exception;
 }
