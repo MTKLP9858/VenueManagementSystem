@@ -1,5 +1,6 @@
 package com.klp.vms.dao;
 
+import com.klp.vms.entity.Order;
 import com.klp.vms.entity.User;
 import com.klp.vms.exception.RuntimeError;
 
@@ -9,7 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-public class OrderDao implements Dao {
+public class OrderDao implements Dao<Order> {
     Statement statement;
     Connection connection;
 
@@ -49,7 +50,7 @@ public class OrderDao implements Dao {
     }
 
     @Override
-    public void execInsert(User user) throws SQLException {
+    public void execInsert(Order order) throws SQLException {
 
     }
 
