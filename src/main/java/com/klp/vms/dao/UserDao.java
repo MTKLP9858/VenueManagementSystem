@@ -6,7 +6,7 @@ import com.klp.vms.exception.RuntimeError;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class UserDao implements Dao {
+public class UserDao implements Dao<User> {
     Statement statement;
     Connection connection;
 

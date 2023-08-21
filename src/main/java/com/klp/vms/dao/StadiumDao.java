@@ -1,6 +1,6 @@
 package com.klp.vms.dao;
 
-import com.klp.vms.entity.User;
+import com.klp.vms.entity.Stadium;
 import com.klp.vms.exception.RuntimeError;
 
 import java.sql.Connection;
@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-public class StadiumDao implements Dao {
+public class StadiumDao implements Dao<Stadium> {
     Statement statement;
     Connection connection;
 
@@ -49,7 +49,7 @@ public class StadiumDao implements Dao {
     }
 
     @Override
-    public void execInsert(User user) throws SQLException {
+    public void execInsert(Stadium stadium) throws SQLException {
 
     }
 
@@ -59,7 +59,7 @@ public class StadiumDao implements Dao {
     }
 
     @Override
-    public List execQuery(String column, String value) throws SQLException {
+    public List<Stadium> execQuery(String column, String value) throws SQLException {
         return null;
     }
 
