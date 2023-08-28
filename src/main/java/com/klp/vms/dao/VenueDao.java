@@ -103,7 +103,7 @@ public class VenueDao implements Dao<Venue> {//场地
     }
 
 
-    public void execUpdate(String column, Boolean isActive, String name) throws SQLException {
+    public void execUpdate(String column, boolean isActive, String name) throws SQLException {
         if (Objects.equals(column, "active")) {
             if (isActive) {
                 execUpdate("active", "1", name);
