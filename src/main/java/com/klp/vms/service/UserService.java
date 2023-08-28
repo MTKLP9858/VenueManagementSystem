@@ -22,9 +22,8 @@ public class UserService {
         System.out.println("rename");
         User user = verifyAccessToken(access_token);
         System.out.println("access_token ver");
-        UserDao userDao = new UserDao();
-        userDao.execUpdate("username", newUsername, user.getUserid());
-        userDao.disConnect();
+
+        new UserDao().execUpdate("username", newUsername, user.getUserid());
     }
 
     public static @NotNull HashMap<String, String> doRefreshToken(String refresh_token) throws SQLException, RuntimeError {
@@ -32,7 +31,6 @@ public class UserService {
         String newAccessToken = updateAccessToken(user.getUserid());
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("access_token", newAccessToken);
-
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date RefreshTokenAge = null;
@@ -48,9 +46,7 @@ public class UserService {
     }
 
     public static User verifyAccessToken(String access_token) throws SQLException, RuntimeError {
-        UserDao userDao = new UserDao();
-        User user = userDao.execQueryBy("access_token", access_token);
-        userDao.disConnect();
+        User user = new UserDao().execQueryBy("access_token", access_token);
         if (user == null) {
             throw new RuntimeError("No such access_token", 111);
         }
@@ -72,33 +68,23 @@ public class UserService {
 
 
     public static String updateAccessToken(String userid) throws SQLException, RuntimeError {
-        UserDao userDao = new UserDao();
-        User user = userDao.execQuery(userid);
-        userDao.disConnect();
-
+        User user = new UserDao().execQuery(userid);
         if (user == null) {
             throw new RuntimeError("No Such UserID!", 101);
         }
 
         String uuid = String.valueOf(UUID.randomUUID());
 
-        userDao.connect();
-        userDao.execUpdate("access_token", uuid, userid);
-        userDao.disConnect();
+        new UserDao().execUpdate("access_token", uuid, userid);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String sdfStr = sdf.format(new Date(new Date().getTime() + accessTokenAgeAdder));
-        userDao.connect();
-        userDao.execUpdate("access_token_age", sdfStr, userid);
-        userDao.disConnect();
+        new UserDao().execUpdate("access_token_age", sdfStr, userid);
         return uuid;
     }
 
     public static @NotNull User verifyRefreshToken(String refresh_token) throws SQLException, RuntimeError {
-        UserDao userDao = new UserDao();
-        User user = userDao.execQueryBy("refresh_token", refresh_token);
-        userDao.disConnect();
-
+        User user = new UserDao().execQueryBy("refresh_token", refresh_token);
         if (user == null) {
             throw new RuntimeError("No such refresh_token", 121);
         }
@@ -119,40 +105,28 @@ public class UserService {
     }
 
     public static String updateRefreshToken(String userid) throws SQLException, RuntimeError {
-        UserDao userDao = new UserDao();
-        User user = userDao.execQuery(userid);
-        userDao.disConnect();
-
+        User user = new UserDao().execQuery(userid);
         if (user == null) {
             throw new RuntimeError("No Such UserID!", 101);
         }
-
         String uuid = String.valueOf(UUID.randomUUID());
 
-        userDao.connect();
-        userDao.execUpdate("refresh_token", uuid, userid);
-        userDao.disConnect();
+        new UserDao().execUpdate("refresh_token", uuid, userid);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String sdfStr = sdf.format(new Date(new Date().getTime() + refreshTokenAgeAdder));
-        userDao.connect();
-        userDao.execUpdate("refresh_token_age", sdfStr, userid);
-        userDao.disConnect();
+        new UserDao().execUpdate("refresh_token_age", sdfStr, userid);
         return uuid;
     }
 
     public static User login(String userid, String password) throws SQLException, RuntimeError {
-        UserDao userDao = new UserDao();
-        User user = userDao.execQuery(userid);
-        userDao.disConnect();
-
+        User user = new UserDao().execQuery(userid);
         if (user == null) {
             throw new RuntimeError("No Such UserID!", 101);
         }
         if (!Objects.equals(user.getPassword(), password)) {
             throw new RuntimeError("The password is incorrect!", 102);
         }
-
         if (user.getOp() == 5) {
             try {
                 verifyAccessToken(user.getAccess_token());
@@ -160,14 +134,11 @@ public class UserService {
             } catch (RuntimeError ignored) {
             }
         }
-
         if (user.getOp() == 0) {
             updateAccessToken(user.getUserid());
             updateRefreshToken(user.getUserid());
         }
-        userDao.connect();
-        user = userDao.execQuery(userid);
-        userDao.disConnect();
+        user = new UserDao().execQuery(userid);
         return user;
     }
 
@@ -176,9 +147,7 @@ public class UserService {
     }
 
     public static User register(String userid, String username, String password, int op) throws SQLException, RuntimeError {
-        UserDao userDao = new UserDao();
-        User userCheck = userDao.execQuery(userid);
-        userDao.disConnect();
+        User userCheck = new UserDao().execQuery(userid);
         if (userCheck != null) {
             throw new RuntimeError("This UserID already exists!", 107);
         }
@@ -189,15 +158,11 @@ public class UserService {
         user.setAccess_token("register");
         user.setRefresh_token("register");
 
-        userDao.connect();
-        userDao.execInsert(user);
-        userDao.disConnect();
+        new UserDao().execInsert(user);
         updateAccessToken(user.getUserid());
         updateRefreshToken(user.getUserid());
 
-        userDao.connect();
-        user = userDao.execQuery(userid);
-        userDao.disConnect();
+        user = new UserDao().execQuery(userid);
         return user;
     }
 

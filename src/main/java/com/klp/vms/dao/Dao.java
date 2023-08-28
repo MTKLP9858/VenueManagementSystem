@@ -1,15 +1,42 @@
 package com.klp.vms.dao;
 
+import com.klp.vms.exception.RuntimeError;
+
+import java.sql.*;
 import java.util.List;
 
 public interface Dao<T> {
     String defaultDataBaseUrl = "main.db";
 
-    void connect() throws Exception;
+    default ResultSet query(String sql) throws RuntimeError {
+        try {
+            Class.forName("org.sqlite.JDBC");
+            Connection connection;
+            Statement statement;
+            connection = DriverManager.getConnection("jdbc:sqlite:" + defaultDataBaseUrl);
+            statement = connection.createStatement();
+            return statement.executeQuery(sql);
+        } catch (SQLException e) {
+            throw new RuntimeError("Database error, check if the database path or data table exists", 11);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeError("Missing org.sqlite.JDBC, please check the server environment!", 10);
+        }
+    }
 
-    void connect(String dataBaseName) throws Exception;
-
-    void disConnect();
+    default void update(String sql) throws RuntimeError {
+        try {
+            Class.forName("org.sqlite.JDBC");
+            Connection connection;
+            Statement statement;
+            connection = DriverManager.getConnection("jdbc:sqlite:" + defaultDataBaseUrl);
+            statement = connection.createStatement();
+            statement.executeUpdate(sql);
+        } catch (SQLException e) {
+            throw new RuntimeError("Database error, check if the database path or data table exists", 11);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeError("Missing org.sqlite.JDBC, please check the server environment!", 10);
+        }
+    }
 
     void execInsert(T insertValue) throws Exception;
 
