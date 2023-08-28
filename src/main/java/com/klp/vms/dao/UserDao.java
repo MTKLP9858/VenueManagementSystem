@@ -34,9 +34,8 @@ public class UserDao implements Dao<User> {
     public User execQueryBy(String column, String value) throws SQLException, RuntimeError {
         if (value == null) return null;
         String sql = "select * from User where " + column + "='" + value + "';";
-        User user;
+        User user = new User(-1);
         try (ResultSet rs = this.query(sql)) {
-            user = new User(-1);
             if (rs.next()) {
                 user.setUserid(rs.getString("userid"));
                 user.setUsername(rs.getString("username"));

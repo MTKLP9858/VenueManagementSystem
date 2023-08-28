@@ -11,10 +11,8 @@ public interface Dao<T> {
     default ResultSet query(String sql) throws RuntimeError {
         try {
             Class.forName("org.sqlite.JDBC");
-            Connection connection;
-            Statement statement;
-            connection = DriverManager.getConnection("jdbc:sqlite:" + defaultDataBaseUrl);
-            statement = connection.createStatement();
+            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + defaultDataBaseUrl);
+            Statement statement = connection.createStatement();
             return statement.executeQuery(sql);
         } catch (SQLException e) {
             throw new RuntimeError("Database error, check if the database path or data table exists", 11);
@@ -26,11 +24,11 @@ public interface Dao<T> {
     default void update(String sql) throws RuntimeError {
         try {
             Class.forName("org.sqlite.JDBC");
-            Connection connection;
-            Statement statement;
-            connection = DriverManager.getConnection("jdbc:sqlite:" + defaultDataBaseUrl);
-            statement = connection.createStatement();
+            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + defaultDataBaseUrl);
+            Statement statement = connection.createStatement();
             statement.executeUpdate(sql);
+            statement.close();
+            connection.close();
         } catch (SQLException e) {
             throw new RuntimeError("Database error, check if the database path or data table exists", 11);
         } catch (ClassNotFoundException e) {

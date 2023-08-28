@@ -35,9 +35,8 @@ public class OrderDao implements Dao<Order> {
     public List<Order> execQuery(String column, String value) throws SQLException, RuntimeError {
         if (value == null) return null;
         String sql = "select * from \"Order\" where " + column + "='" + value + "';";
-        ArrayList<Order> list;
+        ArrayList<Order> list = new ArrayList<>();
         try (ResultSet rs = this.query(sql)) {
-            list = new ArrayList<>();
             while (rs.next()) {
                 Order order = new Order();
                 order.setNumber(rs.getLong("number"));

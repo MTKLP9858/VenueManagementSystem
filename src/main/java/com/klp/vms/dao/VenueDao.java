@@ -40,9 +40,8 @@ public class VenueDao implements Dao<Venue> {//场地
     public ArrayList<Venue> execQuery(String column, String value) throws SQLException, RuntimeError {
         if (value == null) return null;
         String sql = "select * from Venue where " + column + "='" + value + "';";
-        ArrayList<Venue> list;
+        ArrayList<Venue> list = new ArrayList<>();
         try (ResultSet rs = this.query(sql)) {
-            list = new ArrayList<>();
             while (rs.next()) {
                 Venue venue = new Venue();
                 venue.setName(rs.getString("name"));

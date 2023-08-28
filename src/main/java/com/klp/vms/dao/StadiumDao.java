@@ -31,9 +31,8 @@ public class StadiumDao implements Dao<Stadium> {
     public List<Stadium> execQuery(String column, String value) throws SQLException, RuntimeError {
         if (value == null) return null;
         String sql = "select * from Stadium where " + column + "='" + value + "';";
-        ArrayList<Stadium> list;
+        ArrayList<Stadium> list = new ArrayList<>();
         try (ResultSet rs = this.query(sql)) {
-            list = new ArrayList<>();
             while (rs.next()) {
                 Stadium stadium = new Stadium();
                 stadium.setName(rs.getString("name"));
