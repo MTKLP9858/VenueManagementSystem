@@ -13,4 +13,15 @@ public class Stadium {//场馆
     private String adminUserID;//c
     private User adminUser;
     private ArrayList<Venue> venues;
+
+
+    @Override
+    public String toString() {
+        return "{\"name\":\"" + name + "\"" +
+                ", \"address\":\"" + address + "\"" +
+                ", \"introduction\":\"" + introduction + "\"" +
+                ", \"contact\":\"" + contact + "\"" +
+                ", \"adminUserID\":\"" + adminUserID + "\"" +
+                '}';
+    }
 }

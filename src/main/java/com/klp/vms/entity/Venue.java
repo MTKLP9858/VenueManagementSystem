@@ -12,4 +12,14 @@ public class Venue {//场地
     private double price;
 
 
+    @Override
+    public String toString() {
+        return "{\"name\":\"" + name + "\"" +
+                ", \"area\":\"" + area + "\"" +
+                ", \"stadium\":\"" + stadium + "\"" +
+                ", \"introduction\":\"" + introduction + "\"" +
+                ", \"active\":" + active +
+                ", \"price\":" + price +
+                '}';
+    }
 }
