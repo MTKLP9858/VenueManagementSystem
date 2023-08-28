@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class VenueDao implements Dao<Venue> {//场地
 
@@ -68,6 +69,14 @@ public class VenueDao implements Dao<Venue> {//场地
         statement.executeUpdate("delete FROM Stadium where name='" + name + "';");
     }
 
+    public ArrayList<Venue> execQuery(long price) throws SQLException {
+        return execQuery("price", String.valueOf(price));
+    }
+
+    public ArrayList<Venue> execQuery(boolean isActive) throws SQLException {
+        return execQuery("active", isActive ? "1" : "0");
+    }
+
     @Override
     public ArrayList<Venue> execQuery(String column, String value) throws SQLException {
         if (value == null) return null;
@@ -89,11 +98,24 @@ public class VenueDao implements Dao<Venue> {//场地
 
     @Override
     public void execUpdate(String column, String value, String name) throws SQLException {
-        StringBuilder sql = new StringBuilder("UPDATE Venue SET ");
-        sql.append(column + "=");
-        sql.append("'" + value + "'");
-        sql.append(" WHERE name=");
-        sql.append("'" + name + "'");
-        statement.executeUpdate(String.valueOf(sql));
+        String sql = "UPDATE Venue SET " + column + "='" + value + "'" + " WHERE name='" + name + "'";
+        statement.executeUpdate(sql);
+    }
+
+
+    public void execUpdate(String column, Boolean isActive, String name) throws SQLException {
+        if (Objects.equals(column, "active")) {
+            if (isActive) {
+                execUpdate("active", "1", name);
+            } else {
+                execUpdate("active", "0", name);
+            }
+        }
+    }
+
+    public void execUpdate(String column, Double price, String name) throws SQLException {
+        if (Objects.equals(column, "price")) {
+            execUpdate("price", String.valueOf(price), name);
+        }
     }
 }

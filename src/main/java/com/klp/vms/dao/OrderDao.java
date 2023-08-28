@@ -2,13 +2,13 @@ package com.klp.vms.dao;
 
 import com.klp.vms.entity.Order;
 import com.klp.vms.entity.User;
+import com.klp.vms.entity.Venue;
 import com.klp.vms.exception.RuntimeError;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class OrderDao implements Dao<Order> {
     Statement statement;
@@ -74,11 +74,48 @@ public class OrderDao implements Dao<Order> {
 
     @Override
     public List<Order> execQuery(String column, String value) throws SQLException {
-        return null;
+        if (value == null) return null;
+        String sql = "select * from \"Order\" where " + column + "='" + value + "';";
+        ResultSet rs = statement.executeQuery(sql);
+        ArrayList<Order> list = new ArrayList<>();
+        while (rs.next()) {
+            Order order = new Order();
+            order.setNumber(rs.getLong("number"));
+            order.setUserid(rs.getString("userid"));
+            order.setStadiumName(rs.getString("stadiumName"));
+            order.setVenueName(rs.getString("venueName"));
+            order.setState(rs.getString("state"));
+            order.setPayTime(rs.getString("payTime"));
+            order.setOccupyStartTime(rs.getString("occupyStartTime"));
+            order.setOccupyEndTime(rs.getString("occupyEndTime"));
+            order.setInformation(rs.getString("information"));
+            order.setMessage(rs.getString("message"));
+            list.add(order);
+        }
+        return list;
+    }
+
+    public List<Order> execQuery(long number) throws SQLException {
+        return execQuery("number", String.valueOf(number));
     }
 
     @Override
-    public void execUpdate(String column, String value, String KeyColumn) throws SQLException {
+    public void execUpdate(String column, String value, String number) throws SQLException {
+        StringBuilder sql = new StringBuilder("UPDATE \"Order\" SET ");
+        sql.append(column + "=");
+        sql.append("'" + value + "'");
+        sql.append(" WHERE number=");
+        sql.append(number);
+        statement.executeUpdate(String.valueOf(sql));
+    }
 
+    public void execUpdate(String column, String value, long number) throws SQLException {
+        execUpdate(column, value, String.valueOf(number));
+    }
+
+
+    public void execUpdate(String numberColumn, long value, long number) throws SQLException {
+        if (Objects.equals(numberColumn, "number"))
+            execUpdate(numberColumn, String.valueOf(value), String.valueOf(number));
     }
 }
