@@ -19,10 +19,7 @@ public class UserService {
     public static long autoRefreshAgeAdder = 3L * 24 * 60 * 60 * 1000;
 
     public static void rename(String newUsername, String access_token) throws SQLException, RuntimeError {
-        System.out.println("rename");
         User user = verifyAccessToken(access_token);
-        System.out.println("access_token ver");
-
         new UserDao().execUpdate("username", newUsername, user.getUserid());
     }
 
