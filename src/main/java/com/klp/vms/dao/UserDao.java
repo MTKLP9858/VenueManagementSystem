@@ -13,21 +13,21 @@ public class UserDao implements Dao<User> {
         if (value == null) return null;
         String sql = "select * from User where " + TYPE + "='" + value + "';";
         ArrayList<User> list;
-        try (ResultSet rs = this.query(sql)) {
-            list = new ArrayList<>();
-            while (rs.next()) {
-                User user = new User(-1);
-                user.setUserid(rs.getString("userid"));
-                user.setUsername(rs.getString("username"));
-                user.setPassword(rs.getString("password"));
-                user.setOp(rs.getInt("op"));
-                user.setAccess_token(rs.getString("access_token"));
-                user.setAccess_token_age(rs.getString("access_token_age"));
-                user.setRefresh_token(rs.getString("refresh_token"));
-                user.setRefresh_token_age(rs.getString("refresh_token_age"));
-                list.add(user);
-            }
+        ResultSet rs = this.query(sql);
+        list = new ArrayList<>();
+        while (rs.next()) {
+            User user = new User(-1);
+            user.setUserid(rs.getString("userid"));
+            user.setUsername(rs.getString("username"));
+            user.setPassword(rs.getString("password"));
+            user.setOp(rs.getInt("op"));
+            user.setAccess_token(rs.getString("access_token"));
+            user.setAccess_token_age(rs.getString("access_token_age"));
+            user.setRefresh_token(rs.getString("refresh_token"));
+            user.setRefresh_token_age(rs.getString("refresh_token_age"));
+            list.add(user);
         }
+        this.close();
         return list;
     }
 
@@ -35,18 +35,18 @@ public class UserDao implements Dao<User> {
         if (value == null) return null;
         String sql = "select * from User where " + column + "='" + value + "';";
         User user = new User(-1);
-        try (ResultSet rs = this.query(sql)) {
-            if (rs.next()) {
-                user.setUserid(rs.getString("userid"));
-                user.setUsername(rs.getString("username"));
-                user.setPassword(rs.getString("password"));
-                user.setOp(rs.getInt("op"));
-                user.setAccess_token(rs.getString("access_token"));
-                user.setAccess_token_age(rs.getString("access_token_age"));
-                user.setRefresh_token(rs.getString("refresh_token"));
-                user.setRefresh_token_age(rs.getString("refresh_token_age"));
-            }
+        ResultSet rs = this.query(sql);
+        if (rs.next()) {
+            user.setUserid(rs.getString("userid"));
+            user.setUsername(rs.getString("username"));
+            user.setPassword(rs.getString("password"));
+            user.setOp(rs.getInt("op"));
+            user.setAccess_token(rs.getString("access_token"));
+            user.setAccess_token_age(rs.getString("access_token_age"));
+            user.setRefresh_token(rs.getString("refresh_token"));
+            user.setRefresh_token_age(rs.getString("refresh_token_age"));
         }
+        this.close();
         return user.getUserid() == null ? null : user;
     }
 

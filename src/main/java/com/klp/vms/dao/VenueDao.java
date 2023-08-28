@@ -41,18 +41,18 @@ public class VenueDao implements Dao<Venue> {//场地
         if (value == null) return null;
         String sql = "select * from Venue where " + column + "='" + value + "';";
         ArrayList<Venue> list = new ArrayList<>();
-        try (ResultSet rs = this.query(sql)) {
-            while (rs.next()) {
-                Venue venue = new Venue();
-                venue.setName(rs.getString("name"));
-                venue.setArea(rs.getString("area"));
-                venue.setStadium(rs.getString("stadium"));
-                venue.setIntroduction(rs.getString("introduction"));
-                venue.setActive(rs.getBoolean("active"));
-                venue.setPrice(rs.getDouble("price"));
-                list.add(venue);
-            }
+        ResultSet rs = this.query(sql);
+        while (rs.next()) {
+            Venue venue = new Venue();
+            venue.setName(rs.getString("name"));
+            venue.setArea(rs.getString("area"));
+            venue.setStadium(rs.getString("stadium"));
+            venue.setIntroduction(rs.getString("introduction"));
+            venue.setActive(rs.getBoolean("active"));
+            venue.setPrice(rs.getDouble("price"));
+            list.add(venue);
         }
+        this.close();
         return list;
     }
 

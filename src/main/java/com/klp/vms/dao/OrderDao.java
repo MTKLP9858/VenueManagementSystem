@@ -36,22 +36,22 @@ public class OrderDao implements Dao<Order> {
         if (value == null) return null;
         String sql = "select * from \"Order\" where " + column + "='" + value + "';";
         ArrayList<Order> list = new ArrayList<>();
-        try (ResultSet rs = this.query(sql)) {
-            while (rs.next()) {
-                Order order = new Order();
-                order.setNumber(rs.getLong("number"));
-                order.setUserid(rs.getString("userid"));
-                order.setStadiumName(rs.getString("stadiumName"));
-                order.setVenueName(rs.getString("venueName"));
-                order.setState(rs.getString("state"));
-                order.setPayTime(rs.getString("payTime"));
-                order.setOccupyStartTime(rs.getString("occupyStartTime"));
-                order.setOccupyEndTime(rs.getString("occupyEndTime"));
-                order.setInformation(rs.getString("information"));
-                order.setMessage(rs.getString("message"));
-                list.add(order);
-            }
+        ResultSet rs = this.query(sql);
+        while (rs.next()) {
+            Order order = new Order();
+            order.setNumber(rs.getLong("number"));
+            order.setUserid(rs.getString("userid"));
+            order.setStadiumName(rs.getString("stadiumName"));
+            order.setVenueName(rs.getString("venueName"));
+            order.setState(rs.getString("state"));
+            order.setPayTime(rs.getString("payTime"));
+            order.setOccupyStartTime(rs.getString("occupyStartTime"));
+            order.setOccupyEndTime(rs.getString("occupyEndTime"));
+            order.setInformation(rs.getString("information"));
+            order.setMessage(rs.getString("message"));
+            list.add(order);
         }
+        this.close();
         return list;
     }
 

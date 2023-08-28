@@ -32,20 +32,20 @@ public class StadiumDao implements Dao<Stadium> {
         if (value == null) return null;
         String sql = "select * from Stadium where " + column + "='" + value + "';";
         ArrayList<Stadium> list = new ArrayList<>();
-        try (ResultSet rs = this.query(sql)) {
-            while (rs.next()) {
-                Stadium stadium = new Stadium();
-                stadium.setName(rs.getString("name"));
-                stadium.setAddress(rs.getString("address"));
-                stadium.setIntroduction(rs.getString("introduction"));
-                stadium.setContact(rs.getString("contact"));
-                stadium.setAdminUserID(rs.getString("adminUserID"));
-                stadium.setAdminUser(new UserDao().execQuery(stadium.getAdminUserID()));
-                ArrayList<Venue> venueList = new VenueDao().execQuery("stadium", stadium.getName());
-                stadium.setVenues(venueList);
-                list.add(stadium);
-            }
+        ResultSet rs = this.query(sql);
+        while (rs.next()) {
+            Stadium stadium = new Stadium();
+            stadium.setName(rs.getString("name"));
+            stadium.setAddress(rs.getString("address"));
+            stadium.setIntroduction(rs.getString("introduction"));
+            stadium.setContact(rs.getString("contact"));
+            stadium.setAdminUserID(rs.getString("adminUserID"));
+            stadium.setAdminUser(new UserDao().execQuery(stadium.getAdminUserID()));
+            ArrayList<Venue> venueList = new VenueDao().execQuery("stadium", stadium.getName());
+            stadium.setVenues(venueList);
+            list.add(stadium);
         }
+        this.close();
         return list;
     }
 
