@@ -3,6 +3,7 @@ package com.klp.vms.dao;
 import com.klp.vms.entity.Stadium;
 import com.klp.vms.entity.Venue;
 import com.klp.vms.exception.RuntimeError;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public class StadiumDao implements Dao<Stadium> {
     }
 
     @Override
-    public void execInsert(Stadium stadium) throws SQLException {
+    public void execInsert(@NotNull Stadium stadium) throws SQLException {
         StringBuilder sql = new StringBuilder("insert into Stadium (name, address, introduction, contact, adminUserID) VALUES (");
         sql.append(stadium.getName() == null ? "NULL" : ("'" + stadium.getName()) + "'").append(",");
         sql.append(stadium.getAddress() == null ? "NULL" : ("'" + stadium.getAddress()) + "'").append(",");
