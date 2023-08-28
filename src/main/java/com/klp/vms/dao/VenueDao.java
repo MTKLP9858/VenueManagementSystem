@@ -1,16 +1,14 @@
 package com.klp.vms.dao;
 
-import com.klp.vms.entity.User;
 import com.klp.vms.entity.Venue;
 import com.klp.vms.exception.RuntimeError;
+import org.jetbrains.annotations.NotNull;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
+import java.sql.*;
+import java.util.ArrayList;
 
-public class VenueDao implements Dao<Venue> {
+public class VenueDao implements Dao<Venue> {//场地
+
     Statement statement;
     Connection connection;
 
@@ -53,22 +51,49 @@ public class VenueDao implements Dao<Venue> {
     }
 
     @Override
-    public void execInsert(Venue user) throws SQLException {
-
+    public void execInsert(@NotNull Venue venue) throws SQLException {
+        StringBuilder sql = new StringBuilder("insert into Venue (name, area, stadium, introduction, active, price) VALUES (");
+        sql.append(venue.getName() == null ? "NULL" : ("'" + venue.getName()) + "'").append(",");
+        sql.append(venue.getArea() == null ? "NULL" : ("'" + venue.getArea()) + "'").append(",");
+        sql.append(venue.getStadium() == null ? "NULL" : ("'" + venue.getStadium()) + "'").append(",");
+        sql.append(venue.getIntroduction() == null ? "NULL" : ("'" + venue.getIntroduction()) + "'").append(",");
+        sql.append(venue.isActive()).append(",");
+        sql.append(venue.getPrice());
+        sql.append(");");
+        statement.executeUpdate(String.valueOf(sql));
     }
 
     @Override
-    public void execDelete(String KeyColumn) throws SQLException {
-
+    public void execDelete(String name) throws SQLException {
+        statement.executeUpdate("delete FROM Stadium where name='" + name + "';");
     }
 
     @Override
-    public List<Venue> execQuery(String column, String value) throws SQLException {
-        return null;
+    public ArrayList<Venue> execQuery(String column, String value) throws SQLException {
+        if (value == null) return null;
+        String sql = "select * from Venue where " + column + "='" + value + "';";
+        ResultSet rs = statement.executeQuery(sql);
+        ArrayList<Venue> list = new ArrayList<>();
+        while (rs.next()) {
+            Venue venue = new Venue();
+            venue.setName(rs.getString("name"));
+            venue.setArea(rs.getString("area"));
+            venue.setStadium(rs.getString("stadium"));
+            venue.setIntroduction(rs.getString("introduction"));
+            venue.setActive(rs.getBoolean("active"));
+            venue.setPrice(rs.getDouble("price"));
+            list.add(venue);
+        }
+        return list;
     }
 
     @Override
-    public void execUpdate(String column, String value, String KeyColumn) throws SQLException {
-
+    public void execUpdate(String column, String value, String name) throws SQLException {
+        StringBuilder sql = new StringBuilder("UPDATE Venue SET ");
+        sql.append(column + "=");
+        sql.append("'" + value + "'");
+        sql.append(" WHERE name=");
+        sql.append("'" + name + "'");
+        statement.executeUpdate(String.valueOf(sql));
     }
 }

@@ -1,7 +1,7 @@
 package com.klp.vms.dao;
 
 import com.klp.vms.entity.Stadium;
-import com.klp.vms.entity.User;
+import com.klp.vms.entity.Venue;
 import com.klp.vms.exception.RuntimeError;
 
 import java.sql.*;
@@ -49,7 +49,14 @@ public class StadiumDao implements Dao<Stadium> {
 
     @Override
     public void execInsert(Stadium stadium) throws SQLException {
-
+        StringBuilder sql = new StringBuilder("insert into Stadium (name, address, introduction, contact, adminUserID) VALUES (");
+        sql.append(stadium.getName() == null ? "NULL" : ("'" + stadium.getName()) + "'").append(",");
+        sql.append(stadium.getAddress() == null ? "NULL" : ("'" + stadium.getAddress()) + "'").append(",");
+        sql.append(stadium.getIntroduction() == null ? "NULL" : ("'" + stadium.getIntroduction()) + "'").append(",");
+        sql.append(stadium.getContact() == null ? "NULL" : ("'" + stadium.getContact()) + "'").append(",");
+        sql.append(stadium.getAdminUserID() == null ? "NULL" : ("'" + stadium.getAdminUserID()) + "'");
+        sql.append(");");
+        statement.executeUpdate(String.valueOf(sql));
     }
 
     @Override
@@ -73,17 +80,26 @@ public class StadiumDao implements Dao<Stadium> {
             UserDao userDao = new UserDao();
             stadium.setAdminUser(userDao.execQuery(stadium.getAdminUserID()));
             userDao.disConnect();
-            ///////////////////////////
-            // 用场馆的名字来获取表Venue，以及Venue的KEY：name
-            // Hashmap封装
-            ///////////////////////////
+
+            ArrayList<Venue> venueList;
+            VenueDao venueDao = new VenueDao();
+            venueList = venueDao.execQuery("stadium", stadium.getName());
+            venueDao.disConnect();
+
+            stadium.setVenues(venueList);
+
             list.add(stadium);
         }
         return list;
     }
 
     @Override
-    public void execUpdate(String column, String value, String KeyColumn) throws SQLException {
-
+    public void execUpdate(String column, String value, String name) throws SQLException {
+        StringBuilder sql = new StringBuilder("UPDATE Stadium SET ");
+        sql.append(column + "=");
+        sql.append("'" + value + "'");
+        sql.append(" WHERE name=");
+        sql.append("'" + name + "'");
+        statement.executeUpdate(String.valueOf(sql));
     }
 }
