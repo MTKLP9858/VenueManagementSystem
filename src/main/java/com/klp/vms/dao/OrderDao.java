@@ -1,8 +1,6 @@
 package com.klp.vms.dao;
 
 import com.klp.vms.entity.Order;
-import com.klp.vms.entity.User;
-import com.klp.vms.entity.Venue;
 import com.klp.vms.exception.RuntimeError;
 
 import java.sql.*;
