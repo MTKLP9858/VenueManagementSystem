@@ -53,10 +53,10 @@ public class VenueDao implements Dao<Venue> {//场地
     @Override
     public void execInsert(@NotNull Venue venue) throws SQLException {
         StringBuilder sql = new StringBuilder("insert into Venue (name, area, stadium, introduction, active, price) VALUES (");
-        sql.append(venue.getName() == null ? "NULL" : ("'" + venue.getName()) + "'").append(",");
-        sql.append(venue.getArea() == null ? "NULL" : ("'" + venue.getArea()) + "'").append(",");
-        sql.append(venue.getStadium() == null ? "NULL" : ("'" + venue.getStadium()) + "'").append(",");
-        sql.append(venue.getIntroduction() == null ? "NULL" : ("'" + venue.getIntroduction()) + "'").append(",");
+        sql.append(venue.getName() == null ? "NULL" : ("'" + venue.getName() + "'")).append(",");
+        sql.append(venue.getArea() == null ? "NULL" : ("'" + venue.getArea() + "'")).append(",");
+        sql.append(venue.getStadium() == null ? "NULL" : ("'" + venue.getStadium() + "'")).append(",");
+        sql.append(venue.getIntroduction() == null ? "NULL" : ("'" + venue.getIntroduction() + "'")).append(",");
         sql.append(venue.isActive()).append(",");
         sql.append(venue.getPrice());
         sql.append(");");

@@ -92,14 +92,14 @@ public class UserDao implements Dao<User> {
 
     public void execInsert(@NotNull User user) throws SQLException {
         StringBuilder sql = new StringBuilder("insert into User (userid, username, password, op, access_token, access_token_age, refresh_token, refresh_token_age) VALUES (");
-        sql.append(user.getUserid() == null ? "NULL" : ("'" + user.getUserid()) + "'").append(",");
-        sql.append(user.getUsername() == null ? "NULL" : ("'" + user.getUsername()) + "'").append(",");
-        sql.append(user.getPassword() == null ? "NULL" : ("'" + user.getPassword()) + "'").append(",");
+        sql.append(user.getUserid() == null ? "NULL" : ("'" + user.getUserid() + "'")).append(",");
+        sql.append(user.getUsername() == null ? "NULL" : ("'" + user.getUsername() + "'")).append(",");
+        sql.append(user.getPassword() == null ? "NULL" : ("'" + user.getPassword() + "'")).append(",");
         sql.append(user.getOp()).append(",");
-        sql.append(user.getAccess_token() == null ? "NULL" : ("'" + user.getAccess_token()) + "'").append(",");
-        sql.append(user.getAccess_token_age() == null ? "NULL" : ("'" + user.getAccess_token_age()) + "'").append(",");
-        sql.append(user.getRefresh_token() == null ? "NULL" : ("'" + user.getRefresh_token()) + "'").append(",");
-        sql.append(user.getRefresh_token_age() == null ? "NULL" : ("'" + user.getRefresh_token_age()) + "'");
+        sql.append(user.getAccess_token() == null ? "NULL" : ("'" + user.getAccess_token() + "'")).append(",");
+        sql.append(user.getAccess_token_age() == null ? "NULL" : ("'" + user.getAccess_token_age() + "'")).append(",");
+        sql.append(user.getRefresh_token() == null ? "NULL" : ("'" + user.getRefresh_token() + "'")).append(",");
+        sql.append(user.getRefresh_token_age() == null ? "NULL" : ("'" + user.getRefresh_token_age() + "'"));
         sql.append(");");
         statement.executeUpdate(String.valueOf(sql));
     }

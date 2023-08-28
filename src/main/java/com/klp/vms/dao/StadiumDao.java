@@ -51,11 +51,11 @@ public class StadiumDao implements Dao<Stadium> {
     @Override
     public void execInsert(@NotNull Stadium stadium) throws SQLException {
         StringBuilder sql = new StringBuilder("insert into Stadium (name, address, introduction, contact, adminUserID) VALUES (");
-        sql.append(stadium.getName() == null ? "NULL" : ("'" + stadium.getName()) + "'").append(",");
-        sql.append(stadium.getAddress() == null ? "NULL" : ("'" + stadium.getAddress()) + "'").append(",");
-        sql.append(stadium.getIntroduction() == null ? "NULL" : ("'" + stadium.getIntroduction()) + "'").append(",");
-        sql.append(stadium.getContact() == null ? "NULL" : ("'" + stadium.getContact()) + "'").append(",");
-        sql.append(stadium.getAdminUserID() == null ? "NULL" : ("'" + stadium.getAdminUserID()) + "'");
+        sql.append(stadium.getName() == null ? "NULL" : ("'" + stadium.getName() + "'")).append(",");
+        sql.append(stadium.getAddress() == null ? "NULL" : ("'" + stadium.getAddress() + "'")).append(",");
+        sql.append(stadium.getIntroduction() == null ? "NULL" : ("'" + stadium.getIntroduction() + "'")).append(",");
+        sql.append(stadium.getContact() == null ? "NULL" : ("'" + stadium.getContact() + "'")).append(",");
+        sql.append(stadium.getAdminUserID() == null ? "NULL" : ("'" + stadium.getAdminUserID() + "'"));
         sql.append(");");
         statement.executeUpdate(String.valueOf(sql));
     }

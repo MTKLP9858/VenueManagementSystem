@@ -51,11 +51,24 @@ public class OrderDao implements Dao<Order> {
 
     @Override
     public void execInsert(Order order) throws SQLException {
-
+        StringBuilder sql = new StringBuilder("insert into \"Order\" (number, userid, stadiumName, venueName, state, payTime, occupyStartTime, occupyEndTime, information, message) VALUES (");
+        sql.append(order.getNumber() < 0 ? order.getNumber() * -1 : order.getNumber()).append(",");
+        sql.append(order.getUserid() == null ? "NULL" : ("'" + order.getUserid() + "'")).append(",");
+        sql.append(order.getStadiumName() == null ? "NULL" : ("'" + order.getStadiumName() + "'")).append(",");
+        sql.append(order.getVenueName() == null ? "NULL" : ("'" + order.getVenueName() + "'")).append(",");
+        sql.append(order.getState() == null ? "NULL" : ("'" + order.getState() + "'")).append(",");
+        sql.append(order.getPayTime() == null ? "NULL" : ("'" + order.getPayTime() + "'")).append(",");
+        sql.append(order.getOccupyStartTime() == null ? "NULL" : ("'" + order.getOccupyStartTime() + "'")).append(",");
+        sql.append(order.getOccupyEndTime() == null ? "NULL" : ("'" + order.getOccupyEndTime() + "'")).append(",");
+        sql.append(order.getInformation() == null ? "NULL" : ("'" + order.getInformation() + "'")).append(",");
+        sql.append(order.getMessage() == null ? "NULL" : ("'" + order.getMessage() + "'"));
+        sql.append(");");
+        statement.executeUpdate(String.valueOf(sql));
     }
 
     @Override
-    public void execDelete(String KeyColumn) throws SQLException {
+    public void execDelete(String number) throws SQLException {
+        statement.executeUpdate("delete FROM \"Order\" where number='" + number + "';");
 
     }
 
