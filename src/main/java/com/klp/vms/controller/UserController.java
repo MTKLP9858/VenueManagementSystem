@@ -18,11 +18,36 @@ import java.util.HashMap;
 @RestController
 @RequestMapping("/user")
 public class UserController {
+    @PostMapping("/rename")
+    public String rename(@RequestParam String new_username, @RequestParam String access_token) {
+        try {
+            UserService.rename(new_username, access_token);
+        } catch (SQLException e) {
+            JSONObject json = new JSONObject();
+            json.put("code", 9);
+            json.put("success", false);
+            json.put("message", e.getMessage());
+            return json.toString();
+        } catch (RuntimeError e) {
+            JSONObject json = new JSONObject();
+            json.put("code", e.getCode());
+            json.put("success", false);
+            json.put("message", e.getMessage());
+            return json.toString();
+        }
+        JSONObject json = new JSONObject();
+        json.put("code", 205);
+        json.put("success", true);
+        json.put("message", "rename success");
+        return json.toString();
+    }
+
+
     @PostMapping("/refresh")
-    public String register(@RequestParam String token) {
+    public String refresh(@RequestParam String refresh_token) {
         HashMap<String, String> map;
         try {
-            map = UserService.doRefreshToken(token);
+            map = UserService.doRefreshToken(refresh_token);
         } catch (SQLException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);

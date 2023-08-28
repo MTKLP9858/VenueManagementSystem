@@ -3,6 +3,7 @@ package com.klp.vms.service;
 import com.klp.vms.dao.UserDao;
 import com.klp.vms.entity.User;
 import com.klp.vms.exception.RuntimeError;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -17,7 +18,16 @@ public class UserService {
     public static long refreshTokenAgeAdder = 30L * 24 * 60 * 60 * 1000;
     public static long autoRefreshAgeAdder = 3L * 24 * 60 * 60 * 1000;
 
-    public static HashMap<String, String> doRefreshToken(String refresh_token) throws SQLException, RuntimeError {
+    public static void rename(String newUsername, String access_token) throws SQLException, RuntimeError {
+        System.out.println("rename");
+        User user = verifyAccessToken(access_token);
+        System.out.println("access_token ver");
+        UserDao userDao = new UserDao();
+        userDao.execUpdate("username", newUsername, user.getUserid());
+        userDao.disConnect();
+    }
+
+    public static @NotNull HashMap<String, String> doRefreshToken(String refresh_token) throws SQLException, RuntimeError {
         User user = verifyRefreshToken(refresh_token);
         String newAccessToken = updateAccessToken(user.getUserid());
         HashMap<String, String> hashMap = new HashMap<>();
@@ -49,13 +59,13 @@ public class UserService {
         try {
             date = sdf.parse(user.getAccess_token_age());
         } catch (ParseException e) {
-            updateAccessToken(user.getAccess_token());
+            updateAccessToken(user.getUserid());
             throw new RuntimeError("access_token_age error,please update", 112);
         }
         if (date.after(new Date())) {
             return user;
         } else {
-            updateAccessToken(user.getAccess_token());
+            updateAccessToken(user.getUserid());
             throw new RuntimeError("The access_token has expired", 113);
         }
     }
@@ -84,7 +94,7 @@ public class UserService {
         return uuid;
     }
 
-    public static User verifyRefreshToken(String refresh_token) throws SQLException, RuntimeError {
+    public static @NotNull User verifyRefreshToken(String refresh_token) throws SQLException, RuntimeError {
         UserDao userDao = new UserDao();
         User user = userDao.execQueryBy("refresh_token", refresh_token);
         userDao.disConnect();
