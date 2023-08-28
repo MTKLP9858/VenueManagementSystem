@@ -1,13 +1,7 @@
 package com.klp.vms;
 
-import com.alibaba.fastjson.JSONObject;
-import com.klp.vms.dao.UserDao;
-import com.klp.vms.entity.User;
-import com.klp.vms.service.UserService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import java.sql.SQLException;
 
 
 @SpringBootApplication
