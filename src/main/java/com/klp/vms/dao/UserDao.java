@@ -22,7 +22,7 @@ public class UserDao implements Dao<User> {
             if (rs.next()) {
                 byte[] bytes = rs.getBytes("avatar");
                 try (FileOutputStream fos = new FileOutputStream(file)) {
-                    if (bytes == null) return null;
+                    if (bytes == null) throw new RuntimeError("avatar not found", 157);
                     fos.write(bytes);
                 }
             }

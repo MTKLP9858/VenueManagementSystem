@@ -8,6 +8,8 @@ import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,6 +29,7 @@ public class UserService {
 
     public static boolean updateAvatar(String access_token, @NotNull MultipartFile img) throws RuntimeError, SQLException {
         File file = new File(ImageDao.imgPath + img.getOriginalFilename());
+        if (!isImage(file)) throw new RuntimeError("avatar image broken, please upload again", 155);
         try {
             User user = verifyAccessToken(access_token);
             FileUtils.copyInputStreamToFile(img.getInputStream(), file);
@@ -36,11 +39,27 @@ public class UserService {
         }
     }
 
+    public static boolean isImage(File file) {
+        if (file != null && file.exists() && file.isFile()) {
+            try {
+                BufferedImage bi = ImageIO.read(file);
+                if (bi != null) {
+                    return true;
+                }
+            } catch (IOException e) {
+                return false;
+            }
+
+        }
+        return false;
+    }
+
     public static byte[] queryAvatar(String access_token) throws RuntimeError, SQLException {
         UserDao userDao = new UserDao();
         User user = verifyAccessToken(access_token);
         File file = userDao.queryAvatar(user.getUserid());
-        if (file == null) return null;
+        if (file == null) throw new RuntimeError("avatar not found", 156);
+        if (!isImage(file)) throw new RuntimeError("avatar image broken, please upload again", 155);
         try {
             return Files.readAllBytes(file.toPath());
         } catch (IOException e) {

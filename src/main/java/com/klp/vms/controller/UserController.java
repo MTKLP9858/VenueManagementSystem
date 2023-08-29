@@ -5,9 +5,10 @@ import com.klp.vms.entity.User;
 import com.klp.vms.exception.RuntimeError;
 import com.klp.vms.service.UserService;
 import jakarta.annotation.Nullable;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +23,6 @@ import java.util.HashMap;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-
     @PostMapping("/update-avatar")
     public String updateAvatar(@RequestParam String access_token, @RequestParam MultipartFile img) {
         try {
@@ -47,14 +47,27 @@ public class UserController {
         return json.toString();
     }
 
-    @PostMapping(value = "/query-avatar", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE,MediaType.TEXT_HTML_VALUE})
-    public byte[] queryAvatar(@RequestParam String access_token, HttpServletResponse response) {
+    @PostMapping(value = "/query-avatar", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
+    public ResponseEntity<byte[]> queryAvatar(@RequestParam String access_token) {
         try {
-            return UserService.queryAvatar(access_token);
-        } catch (RuntimeError | SQLException e) {
-            response.setHeader("Accept","text/HTML");
-            response.addHeader("newheader","vvvv");
-            return e.getMessage().getBytes();
+            HttpHeaders headers = new HttpHeaders();
+            return new ResponseEntity<>(UserService.queryAvatar(access_token), HttpStatus.OK);
+        } catch (RuntimeError e) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE);
+            JSONObject json = new JSONObject();
+            json.put("code", e.getCode());
+            json.put("success", false);
+            json.put("message", e.getMessage());
+            return new ResponseEntity<>(json.toString().getBytes(), headers, HttpStatus.NOT_FOUND);
+        } catch (SQLException e) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE);
+            JSONObject json = new JSONObject();
+            json.put("code", 9);
+            json.put("success", false);
+            json.put("message", e.getMessage());
+            return new ResponseEntity<>(json.toString().getBytes(), headers, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

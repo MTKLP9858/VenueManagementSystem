@@ -6,5 +6,7 @@ spring:
   thymeleaf:
     cache: false
 
-mybatis:
-  type-aliases-package: com.klp.vms.entity
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
