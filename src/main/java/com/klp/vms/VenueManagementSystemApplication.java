@@ -1,8 +1,8 @@
 package com.klp.vms;
 
+import com.klp.vms.dao.ImageDao;
 import com.klp.vms.dao.UserDao;
 import com.klp.vms.exception.RuntimeError;
-import com.klp.vms.service.UserService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -14,11 +14,10 @@ public class VenueManagementSystemApplication {
     public static void main(String[] args) {
         SpringApplication.run(VenueManagementSystemApplication.class, args);
         try {
-            System.out.println(new UserDao().execQuery("user1"));
-        } catch (RuntimeException e) {
+
+
+        } catch (Exception e) {
             System.out.println(e.getMessage());
-        } catch (SQLException | RuntimeError e) {
-            System.err.println(e.getMessage());
         }
 
     }

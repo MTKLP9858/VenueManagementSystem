@@ -1,10 +1,16 @@
 package com.klp.vms.service;
 
+import com.klp.vms.dao.ImageDao;
 import com.klp.vms.dao.UserDao;
 import com.klp.vms.entity.User;
 import com.klp.vms.exception.RuntimeError;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,9 +24,30 @@ public class UserService {
     public static long refreshTokenAgeAdder = 30L * 24 * 60 * 60 * 1000;
     public static long autoRefreshAgeAdder = 3L * 24 * 60 * 60 * 1000;
 
+
+    public static boolean updateAvatar(String index, @NotNull MultipartFile img) throws RuntimeError {
+        File file = new File(ImageDao.imgPath + img.getOriginalFilename());
+        try {
+            FileUtils.copyInputStreamToFile(img.getInputStream(), file);
+            return new UserDao().updateAvatar(index, file);
+        } catch (IOException e) {
+            throw new RuntimeError(e.getMessage(), 151);
+        }
+    }
+
+    public static byte[] queryAvatar(String index) throws RuntimeError {
+        UserDao userDao = new UserDao();
+        File file = userDao.queryAvatar(index);
+        try {
+            return Files.readAllBytes(file.toPath());
+        } catch (IOException e) {
+            throw new RuntimeError(e.getMessage(), 151);
+        }
+    }
+
     public static void rename(String newUsername, String access_token) throws SQLException, RuntimeError {
         User user = verifyAccessToken(access_token);
-        if(Objects.equals(user.getUsername(), newUsername)){
+        if (Objects.equals(user.getUsername(), newUsername)) {
             throw new RuntimeError("The new name duplicates the old name!", 120);
         }
         new UserDao().execUpdate("username", newUsername, user.getUserid());

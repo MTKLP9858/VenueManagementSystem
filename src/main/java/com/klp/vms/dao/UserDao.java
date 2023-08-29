@@ -4,10 +4,51 @@ import com.klp.vms.entity.User;
 import com.klp.vms.exception.RuntimeError;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 
+import static com.klp.vms.dao.ImageDao.imgPath;
+
 public class UserDao implements Dao<User> {
+    public File queryAvatar(String userid) throws RuntimeError {
+        if (userid == null) return null;
+        File file = new File(imgPath + userid + ".png");
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + defaultDataBaseUrl); Statement statement = connection.createStatement()) {
+            ResultSet rs = statement.executeQuery("select avatar from User where userid ='" + userid + "';");
+            if (rs.next()) {
+                byte[] bytes = rs.getBytes("avatar");
+                try (FileOutputStream fos = new FileOutputStream(file)) {
+                    fos.write(bytes);
+                }
+            }
+        }catch (IOException e) {
+            throw new RuntimeError("FileInputStream error, file or path to file doesn't exists", 154);
+        } catch (SQLException e) {
+            throw new RuntimeError("Database error, check if the database path or data table exists", 11);
+        }
+        return file;
+    }
+
+    public boolean updateAvatar(String userid, File img) throws RuntimeError {
+        String sql = "UPDATE User SET avatar=? where userid=?;";
+        try (FileInputStream fis = new FileInputStream(img); Connection conn = DriverManager.getConnection("jdbc:sqlite:" + defaultDataBaseUrl); PreparedStatement stat = conn.prepareStatement(sql);) {
+            //将指定的文件流对象放入连接对象中，进行封装性的执行
+            stat.setBytes(1, fis.readAllBytes());
+            stat.setString(2, userid);
+            int r = stat.executeUpdate();
+            return r > 0;
+        } catch (IOException e) {
+            throw new RuntimeError("FileInputStream error, file or path to file doesn't exists", 154);
+        } catch (SQLException e) {
+            throw new RuntimeError("Database error, check if the database path or data table exists", 11);
+        }
+    }
+
+
     @Override
     public ArrayList<User> execQuery(String TYPE, String value) throws SQLException, RuntimeError {
         if (value == null) return null;
