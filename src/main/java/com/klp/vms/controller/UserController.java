@@ -50,7 +50,6 @@ public class UserController {
     @PostMapping(value = "/query-avatar", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
     public ResponseEntity<byte[]> queryAvatar(@RequestParam String access_token) {
         try {
-            HttpHeaders headers = new HttpHeaders();
             return new ResponseEntity<>(UserService.queryAvatar(access_token), HttpStatus.OK);
         } catch (RuntimeError e) {
             HttpHeaders headers = new HttpHeaders();
