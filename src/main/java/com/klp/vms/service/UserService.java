@@ -20,6 +20,9 @@ public class UserService {
 
     public static void rename(String newUsername, String access_token) throws SQLException, RuntimeError {
         User user = verifyAccessToken(access_token);
+        if(Objects.equals(user.getUsername(), newUsername)){
+            throw new RuntimeError("The new name duplicates the old name!", 120);
+        }
         new UserDao().execUpdate("username", newUsername, user.getUserid());
     }
 

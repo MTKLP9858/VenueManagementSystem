@@ -11,12 +11,9 @@ import java.sql.SQLException;
 
 @SpringBootApplication
 public class VenueManagementSystemApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(VenueManagementSystemApplication.class, args);
         try {
-            UserService.updateAccessToken("user1");
-
             System.out.println(new UserDao().execQuery("user1"));
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
