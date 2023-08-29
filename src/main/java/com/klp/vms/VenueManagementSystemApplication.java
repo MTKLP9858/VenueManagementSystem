@@ -15,6 +15,5 @@ public class VenueManagementSystemApplication {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-
     }
 }
