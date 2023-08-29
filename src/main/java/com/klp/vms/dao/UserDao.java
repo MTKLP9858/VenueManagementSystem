@@ -15,6 +15,7 @@ import static com.klp.vms.dao.ImageDao.imgPath;
 
 public class UserDao implements Dao<User> {
     public File queryAvatar(String userid) throws RuntimeError {
+        if (!new File(imgPath).exists()) new File(imgPath).mkdirs();
         if (userid == null) return null;
         File file = new File(imgPath + userid + ".png");
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + defaultDataBaseUrl); Statement statement = connection.createStatement()) {
@@ -35,9 +36,13 @@ public class UserDao implements Dao<User> {
     }
 
     public boolean updateAvatar(String userid, File img) throws RuntimeError {
+        if (userid == null) return false;
+        if (img == null) {
+            execUpdate("avatar", null, userid);
+        }
+        if (!new File(imgPath).exists()) new File(imgPath).mkdirs();
         String sql = "UPDATE User SET avatar=? where userid=?;";
         try (FileInputStream fis = new FileInputStream(img); Connection conn = DriverManager.getConnection("jdbc:sqlite:" + defaultDataBaseUrl); PreparedStatement stat = conn.prepareStatement(sql);) {
-            //将指定的文件流对象放入连接对象中，进行封装性的执行
             stat.setBytes(1, fis.readAllBytes());
             stat.setString(2, userid);
             int r = stat.executeUpdate();
@@ -117,7 +122,7 @@ public class UserDao implements Dao<User> {
     public void execUpdate(String column, String value, String userid) throws RuntimeError {
         StringBuilder sql = new StringBuilder("UPDATE User SET ");
         sql.append(column + "=");
-        sql.append("'" + value + "'");
+        sql.append(value == null ? null : ("'" + value + "'"));
         sql.append(" WHERE userid=");
         sql.append("'" + userid + "'");
         this.update(String.valueOf(sql));

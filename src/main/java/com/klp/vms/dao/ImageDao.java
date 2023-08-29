@@ -61,7 +61,6 @@ public class ImageDao {
     public boolean execUpdate(String index, File img) throws RuntimeError {
         String sql = "UPDATE image_list SET img_file=? where img_index=?;";
         try (FileInputStream fis = new FileInputStream(img); Connection conn = DriverManager.getConnection("jdbc:sqlite:" + defaultDataBaseUrl); PreparedStatement stat = conn.prepareStatement(sql);) {
-            //将指定的文件流对象放入连接对象中，进行封装性的执行
             stat.setBytes(1, fis.readAllBytes());
             stat.setString(2, index);
             int r = stat.executeUpdate();
