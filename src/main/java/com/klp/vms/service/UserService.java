@@ -25,19 +25,21 @@ public class UserService {
     public static long autoRefreshAgeAdder = 3L * 24 * 60 * 60 * 1000;
 
 
-    public static boolean updateAvatar(String index, @NotNull MultipartFile img) throws RuntimeError {
+    public static boolean updateAvatar(String access_token, @NotNull MultipartFile img) throws RuntimeError, SQLException {
         File file = new File(ImageDao.imgPath + img.getOriginalFilename());
         try {
+            User user = verifyAccessToken(access_token);
             FileUtils.copyInputStreamToFile(img.getInputStream(), file);
-            return new UserDao().updateAvatar(index, file);
+            return new UserDao().updateAvatar(user.getUserid(), file);
         } catch (IOException e) {
             throw new RuntimeError(e.getMessage(), 151);
         }
     }
 
-    public static byte[] queryAvatar(String index) throws RuntimeError {
+    public static byte[] queryAvatar(String access_token) throws RuntimeError, SQLException {
         UserDao userDao = new UserDao();
-        File file = userDao.queryAvatar(index);
+        User user = verifyAccessToken(access_token);
+        File file = userDao.queryAvatar(user.getUserid());
         try {
             return Files.readAllBytes(file.toPath());
         } catch (IOException e) {

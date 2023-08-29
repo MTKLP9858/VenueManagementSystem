@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -18,6 +19,41 @@ import java.util.HashMap;
 @RestController
 @RequestMapping("/user")
 public class UserController {
+
+    @PostMapping("/update-avatar")
+    public String updateAvatar(@RequestParam String access_token, @RequestParam MultipartFile img) {
+        try {
+            UserService.updateAvatar(access_token, img);
+        } catch (SQLException e) {
+            JSONObject json = new JSONObject();
+            json.put("code", 9);
+            json.put("success", false);
+            json.put("message", e.getMessage());
+            return json.toString();
+        } catch (RuntimeError e) {
+            JSONObject json = new JSONObject();
+            json.put("code", e.getCode());
+            json.put("success", false);
+            json.put("message", e.getMessage());
+            return json.toString();
+        }
+        JSONObject json = new JSONObject();
+        json.put("code", 211);
+        json.put("success", true);
+        json.put("message", "update avatar success");
+        return json.toString();
+    }
+
+    @PostMapping("/query-avatar")
+    public byte[] queryAvatar(@RequestParam String access_token) {
+        try {
+            return UserService.queryAvatar(access_token);
+        } catch (RuntimeError | SQLException e) {
+            return null;
+        }
+    }
+
+
     @PostMapping("/rename")
     public String rename(@RequestParam String new_username, @RequestParam String access_token) {
         try {

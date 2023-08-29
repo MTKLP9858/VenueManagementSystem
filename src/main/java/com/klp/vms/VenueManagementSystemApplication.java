@@ -1,12 +1,7 @@
 package com.klp.vms;
 
-import com.klp.vms.dao.ImageDao;
-import com.klp.vms.dao.UserDao;
-import com.klp.vms.exception.RuntimeError;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import java.sql.SQLException;
 
 
 @SpringBootApplication
