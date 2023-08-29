@@ -40,6 +40,7 @@ public class UserService {
         UserDao userDao = new UserDao();
         User user = verifyAccessToken(access_token);
         File file = userDao.queryAvatar(user.getUserid());
+        if (file == null) return null;
         try {
             return Files.readAllBytes(file.toPath());
         } catch (IOException e) {

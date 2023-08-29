@@ -22,10 +22,11 @@ public class UserDao implements Dao<User> {
             if (rs.next()) {
                 byte[] bytes = rs.getBytes("avatar");
                 try (FileOutputStream fos = new FileOutputStream(file)) {
+                    if (bytes == null) return null;
                     fos.write(bytes);
                 }
             }
-        }catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeError("FileInputStream error, file or path to file doesn't exists", 154);
         } catch (SQLException e) {
             throw new RuntimeError("Database error, check if the database path or data table exists", 11);

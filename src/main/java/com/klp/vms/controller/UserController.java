@@ -5,6 +5,9 @@ import com.klp.vms.entity.User;
 import com.klp.vms.exception.RuntimeError;
 import com.klp.vms.service.UserService;
 import jakarta.annotation.Nullable;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,12 +47,14 @@ public class UserController {
         return json.toString();
     }
 
-    @PostMapping("/query-avatar")
-    public byte[] queryAvatar(@RequestParam String access_token) {
+    @PostMapping(value = "/query-avatar", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE,MediaType.TEXT_HTML_VALUE})
+    public byte[] queryAvatar(@RequestParam String access_token, HttpServletResponse response) {
         try {
             return UserService.queryAvatar(access_token);
         } catch (RuntimeError | SQLException e) {
-            return null;
+            response.setHeader("Accept","text/HTML");
+            response.addHeader("newheader","vvvv");
+            return e.getMessage().getBytes();
         }
     }
 
