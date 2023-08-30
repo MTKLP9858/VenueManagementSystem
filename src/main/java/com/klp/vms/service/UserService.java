@@ -8,8 +8,6 @@ import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -53,11 +51,14 @@ public class UserService {
     }
 
     public static void rename(String newUsername, String access_token) throws SQLException, RuntimeError {
+        if (Objects.equals(newUsername.trim(), "")) {
+            throw new RuntimeError("The name entered is empty", 121);
+        }
         User user = verifyAccessToken(access_token);
-        if (Objects.equals(user.getUsername(), newUsername)) {
+        if (Objects.equals(user.getUsername(), newUsername.trim())) {
             throw new RuntimeError("The new name duplicates the old name!", 120);
         }
-        new UserDao().execUpdate("username", newUsername, user.getUserid());
+        new UserDao().execUpdate("username", newUsername.trim(), user.getUserid());
     }
 
     public static @NotNull HashMap<String, String> doRefreshToken(String refresh_token) throws SQLException, RuntimeError {
