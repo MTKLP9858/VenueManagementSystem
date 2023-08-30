@@ -11,13 +11,14 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 
-import static com.klp.vms.dao.ImageDao.imgPath;
+import static com.klp.vms.dao.ImageDao.imgTempPath;
 
 public class UserDao implements Dao<User> {
     public File queryAvatar(String userid) throws RuntimeError {
-        if (!new File(imgPath).exists()) new File(imgPath).mkdirs();
+        if (!new File(imgTempPath).exists()) new File(imgTempPath).mkdirs();
+        new ImageDao();
         if (userid == null) return null;
-        File file = new File(imgPath + userid + ".png");
+        File file = new File(imgTempPath + userid + ".png");
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + defaultDataBaseUrl); Statement statement = connection.createStatement()) {
             ResultSet rs = statement.executeQuery("select avatar from User where userid ='" + userid + "';");
             if (rs.next()) {
@@ -40,7 +41,8 @@ public class UserDao implements Dao<User> {
         if (img == null) {
             execUpdate("avatar", null, userid);
         }
-        if (!new File(imgPath).exists()) new File(imgPath).mkdirs();
+        if (!new File(imgTempPath).exists()) new File(imgTempPath).mkdirs();
+        new ImageDao();
         String sql = "UPDATE User SET avatar=? where userid=?;";
         try (FileInputStream fis = new FileInputStream(img); Connection conn = DriverManager.getConnection("jdbc:sqlite:" + defaultDataBaseUrl); PreparedStatement stat = conn.prepareStatement(sql);) {
             stat.setBytes(1, fis.readAllBytes());

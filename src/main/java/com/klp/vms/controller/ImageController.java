@@ -1,9 +1,7 @@
 package com.klp.vms.controller;
 
-import com.klp.vms.dao.ImageDao;
 import com.klp.vms.exception.RuntimeError;
 import com.klp.vms.service.ImageService;
-import org.apache.commons.io.FileUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,9 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.io.IOException;
 
 @Controller
 @RestController
