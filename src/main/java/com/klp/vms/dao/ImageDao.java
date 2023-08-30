@@ -45,7 +45,7 @@ public class ImageDao {
             throw new RuntimeError("Missing org.sqlite.JDBC, please check the server environment!", 10);
         }
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + defaultDataBaseUrl); Statement statement = connection.createStatement()) {
-            statement.executeUpdate("delete FROM image_list where img_index='" + index + "';");
+            statement.executeUpdate("delete FROM image_list where img_index='" + index.replaceAll("'", "''") + "';");
         } catch (SQLException e) {
             throw new RuntimeError("Database error, check if the database path or data table exists", 11);
         }
@@ -56,7 +56,7 @@ public class ImageDao {
         if (!new File(imgTempPath).exists()) new File(imgTempPath).mkdirs();
         File file = new File(imgTempPath + index + ".png");
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + defaultDataBaseUrl); Statement statement = connection.createStatement()) {
-            ResultSet rs = statement.executeQuery("select * from image_list where img_index ='" + index + "';");
+            ResultSet rs = statement.executeQuery("select * from image_list where img_index ='" + index.replaceAll("'", "''") + "';");
             if (rs.next()) {
                 byte[] bytes = rs.getBytes("img_file");
                 try (FileOutputStream fos = new FileOutputStream(file)) {

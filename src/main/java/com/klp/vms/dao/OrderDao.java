@@ -13,28 +13,32 @@ public class OrderDao implements Dao<Order> {
     public void execInsert(Order order) throws RuntimeError {
         StringBuilder sql = new StringBuilder("insert into \"Order\" (number, userid, stadiumName, venueName, state, payTime, occupyStartTime, occupyEndTime, information, message) VALUES (");
         sql.append(order.getNumber() < 0 ? order.getNumber() * -1 : order.getNumber()).append(",");
-        sql.append(order.getUserid() == null ? "NULL" : ("'" + order.getUserid() + "'")).append(",");
-        sql.append(order.getStadiumName() == null ? "NULL" : ("'" + order.getStadiumName() + "'")).append(",");
-        sql.append(order.getVenueName() == null ? "NULL" : ("'" + order.getVenueName() + "'")).append(",");
-        sql.append(order.getState() == null ? "NULL" : ("'" + order.getState() + "'")).append(",");
-        sql.append(order.getPayTime() == null ? "NULL" : ("'" + order.getPayTime() + "'")).append(",");
-        sql.append(order.getOccupyStartTime() == null ? "NULL" : ("'" + order.getOccupyStartTime() + "'")).append(",");
-        sql.append(order.getOccupyEndTime() == null ? "NULL" : ("'" + order.getOccupyEndTime() + "'")).append(",");
-        sql.append(order.getInformation() == null ? "NULL" : ("'" + order.getInformation() + "'")).append(",");
-        sql.append(order.getMessage() == null ? "NULL" : ("'" + order.getMessage() + "'"));
+        sql.append(order.getUserid() == null ? "NULL" : ("'" + order.getUserid().replaceAll("'", "''") + "'")).append(",");
+        sql.append(order.getStadiumName() == null ? "NULL" : ("'" + order.getStadiumName().replaceAll("'", "''") + "'")).append(",");
+        sql.append(order.getVenueName() == null ? "NULL" : ("'" + order.getVenueName().replaceAll("'", "''") + "'")).append(",");
+        sql.append(order.getState() == null ? "NULL" : ("'" + order.getState().replaceAll("'", "''") + "'")).append(",");
+        sql.append(order.getPayTime() == null ? "NULL" : ("'" + order.getPayTime().replaceAll("'", "''") + "'")).append(",");
+        sql.append(order.getOccupyStartTime() == null ? "NULL" : ("'" + order.getOccupyStartTime().replaceAll("'", "''") + "'")).append(",");
+        sql.append(order.getOccupyEndTime() == null ? "NULL" : ("'" + order.getOccupyEndTime().replaceAll("'", "''") + "'")).append(",");
+        sql.append(order.getInformation() == null ? "NULL" : ("'" + order.getInformation().replaceAll("'", "''") + "'")).append(",");
+        sql.append(order.getMessage() == null ? "NULL" : ("'" + order.getMessage().replaceAll("'", "''") + "'"));
         sql.append(");");
         this.update(String.valueOf(sql));
     }
 
     @Override
     public void execDelete(String number) throws RuntimeError {
-        this.update("delete FROM \"Order\" where number='" + number + "';");
+        this.update("delete FROM \"Order\" where number='" + number.replaceAll("'", "''") + "';");
+    }
+
+    public void execDelete(long number) throws RuntimeError {
+        execDelete(String.valueOf(number));
     }
 
     @Override
     public List<Order> execQuery(String column, String value) throws SQLException, RuntimeError {
         if (value == null) return null;
-        String sql = "select * from \"Order\" where " + column + "='" + value + "';";
+        String sql = "select * from \"Order\" where " + column.replaceAll("'", "''") + "='" + value.replaceAll("'", "''") + "';";
         ArrayList<Order> list = new ArrayList<>();
         ResultSet rs = this.query(sql);
         while (rs.next()) {
@@ -62,8 +66,8 @@ public class OrderDao implements Dao<Order> {
     @Override
     public void execUpdate(String column, String value, String number) throws RuntimeError {
         StringBuilder sql = new StringBuilder("UPDATE \"Order\" SET ");
-        sql.append(column + "=");
-        sql.append("'" + value + "'");
+        sql.append(column.replaceAll("'", "''") + "=");
+        sql.append("'" + value.replaceAll("'", "''") + "'");
         sql.append(" WHERE number=");
         sql.append(number);
         this.update(String.valueOf(sql));

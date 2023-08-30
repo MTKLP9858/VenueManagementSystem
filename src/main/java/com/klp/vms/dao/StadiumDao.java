@@ -13,24 +13,24 @@ public class StadiumDao implements Dao<Stadium> {
     @Override
     public void execInsert(@NotNull Stadium stadium) throws RuntimeError {
         StringBuilder sql = new StringBuilder("insert into Stadium (name, address, introduction, contact, adminUserID) VALUES (");
-        sql.append(stadium.getName() == null ? "NULL" : ("'" + stadium.getName() + "'")).append(",");
-        sql.append(stadium.getAddress() == null ? "NULL" : ("'" + stadium.getAddress() + "'")).append(",");
-        sql.append(stadium.getIntroduction() == null ? "NULL" : ("'" + stadium.getIntroduction() + "'")).append(",");
-        sql.append(stadium.getContact() == null ? "NULL" : ("'" + stadium.getContact() + "'")).append(",");
-        sql.append(stadium.getAdminUserID() == null ? "NULL" : ("'" + stadium.getAdminUserID() + "'"));
+        sql.append(stadium.getName() == null ? "NULL" : ("'" + stadium.getName().replaceAll("'", "''") + "'")).append(",");
+        sql.append(stadium.getAddress() == null ? "NULL" : ("'" + stadium.getAddress().replaceAll("'", "''") + "'")).append(",");
+        sql.append(stadium.getIntroduction() == null ? "NULL" : ("'" + stadium.getIntroduction().replaceAll("'", "''") + "'")).append(",");
+        sql.append(stadium.getContact() == null ? "NULL" : ("'" + stadium.getContact().replaceAll("'", "''") + "'")).append(",");
+        sql.append(stadium.getAdminUserID() == null ? "NULL" : ("'" + stadium.getAdminUserID().replaceAll("'", "''") + "'"));
         sql.append(");");
         this.update(String.valueOf(sql));
     }
 
     @Override
     public void execDelete(String name) throws RuntimeError {
-        this.update("delete FROM Stadium where name='" + name + "';");
+        this.update("delete FROM Stadium where name='" + name.replaceAll("'", "''") + "';");
     }
 
     @Override
     public List<Stadium> execQuery(String column, String value) throws SQLException, RuntimeError {
         if (value == null) return null;
-        String sql = "select * from Stadium where " + column + "='" + value + "';";
+        String sql = "select * from Stadium where " + column.replaceAll("'", "''") + "='" + value.replaceAll("'", "''") + "';";
         ArrayList<Stadium> list = new ArrayList<>();
         ResultSet rs = this.query(sql);
         while (rs.next()) {
@@ -52,10 +52,10 @@ public class StadiumDao implements Dao<Stadium> {
     @Override
     public void execUpdate(String column, String value, String name) throws RuntimeError {
         StringBuilder sql = new StringBuilder("UPDATE Stadium SET ");
-        sql.append(column + "=");
-        sql.append("'" + value + "'");
+        sql.append(column.replaceAll("'", "''") + "=");
+        sql.append("'" + value.replaceAll("'", "''") + "'");
         sql.append(" WHERE name=");
-        sql.append("'" + name + "'");
+        sql.append("'" + name.replaceAll("'", "''") + "'");
         this.update(String.valueOf(sql));
     }
 }

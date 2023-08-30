@@ -20,7 +20,7 @@ public class UserDao implements Dao<User> {
         if (userid == null) return null;
         File file = new File(imgTempPath + userid + ".png");
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + defaultDataBaseUrl); Statement statement = connection.createStatement()) {
-            ResultSet rs = statement.executeQuery("select avatar from User where userid ='" + userid + "';");
+            ResultSet rs = statement.executeQuery("select avatar from User where userid ='" + userid.replaceAll("'", "''") + "';");
             if (rs.next()) {
                 byte[] bytes = rs.getBytes("avatar");
                 try (FileOutputStream fos = new FileOutputStream(file)) {
@@ -40,6 +40,7 @@ public class UserDao implements Dao<User> {
         if (userid == null) return false;
         if (img == null) {
             execUpdate("avatar", null, userid);
+            return true;
         }
         if (!new File(imgTempPath).exists()) new File(imgTempPath).mkdirs();
         new ImageDao();
@@ -60,7 +61,7 @@ public class UserDao implements Dao<User> {
     @Override
     public ArrayList<User> execQuery(String TYPE, String value) throws SQLException, RuntimeError {
         if (value == null) return null;
-        String sql = "select * from User where " + TYPE + "='" + value + "';";
+        String sql = "select * from User where " + TYPE.replaceAll("'", "''") + "='" + value.replaceAll("'", "''") + "';";
         ArrayList<User> list;
         ResultSet rs = this.query(sql);
         list = new ArrayList<>();
@@ -82,7 +83,7 @@ public class UserDao implements Dao<User> {
 
     public User execQueryBy(String column, String value) throws SQLException, RuntimeError {
         if (value == null) return null;
-        String sql = "select * from User where " + column + "='" + value + "';";
+        String sql = "select * from User where " + column.replaceAll("'", "''") + "='" + value.replaceAll("'", "''") + "';";
         User user = new User(-1);
         ResultSet rs = this.query(sql);
         if (rs.next()) {
@@ -105,14 +106,14 @@ public class UserDao implements Dao<User> {
 
     public void execInsert(@NotNull User user) throws RuntimeError {
         StringBuilder sql = new StringBuilder("insert into User (userid, username, password, op, access_token, access_token_age, refresh_token, refresh_token_age) VALUES (");
-        sql.append(user.getUserid() == null ? "NULL" : ("'" + user.getUserid() + "'")).append(",");
-        sql.append(user.getUsername() == null ? "NULL" : ("'" + user.getUsername() + "'")).append(",");
-        sql.append(user.getPassword() == null ? "NULL" : ("'" + user.getPassword() + "'")).append(",");
+        sql.append(user.getUserid() == null ? "NULL" : ("'" + user.getUserid().replaceAll("'", "''") + "'")).append(",");
+        sql.append(user.getUsername() == null ? "NULL" : ("'" + user.getUsername().replaceAll("'", "''") + "'")).append(",");
+        sql.append(user.getPassword() == null ? "NULL" : ("'" + user.getPassword().replaceAll("'", "''") + "'")).append(",");
         sql.append(user.getOp()).append(",");
-        sql.append(user.getAccess_token() == null ? "NULL" : ("'" + user.getAccess_token() + "'")).append(",");
-        sql.append(user.getAccess_token_age() == null ? "NULL" : ("'" + user.getAccess_token_age() + "'")).append(",");
-        sql.append(user.getRefresh_token() == null ? "NULL" : ("'" + user.getRefresh_token() + "'")).append(",");
-        sql.append(user.getRefresh_token_age() == null ? "NULL" : ("'" + user.getRefresh_token_age() + "'"));
+        sql.append(user.getAccess_token() == null ? "NULL" : ("'" + user.getAccess_token().replaceAll("'", "''") + "'")).append(",");
+        sql.append(user.getAccess_token_age() == null ? "NULL" : ("'" + user.getAccess_token_age().replaceAll("'", "''") + "'")).append(",");
+        sql.append(user.getRefresh_token() == null ? "NULL" : ("'" + user.getRefresh_token().replaceAll("'", "''") + "'")).append(",");
+        sql.append(user.getRefresh_token_age() == null ? "NULL" : ("'" + user.getRefresh_token_age().replaceAll("'", "''") + "'"));
         sql.append(");");
         this.update(String.valueOf(sql));
     }
@@ -123,10 +124,10 @@ public class UserDao implements Dao<User> {
 
     public void execUpdate(String column, String value, String userid) throws RuntimeError {
         StringBuilder sql = new StringBuilder("UPDATE User SET ");
-        sql.append(column + "=");
-        sql.append(value == null ? null : ("'" + value + "'"));
+        sql.append(column.replaceAll("'", "''") + "=");
+        sql.append(value == null ? "NULL" : ("'" + value.replaceAll("'", "''") + "'"));
         sql.append(" WHERE userid=");
-        sql.append("'" + userid + "'");
+        sql.append("'" + userid.replaceAll("'", "''") + "'");
         this.update(String.valueOf(sql));
     }
 }

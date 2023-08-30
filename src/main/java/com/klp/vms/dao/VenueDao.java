@@ -13,10 +13,10 @@ public class VenueDao implements Dao<Venue> {//场地
     @Override
     public void execInsert(@NotNull Venue venue) throws RuntimeError {
         StringBuilder sql = new StringBuilder("insert into Venue (name, area, stadium, introduction, active, price) VALUES (");
-        sql.append(venue.getName() == null ? "NULL" : ("'" + venue.getName() + "'")).append(",");
-        sql.append(venue.getArea() == null ? "NULL" : ("'" + venue.getArea() + "'")).append(",");
-        sql.append(venue.getStadium() == null ? "NULL" : ("'" + venue.getStadium() + "'")).append(",");
-        sql.append(venue.getIntroduction() == null ? "NULL" : ("'" + venue.getIntroduction() + "'")).append(",");
+        sql.append(venue.getName() == null ? "NULL" : ("'" + venue.getName().replaceAll("'", "''") + "'")).append(",");
+        sql.append(venue.getArea() == null ? "NULL" : ("'" + venue.getArea().replaceAll("'", "''") + "'")).append(",");
+        sql.append(venue.getStadium() == null ? "NULL" : ("'" + venue.getStadium().replaceAll("'", "''") + "'")).append(",");
+        sql.append(venue.getIntroduction() == null ? "NULL" : ("'" + venue.getIntroduction().replaceAll("'", "''") + "'")).append(",");
         sql.append(venue.isActive()).append(",");
         sql.append(venue.getPrice());
         sql.append(");");
@@ -25,7 +25,7 @@ public class VenueDao implements Dao<Venue> {//场地
 
     @Override
     public void execDelete(String name) throws RuntimeError {
-        this.update("delete FROM Stadium where name='" + name + "';");
+        this.update("delete FROM Stadium where name='" + name.replaceAll("'", "''") + "';");
     }
 
     public ArrayList<Venue> execQuery(long price) throws SQLException, RuntimeError {
@@ -39,7 +39,7 @@ public class VenueDao implements Dao<Venue> {//场地
     @Override
     public ArrayList<Venue> execQuery(String column, String value) throws SQLException, RuntimeError {
         if (value == null) return null;
-        String sql = "select * from Venue where " + column + "='" + value + "';";
+        String sql = "select * from Venue where " + column.replaceAll("'", "''") + "='" + value.replaceAll("'", "''") + "';";
         ArrayList<Venue> list = new ArrayList<>();
         ResultSet rs = this.query(sql);
         while (rs.next()) {
@@ -58,7 +58,7 @@ public class VenueDao implements Dao<Venue> {//场地
 
     @Override
     public void execUpdate(String column, String value, String name) throws RuntimeError {
-        String sql = "UPDATE Venue SET " + column + "='" + value + "'" + " WHERE name='" + name + "'";
+        String sql = "UPDATE Venue SET " + column.replaceAll("'", "''") + "='" + value.replaceAll("'", "''") + "'" + " WHERE name='" + name.replaceAll("'", "''") + "'";
         this.update(sql);
     }
 
