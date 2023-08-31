@@ -40,7 +40,7 @@ public interface Dao<T> {
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + defaultDataBaseUrl); Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
         } catch (SQLException e) {
-            throw new RuntimeError("Database error, check if the database path or data table exists", 11);
+            throw new RuntimeError("Database error, check if the database path or data table exists: " + e.getMessage(), 11);
         }
     }
 

@@ -23,9 +23,20 @@ public class VenueDao implements Dao<Venue> {//场地
         this.update(String.valueOf(sql));
     }
 
+    /**
+     * @param stadium Detele all the Venue which stadium eq this param!
+     */
     @Override
-    public void execDelete(String name) throws RuntimeError {
-        this.update("delete FROM Stadium where name='" + name.replaceAll("'", "''") + "';");
+    public void execDelete(String stadium) throws RuntimeError {
+        if (stadium != null) {
+            this.update("delete FROM Stadium where stadium='" + stadium.replaceAll("'", "''") + "';");
+        }
+    }
+
+    public void execDelete(String name, String stadium) throws RuntimeError {
+        if (name != null && stadium != null) {
+            this.update("delete FROM Stadium where name='" + name.replaceAll("'", "''") + "' and stadium='" + stadium.replaceAll("'", "''") + "';");
+        }
     }
 
     public ArrayList<Venue> execQuery(long price) throws SQLException, RuntimeError {

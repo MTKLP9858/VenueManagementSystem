@@ -2,6 +2,7 @@ package com.klp.vms.dao;
 
 import com.klp.vms.entity.Order;
 import com.klp.vms.exception.RuntimeError;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class OrderDao implements Dao<Order> {
     }
 
     @Override
-    public void execDelete(String number) throws RuntimeError {
+    public void execDelete(@NotNull String number) throws RuntimeError {
         this.update("delete FROM \"Order\" where number='" + number.replaceAll("'", "''") + "';");
     }
 
