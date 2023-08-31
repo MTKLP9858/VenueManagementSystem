@@ -51,7 +51,7 @@ public class UserService {
     }
 
     public static void rename(String newUsername, String access_token) throws SQLException, RuntimeError {
-        if (Objects.equals(newUsername.trim(), "")) {
+        if (newUsername == null || Objects.equals(newUsername.trim(), "")) {
             throw new RuntimeError("The name entered is empty", 121);
         }
         User user = verifyAccessToken(access_token);
@@ -188,7 +188,11 @@ public class UserService {
         }
         User user = new User(op);
         user.setUserid(userid);
-        user.setUsername(username);
+        if (username != null && !Objects.equals(username.trim(), "")) {
+            user.setUsername(username.trim());
+        } else {
+            user.setUsername("飞翔的小猪" + userid);
+        }
         user.setPassword(password);
         user.setAccess_token("register");
         user.setRefresh_token("register");

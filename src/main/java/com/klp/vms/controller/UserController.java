@@ -153,7 +153,7 @@ public class UserController {
     }
 
     @PostMapping("/register-admin")
-    public String registerAdmin(@RequestParam String userid, @RequestParam String password, @RequestParam @Nullable String username) {
+    public String registerAdmin(@RequestParam String userid, @RequestParam String password, @RequestParam(required = false) String username) {
         System.out.println("register:" + userid + " pwd:" + password);
         User user;
         if (username == null) {
