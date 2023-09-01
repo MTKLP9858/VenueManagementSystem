@@ -4,7 +4,8 @@ import com.klp.vms.entity.Venue;
 import com.klp.vms.exception.RuntimeError;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -24,7 +25,7 @@ public class VenueDao implements Dao<Venue> {//场地
     }
 
     /**
-     * @param stadium Detele all the Venue which stadium eq this param!
+     * @param stadium Delete all the Venue which stadium eq this param!
      */
     @Override
     public void execDelete(String stadium) throws RuntimeError {
@@ -47,6 +48,25 @@ public class VenueDao implements Dao<Venue> {//场地
         return execQuery("active", isActive ? "1" : "0");
     }
 
+    public Venue execQueryBy(String name, String stadium) throws SQLException, RuntimeError {
+        if (stadium == null) return null;
+        ArrayList<Venue> listOfName = execQuery("name", name);
+        if (listOfName == null) return null;
+        ArrayList<Venue> list = new ArrayList<>();
+        for (Venue v : listOfName) {
+            if (Objects.equals(v.getStadium(), stadium)) {
+                list.add(v);
+            }
+        }
+        if (list.size() == 1) {
+            return list.get(0);
+        } else if (list.isEmpty()) {
+            return null;
+        } else {
+            throw new RuntimeError("There are more than one Venue have the same name and stadium!", 222);
+        }
+    }
+
     @Override
     public ArrayList<Venue> execQuery(String column, String value) throws SQLException, RuntimeError {
         if (value == null) return null;
@@ -67,26 +87,25 @@ public class VenueDao implements Dao<Venue> {//场地
         return list;
     }
 
+    /**
+     * @deprecated
+     */
     @Override
-    public void execUpdate(String column, String value, String name) throws RuntimeError {
-        String sql = "UPDATE Venue SET " + column.replaceAll("'", "''") + "='" + value.replaceAll("'", "''") + "'" + " WHERE name='" + name.replaceAll("'", "''") + "'";
-        this.update(sql);
+    @Deprecated
+    public void execUpdate(String column, String value, String KEY) throws RuntimeError {
     }
 
-
-    public void execUpdate(String column, boolean isActive, String name) throws RuntimeError {
-        if (Objects.equals(column, "active")) {
-            if (isActive) {
-                execUpdate("active", "1", name);
-            } else {
-                execUpdate("active", "0", name);
+    public void execUpdate(String column, String value, String name, String stadium) throws RuntimeError, SQLException {
+        if (column == null || value == null || name == null || stadium == null) return;
+        if (Objects.equals(column, "stadium")) {
+            if (new StadiumDao().execQuery("name", value).isEmpty()) {
+                throw new RuntimeError("no such value in Stadium.name!", 223);
             }
         }
-    }
-
-    public void execUpdate(String column, Double price, String name) throws RuntimeError {
-        if (Objects.equals(column, "price")) {
-            execUpdate("price", String.valueOf(price), name);
+        if (Objects.equals(column, "name")) {
+            if (execQueryBy(value, stadium) != null) return;
         }
+        String sql = "UPDATE Venue SET " + column.replaceAll("'", "''") + "='" + value.replaceAll("'", "''") + "'" + " WHERE name='" + name.replaceAll("'", "''") + "' and stadium='" + stadium.replaceAll("'", "''") + "';";
+        this.update(sql);
     }
 }
