@@ -102,6 +102,9 @@ public class VenueDao implements Dao<Venue> {//场地
 
     public void execUpdate(String column, String value, String name, String stadium) throws RuntimeError, SQLException {
         if (column == null || value == null || name == null || stadium == null) return;
+        if (execQueryBy(name, stadium) == null) {
+            throw new RuntimeError("Target not found!", 220);
+        }
         if (new StadiumDao().execQuery("name", stadium).isEmpty()) {
             throw new RuntimeError("no such value in Stadium.name!", 223);
         }
