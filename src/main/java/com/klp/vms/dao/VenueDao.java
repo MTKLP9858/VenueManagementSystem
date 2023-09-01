@@ -2,7 +2,6 @@ package com.klp.vms.dao;
 
 import com.klp.vms.entity.Venue;
 import com.klp.vms.exception.RuntimeError;
-import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,7 +11,14 @@ import java.util.Objects;
 public class VenueDao implements Dao<Venue> {//场地
 
     @Override
-    public void execInsert(@NotNull Venue venue) throws RuntimeError {
+    public void execInsert(Venue venue) throws RuntimeError, SQLException {
+        if (venue == null) return;
+        if (new StadiumDao().execQuery("name", venue.getStadium()).isEmpty()) {
+            throw new RuntimeError("no such value in Stadium.name!", 223);
+        }
+        if (execQueryBy(venue.getName(), venue.getStadium()) != null) {
+            throw new RuntimeError("The same Stadium.name exists!", 223);
+        }
         StringBuilder sql = new StringBuilder("insert into Venue (name, area, stadium, introduction, active, price) VALUES (");
         sql.append(venue.getName() == null ? "NULL" : ("'" + venue.getName().replaceAll("'", "''") + "'")).append(",");
         sql.append(venue.getArea() == null ? "NULL" : ("'" + venue.getArea().replaceAll("'", "''") + "'")).append(",");
@@ -90,15 +96,14 @@ public class VenueDao implements Dao<Venue> {//场地
     /**
      * @deprecated
      */
-    @Override
     @Deprecated
-    public void execUpdate(String column, String value, String KEY) throws RuntimeError {
+    public void execUpdate(String column, String value, String KEY) {
     }
 
     public void execUpdate(String column, String value, String name, String stadium) throws RuntimeError, SQLException {
         if (column == null || value == null || name == null || stadium == null) return;
         if (new StadiumDao().execQuery("name", stadium).isEmpty()) {
-            return;
+            throw new RuntimeError("no such value in Stadium.name!", 223);
         }
         if (Objects.equals(column, "stadium")) {
             if (new StadiumDao().execQuery("name", value).isEmpty()) {
@@ -106,7 +111,9 @@ public class VenueDao implements Dao<Venue> {//场地
             }
         }
         if (Objects.equals(column, "name")) {
-            if (execQueryBy(value, stadium) != null) return;
+            if (execQueryBy(value, stadium) != null) {
+                throw new RuntimeError("The same Stadium.name exists!", 224);
+            }
         }
         String sql = "UPDATE Venue SET " + column.replaceAll("'", "''") + "='" + value.replaceAll("'", "''") + "'" + " WHERE name='" + name.replaceAll("'", "''") + "' and stadium='" + stadium.replaceAll("'", "''") + "';";
         this.update(sql);
