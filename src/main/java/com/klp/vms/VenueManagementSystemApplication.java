@@ -12,6 +12,7 @@ public class VenueManagementSystemApplication {
     public static void main(String[] args) {
         SpringApplication.run(VenueManagementSystemApplication.class, args);
         try {
+            new VenueDao().execUpdate("name","a11","a2","aaa");
             Venue v = new VenueDao().execQueryBy("a11", "aaa");
             System.out.println(v);
         } catch (Exception e) {
