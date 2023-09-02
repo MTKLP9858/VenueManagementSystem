@@ -7,19 +7,19 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Iterator;
 
 public class ImageService {
     public static boolean isImage(File file) {
         if (file != null && file.exists() && file.isFile()) {
-            try {
-                BufferedImage bi = ImageIO.read(file);
-                if (bi != null) {
-                    return true;
-                }
+            try (ImageInputStream iis = ImageIO.createImageInputStream(file)) {
+                Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
+                if (iter.hasNext()) return true;
             } catch (IOException e) {
                 return false;
             }

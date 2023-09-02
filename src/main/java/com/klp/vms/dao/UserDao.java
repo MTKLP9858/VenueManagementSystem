@@ -17,7 +17,6 @@ public class UserDao implements Dao<User> {
     public File queryAvatar(String userid) throws RuntimeError {
         String sql = "select avatar from User where userid=?;";
         if (!new File(imgTempPath).exists()) new File(imgTempPath).mkdirs();
-        new ImageDao();
         if (userid == null) return null;
         File file = new File(imgTempPath + userid + ".png");
         try (Stat stat = new Stat(sql)) {
@@ -46,14 +45,14 @@ public class UserDao implements Dao<User> {
             return true;
         }
         if (!new File(imgTempPath).exists()) new File(imgTempPath).mkdirs();
-        new ImageDao();
         try (FileInputStream fis = new FileInputStream(img); Stat stat = new Stat(sql);) {
             stat.setBytes(1, fis.readAllBytes());
             stat.setString(2, userid);
             int r = stat.executeUpdate();
             return r > 0;
         } catch (IOException e) {
-            throw new RuntimeError("FileInputStream error, file or path to file doesn't exists", 154);
+            e.printStackTrace();
+            throw new RuntimeError("FileInputStream error, file or path to file doesn't exists: " + e.getMessage(), 154);
         } catch (SQLException e) {
             throw new RuntimeError("Database error, check if the database path or data table exists", 11);
         }
@@ -84,8 +83,9 @@ public class UserDao implements Dao<User> {
         return list;
     }
 
-    public User execQuery(String userid) throws SQLException, RuntimeError {
-        return execQuery("userid", userid).get(0);
+    public User execQuery(String userid) throws SQLException {
+        ArrayList<User> list = execQuery("userid", userid);
+        return list.isEmpty() ? null : list.get(0);
     }
 
     public int execInsert(@NotNull User user) throws SQLException {

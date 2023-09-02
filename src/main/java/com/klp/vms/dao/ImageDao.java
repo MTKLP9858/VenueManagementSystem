@@ -9,9 +9,9 @@ import java.util.UUID;
 import static com.klp.vms.dao.Dao.defaultDataBaseUrl;
 
 public class ImageDao {
-    public final static String imgTempPath = "temp" + File.separator + "img" + File.separator;
+    public final static String imgTempPath = System.getProperty("user.dir") + File.separator + "temp" + File.separator + "img" + File.separator;
 
-    public ImageDao() {
+    public void cleanTemp() {
         File file = new File(imgTempPath);
         File[] files = file.listFiles();
         if (files != null) {

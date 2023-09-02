@@ -14,10 +14,7 @@ import java.nio.file.Files;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class UserService {
     public static long accessTokenAgeAdder = 12L * 60 * 60 * 1000;
@@ -27,12 +24,13 @@ public class UserService {
 
     public static boolean updateAvatar(String access_token, @NotNull MultipartFile img) throws RuntimeError, SQLException {
         File file = new File(ImageDao.imgTempPath + img.getOriginalFilename());
-        if (!ImageService.isImage(file)) throw new RuntimeError("avatar image broken, please upload again", 155);
         try {
             User user = verifyAccessToken(access_token);
-            FileUtils.copyInputStreamToFile(img.getInputStream(), file);
+            img.transferTo(file);
+            if (!ImageService.isImage(file)) throw new RuntimeError("avatar image broken, please upload again", 155);
             return new UserDao().updateAvatar(user.getUserid(), file);
         } catch (IOException e) {
+            e.printStackTrace();
             throw new RuntimeError(e.getMessage(), 151);
         }
     }
@@ -81,10 +79,11 @@ public class UserService {
     }
 
     public static User verifyAccessToken(String access_token) throws SQLException, RuntimeError {
-        User user = new UserDao().execQuery("access_token", access_token).get(0);
-        if (user == null) {
+        ArrayList<User> listOfUser = new UserDao().execQuery("access_token", access_token);
+        if (listOfUser.isEmpty()) {
             throw new RuntimeError("No such access_token", 111);
         }
+        User user = listOfUser.get(0);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date;
         try {
@@ -119,10 +118,11 @@ public class UserService {
     }
 
     public static @NotNull User verifyRefreshToken(String refresh_token) throws SQLException, RuntimeError {
-        User user = new UserDao().execQuery("refresh_token", refresh_token).get(0);
-        if (user == null) {
+        ArrayList<User> listOfUser = new UserDao().execQuery("refresh_token", refresh_token);
+        if (listOfUser.isEmpty()) {
             throw new RuntimeError("No such refresh_token", 121);
         }
+        User user = listOfUser.get(0);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date;
         try {
