@@ -81,7 +81,7 @@ public class UserService {
     }
 
     public static User verifyAccessToken(String access_token) throws SQLException, RuntimeError {
-        User user = new UserDao().execQueryBy("access_token", access_token);
+        User user = new UserDao().execQuery("access_token", access_token).get(0);
         if (user == null) {
             throw new RuntimeError("No such access_token", 111);
         }
@@ -119,7 +119,7 @@ public class UserService {
     }
 
     public static @NotNull User verifyRefreshToken(String refresh_token) throws SQLException, RuntimeError {
-        User user = new UserDao().execQueryBy("refresh_token", refresh_token);
+        User user = new UserDao().execQuery("refresh_token", refresh_token).get(0);
         if (user == null) {
             throw new RuntimeError("No such refresh_token", 121);
         }

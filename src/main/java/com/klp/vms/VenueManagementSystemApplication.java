@@ -10,9 +10,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class VenueManagementSystemApplication {
     public static void main(String[] args) {
-        SpringApplication.run(VenueManagementSystemApplication.class, args);
         try {
-            new VenueDao().execUpdate("name","a11","a6","aaa");
+            SpringApplication.run(VenueManagementSystemApplication.class, args);
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

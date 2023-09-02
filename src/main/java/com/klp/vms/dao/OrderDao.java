@@ -11,52 +11,59 @@ import java.util.Objects;
 
 public class OrderDao implements Dao<Order> {
     @Override
-    public void execInsert(Order order) throws RuntimeError {
-        StringBuilder sql = new StringBuilder("insert into \"Order\" (number, userid, stadiumName, venueName, state, payTime, occupyStartTime, occupyEndTime, information, message) VALUES (");
-        sql.append(order.getNumber() < 0 ? order.getNumber() * -1 : order.getNumber()).append(",");
-        sql.append(order.getUserid() == null ? "NULL" : ("'" + order.getUserid().replaceAll("'", "''") + "'")).append(",");
-        sql.append(order.getStadiumName() == null ? "NULL" : ("'" + order.getStadiumName().replaceAll("'", "''") + "'")).append(",");
-        sql.append(order.getVenueName() == null ? "NULL" : ("'" + order.getVenueName().replaceAll("'", "''") + "'")).append(",");
-        sql.append(order.getState() == null ? "NULL" : ("'" + order.getState().replaceAll("'", "''") + "'")).append(",");
-        sql.append(order.getPayTime() == null ? "NULL" : ("'" + order.getPayTime().replaceAll("'", "''") + "'")).append(",");
-        sql.append(order.getOccupyStartTime() == null ? "NULL" : ("'" + order.getOccupyStartTime().replaceAll("'", "''") + "'")).append(",");
-        sql.append(order.getOccupyEndTime() == null ? "NULL" : ("'" + order.getOccupyEndTime().replaceAll("'", "''") + "'")).append(",");
-        sql.append(order.getInformation() == null ? "NULL" : ("'" + order.getInformation().replaceAll("'", "''") + "'")).append(",");
-        sql.append(order.getMessage() == null ? "NULL" : ("'" + order.getMessage().replaceAll("'", "''") + "'"));
-        sql.append(");");
-        this.update(String.valueOf(sql));
-    }
-
-    @Override
-    public void execDelete(@NotNull String number) throws RuntimeError {
-        this.update("delete FROM \"Order\" where number='" + number.replaceAll("'", "''") + "';");
-    }
-
-    public void execDelete(long number) throws RuntimeError {
-        execDelete(String.valueOf(number));
-    }
-
-    @Override
-    public List<Order> execQuery(String column, String value) throws SQLException, RuntimeError {
-        if (value == null) return null;
-        String sql = "select * from \"Order\" where " + column.replaceAll("'", "''") + "='" + value.replaceAll("'", "''") + "';";
-        ArrayList<Order> list = new ArrayList<>();
-        ResultSet rs = this.query(sql);
-        while (rs.next()) {
-            Order order = new Order();
-            order.setNumber(rs.getLong("number"));
-            order.setUserid(rs.getString("userid"));
-            order.setStadiumName(rs.getString("stadiumName"));
-            order.setVenueName(rs.getString("venueName"));
-            order.setState(rs.getString("state"));
-            order.setPayTime(rs.getString("payTime"));
-            order.setOccupyStartTime(rs.getString("occupyStartTime"));
-            order.setOccupyEndTime(rs.getString("occupyEndTime"));
-            order.setInformation(rs.getString("information"));
-            order.setMessage(rs.getString("message"));
-            list.add(order);
+    public int execInsert(Order order) throws SQLException {
+        String sql = "insert into \"Order\" (number, userid, stadiumName, venueName, state, payTime, occupyStartTime, occupyEndTime, information, message) VALUES (?,?,?,?,?,?,?,?,?,?);";
+        try (Stat stat = new Stat(sql)) {
+            stat.setDouble(1, order.getNumber());
+            stat.setString(2, order.getUserid());
+            stat.setString(3, order.getStadiumName());
+            stat.setString(4, order.getVenueName());
+            stat.setString(5, order.getState());
+            stat.setString(6, order.getPayTime());
+            stat.setString(7, order.getOccupyStartTime());
+            stat.setString(8, order.getOccupyEndTime());
+            stat.setString(9, order.getInformation());
+            stat.setString(10, order.getMessage());
+            return stat.executeUpdate();
         }
-        this.close();
+    }
+
+    @Override
+    public int execDelete(@NotNull String number) throws SQLException {
+        try (Stat stat = new Stat("delete FROM \"Order\" where number=?;")) {
+            stat.setString(1, number);
+            return stat.executeUpdate();
+        }
+    }
+
+    public int execDelete(long number) throws SQLException {
+        return execDelete(String.valueOf(number));
+    }
+
+    @Override
+    public List<Order> execQuery(String column, String value) throws SQLException {
+        String sql = "select * from \"Order\" where ?=?;";
+        if (value == null) return null;
+        ArrayList<Order> list = new ArrayList<>();
+        try (Stat stat = new Stat(sql)) {
+            stat.setString(1, column);
+            stat.setString(2, value);
+            ResultSet rs = stat.executeQuery();
+            while (rs.next()) {
+                Order order = new Order();
+                order.setNumber(rs.getLong("number"));
+                order.setUserid(rs.getString("userid"));
+                order.setStadiumName(rs.getString("stadiumName"));
+                order.setVenueName(rs.getString("venueName"));
+                order.setState(rs.getString("state"));
+                order.setPayTime(rs.getString("payTime"));
+                order.setOccupyStartTime(rs.getString("occupyStartTime"));
+                order.setOccupyEndTime(rs.getString("occupyEndTime"));
+                order.setInformation(rs.getString("information"));
+                order.setMessage(rs.getString("message"));
+                list.add(order);
+            }
+        }
         return list;
     }
 
@@ -65,22 +72,26 @@ public class OrderDao implements Dao<Order> {
     }
 
     @Override
-    public void execUpdate(String column, String value, String number) throws RuntimeError {
-        StringBuilder sql = new StringBuilder("UPDATE \"Order\" SET ");
-        sql.append(column.replaceAll("'", "''") + "=");
-        sql.append("'" + value.replaceAll("'", "''") + "'");
-        sql.append(" WHERE number=");
-        sql.append(number);
-        this.update(String.valueOf(sql));
+    public int execUpdate(String column, String value, String number) throws SQLException {
+        String sql = "UPDATE \"Order\" SET ?=? WHERE number=?";
+        try (Stat stat = new Stat(sql)) {
+            stat.setString(1, column);
+            stat.setString(2, value);
+            stat.setString(3, number);
+            return stat.executeUpdate();
+        }
     }
 
-    public void execUpdate(String column, String value, long number) throws RuntimeError {
-        execUpdate(column, value, String.valueOf(number));
+    public int execUpdate(String column, String value, long number) throws SQLException {
+        return execUpdate(column, value, String.valueOf(number));
     }
 
 
-    public void execUpdate(String numberColumn, long value, long number) throws RuntimeError {
-        if (Objects.equals(numberColumn, "number"))
-            execUpdate(numberColumn, String.valueOf(value), String.valueOf(number));
+    public int execUpdate(String numberColumn, long value, long number) throws SQLException {
+        if (Objects.equals(numberColumn, "number")) {
+            return execUpdate(numberColumn, String.valueOf(value), String.valueOf(number));
+        } else {
+            return -1;
+        }
     }
 }

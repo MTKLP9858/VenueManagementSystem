@@ -11,39 +11,52 @@ import java.util.Objects;
 public class VenueDao implements Dao<Venue> {//场地
 
     @Override
-    public void execInsert(Venue venue) throws RuntimeError, SQLException {
-        if (venue == null) return;
+    public int execInsert(Venue venue) throws RuntimeError, SQLException {
+        if (venue == null) return 0;
         if (new StadiumDao().execQuery("name", venue.getStadium()).isEmpty()) {
             throw new RuntimeError("no such value in Stadium.name!", 223);
         }
         if (execQueryBy(venue.getName(), venue.getStadium()) != null) {
             throw new RuntimeError("The same Stadium.name exists!", 223);
         }
-        StringBuilder sql = new StringBuilder("insert into Venue (name, area, stadium, introduction, active, price) VALUES (");
-        sql.append(venue.getName() == null ? "NULL" : ("'" + venue.getName().replaceAll("'", "''") + "'")).append(",");
-        sql.append(venue.getArea() == null ? "NULL" : ("'" + venue.getArea().replaceAll("'", "''") + "'")).append(",");
-        sql.append(venue.getStadium() == null ? "NULL" : ("'" + venue.getStadium().replaceAll("'", "''") + "'")).append(",");
-        sql.append(venue.getIntroduction() == null ? "NULL" : ("'" + venue.getIntroduction().replaceAll("'", "''") + "'")).append(",");
-        sql.append(venue.isActive()).append(",");
-        sql.append(venue.getPrice());
-        sql.append(");");
-        this.update(String.valueOf(sql));
+        String sql = "insert into Venue (name, area, stadium, introduction, active, price) VALUES (?,?,?,?,?,?);";
+        try (Stat stat = new Stat(sql)) {
+            stat.setString(1, venue.getName());
+            stat.setString(2, venue.getArea());
+            stat.setString(3, venue.getStadium());
+            stat.setString(4, venue.getIntroduction());
+            stat.setBoolean(5, venue.isActive());
+            stat.setDouble(6, venue.getPrice());
+            return stat.executeUpdate();
+        }
     }
 
     /**
      * @param stadium Delete all the Venue which stadium eq this param!
+     * @return
      */
     @Override
-    public void execDelete(String stadium) throws RuntimeError {
+    public int execDelete(String stadium) throws SQLException {
         if (stadium != null) {
-            this.update("delete FROM Stadium where stadium='" + stadium.replaceAll("'", "''") + "';");
+            String sql = "delete FROM Venue where stadium=?;";
+            try (Stat stat = new Stat(sql)) {
+                stat.setString(1, stadium);
+                return stat.executeUpdate();
+            }
         }
+        return -1;
     }
 
-    public void execDelete(String name, String stadium) throws RuntimeError {
+    public int execDelete(String name, String stadium) throws SQLException {
         if (name != null && stadium != null) {
-            this.update("delete FROM Stadium where name='" + name.replaceAll("'", "''") + "' and stadium='" + stadium.replaceAll("'", "''") + "';");
+            String sql = "delete FROM Venue where name=? and stadium=?;";
+            try (Stat stat = new Stat(sql)) {
+                stat.setString(1, name);
+                stat.setString(2, stadium);
+                return stat.executeUpdate();
+            }
         }
+        return -1;
     }
 
     public ArrayList<Venue> execQuery(long price) throws SQLException, RuntimeError {
@@ -76,32 +89,37 @@ public class VenueDao implements Dao<Venue> {//场地
     @Override
     public ArrayList<Venue> execQuery(String column, String value) throws SQLException, RuntimeError {
         if (value == null) return null;
-        String sql = "select * from Venue where " + column.replaceAll("'", "''") + "='" + value.replaceAll("'", "''") + "';";
+        String sql = "select * from Venue where ?=?;";
         ArrayList<Venue> list = new ArrayList<>();
-        ResultSet rs = this.query(sql);
-        while (rs.next()) {
-            Venue venue = new Venue();
-            venue.setName(rs.getString("name"));
-            venue.setArea(rs.getString("area"));
-            venue.setStadium(rs.getString("stadium"));
-            venue.setIntroduction(rs.getString("introduction"));
-            venue.setActive(rs.getBoolean("active"));
-            venue.setPrice(rs.getDouble("price"));
-            list.add(venue);
+        try (Stat stat = new Stat(sql)) {
+            stat.setString(1, column);
+            stat.setString(2, value);
+            ResultSet rs = stat.executeQuery();
+            while (rs.next()) {
+                Venue venue = new Venue();
+                venue.setName(rs.getString("name"));
+                venue.setArea(rs.getString("area"));
+                venue.setStadium(rs.getString("stadium"));
+                venue.setIntroduction(rs.getString("introduction"));
+                venue.setActive(rs.getBoolean("active"));
+                venue.setPrice(rs.getDouble("price"));
+                list.add(venue);
+            }
         }
-        this.close();
         return list;
     }
 
     /**
+     * @return
      * @deprecated
      */
     @Deprecated
-    public void execUpdate(String column, String value, String KEY) {
+    public int execUpdate(String column, String value, String KEY) {
+        return -1;
     }
 
-    public void execUpdate(String column, String value, String name, String stadium) throws RuntimeError, SQLException {
-        if (column == null || value == null || name == null || stadium == null) return;
+    public int execUpdate(String column, String value, String name, String stadium) throws RuntimeError, SQLException {
+        if (column == null || value == null || name == null || stadium == null) return 0;
         if (execQueryBy(name, stadium) == null) {
             throw new RuntimeError("Target not found!", 220);
         }
@@ -118,7 +136,13 @@ public class VenueDao implements Dao<Venue> {//场地
                 throw new RuntimeError("The same Stadium.name exists!", 224);
             }
         }
-        String sql = "UPDATE Venue SET " + column.replaceAll("'", "''") + "='" + value.replaceAll("'", "''") + "'" + " WHERE name='" + name.replaceAll("'", "''") + "' and stadium='" + stadium.replaceAll("'", "''") + "';";
-        this.update(sql);
+        String sql = "UPDATE Venue SET ?=? WHERE name=? and stadium=?;";
+        try (Stat stat = new Stat(sql)) {
+            stat.setString(1, column);
+            stat.setString(2, value);
+            stat.setString(3, name);
+            stat.setString(4, stadium);
+            return stat.executeUpdate();
+        }
     }
 }

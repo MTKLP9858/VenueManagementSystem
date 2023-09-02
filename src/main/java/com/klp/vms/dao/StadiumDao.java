@@ -11,51 +11,59 @@ import java.util.List;
 
 public class StadiumDao implements Dao<Stadium> {
     @Override
-    public void execInsert(@NotNull Stadium stadium) throws RuntimeError {
-        StringBuilder sql = new StringBuilder("insert into Stadium (name, address, introduction, contact, adminUserID) VALUES (");
-        sql.append(stadium.getName() == null ? "NULL" : ("'" + stadium.getName().replaceAll("'", "''") + "'")).append(",");
-        sql.append(stadium.getAddress() == null ? "NULL" : ("'" + stadium.getAddress().replaceAll("'", "''") + "'")).append(",");
-        sql.append(stadium.getIntroduction() == null ? "NULL" : ("'" + stadium.getIntroduction().replaceAll("'", "''") + "'")).append(",");
-        sql.append(stadium.getContact() == null ? "NULL" : ("'" + stadium.getContact().replaceAll("'", "''") + "'")).append(",");
-        sql.append(stadium.getAdminUserID() == null ? "NULL" : ("'" + stadium.getAdminUserID().replaceAll("'", "''") + "'"));
-        sql.append(");");
-        this.update(String.valueOf(sql));
+    public int execInsert(@NotNull Stadium stadium) throws SQLException {
+        String sql = "insert into Stadium (name, address, introduction, contact, adminUserID) VALUES (?,?,?,?,?);";
+        try (Stat stat = new Stat(sql)) {
+            stat.setString(1, stadium.getName());
+            stat.setString(2, stadium.getAddress());
+            stat.setString(3, stadium.getIntroduction());
+            stat.setString(4, stadium.getContact());
+            stat.setString(5, stadium.getAdminUserID());
+            return stat.executeUpdate();
+        }
     }
 
     @Override
-    public void execDelete(String name) throws RuntimeError {
-        this.update("delete FROM Stadium where name='" + name.replaceAll("'", "''") + "';");
+    public int execDelete(String name) throws SQLException {
+        try (Stat stat = new Stat("delete FROM Stadium where name=?;")) {
+            stat.setString(1, name);
+            return stat.executeUpdate();
+        }
     }
 
     @Override
     public List<Stadium> execQuery(String column, String value) throws SQLException, RuntimeError {
         if (value == null) return null;
-        String sql = "select * from Stadium where " + column.replaceAll("'", "''") + "='" + value.replaceAll("'", "''") + "';";
+        String sql = "select * from Stadium where ?=?;";
         ArrayList<Stadium> list = new ArrayList<>();
-        ResultSet rs = this.query(sql);
-        while (rs.next()) {
-            Stadium stadium = new Stadium();
-            stadium.setName(rs.getString("name"));
-            stadium.setAddress(rs.getString("address"));
-            stadium.setIntroduction(rs.getString("introduction"));
-            stadium.setContact(rs.getString("contact"));
-            stadium.setAdminUserID(rs.getString("adminUserID"));
-            stadium.setAdminUser(new UserDao().execQuery(stadium.getAdminUserID()));
-            ArrayList<Venue> venueList = new VenueDao().execQuery("stadium", stadium.getName());
-            stadium.setVenues(venueList);
-            list.add(stadium);
+        try (Stat stat = new Stat(sql)) {
+            stat.setString(1, column);
+            stat.setString(2, value);
+            ResultSet rs = stat.executeQuery();
+            while (rs.next()) {
+                Stadium stadium = new Stadium();
+                stadium.setName(rs.getString("name"));
+                stadium.setAddress(rs.getString("address"));
+                stadium.setIntroduction(rs.getString("introduction"));
+                stadium.setContact(rs.getString("contact"));
+                stadium.setAdminUserID(rs.getString("adminUserID"));
+                stadium.setAdminUser(new UserDao().execQuery(stadium.getAdminUserID()));
+                ArrayList<Venue> venueList = new VenueDao().execQuery("stadium", stadium.getName());
+                stadium.setVenues(venueList);
+                list.add(stadium);
+            }
         }
-        this.close();
         return list;
     }
 
     @Override
-    public void execUpdate(String column, String value, String name) throws RuntimeError {
-        StringBuilder sql = new StringBuilder("UPDATE Stadium SET ");
-        sql.append(column.replaceAll("'", "''") + "=");
-        sql.append("'" + value.replaceAll("'", "''") + "'");
-        sql.append(" WHERE name=");
-        sql.append("'" + name.replaceAll("'", "''") + "'");
-        this.update(String.valueOf(sql));
+    public int execUpdate(String column, String value, String name) throws SQLException {
+        String sql = "UPDATE Stadium SET ?=? WHERE name=?";
+        try (Stat stat = new Stat(sql)) {
+            stat.setString(1, column);
+            stat.setString(2, value);
+            stat.setString(3, name);
+            return stat.executeUpdate();
+        }
     }
 }
