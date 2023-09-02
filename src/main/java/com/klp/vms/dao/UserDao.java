@@ -62,15 +62,15 @@ public class UserDao implements Dao<User> {
 
     @Override
     public ArrayList<User> execQuery(String column, String value) throws SQLException {
-        String sql = "select * from User where ?=?;";
+        String sql = "select * from User where " + column + "=?;";
         if (value == null) return null;
-        ArrayList<User> list;
+        ArrayList<User> list = new ArrayList<>();
         try (Stat stat = new Stat(sql)) {
-            stat.setString(1, column);
-            stat.setString(2, value);
+            stat.setString(1, value);
             ResultSet rs = stat.executeQuery();
-            list = new ArrayList<>();
+            System.out.println(rs);
             while (rs.next()) {
+                System.out.println("find");
                 User user = new User(-1);
                 user.setUserid(rs.getString("userid"));
                 user.setUsername(rs.getString("username"));
@@ -112,11 +112,10 @@ public class UserDao implements Dao<User> {
     }
 
     public int execUpdate(String column, String value, String userid) throws SQLException {
-        String sql = "UPDATE User SET ?=? WHERE userid=?;";
+        String sql = "UPDATE User SET " + column + "=? WHERE userid=?;";
         try (Stat stat = new Stat(sql)) {
-            stat.setString(1, column);
-            stat.setString(2, value);
-            stat.setString(3, userid);
+            stat.setString(1, value);
+            stat.setString(2, userid);
             return stat.executeUpdate();
         }
     }

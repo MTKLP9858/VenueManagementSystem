@@ -34,11 +34,10 @@ public class StadiumDao implements Dao<Stadium> {
     @Override
     public List<Stadium> execQuery(String column, String value) throws SQLException, RuntimeError {
         if (value == null) return null;
-        String sql = "select * from Stadium where ?=?;";
+        String sql = "select * from Stadium where " + column + "=?;";
         ArrayList<Stadium> list = new ArrayList<>();
         try (Stat stat = new Stat(sql)) {
-            stat.setString(1, column);
-            stat.setString(2, value);
+            stat.setString(1, value);
             ResultSet rs = stat.executeQuery();
             while (rs.next()) {
                 Stadium stadium = new Stadium();
@@ -58,11 +57,10 @@ public class StadiumDao implements Dao<Stadium> {
 
     @Override
     public int execUpdate(String column, String value, String name) throws SQLException {
-        String sql = "UPDATE Stadium SET ?=? WHERE name=?";
+        String sql = "UPDATE Stadium SET " + column + "=? WHERE name=?";
         try (Stat stat = new Stat(sql)) {
-            stat.setString(1, column);
-            stat.setString(2, value);
-            stat.setString(3, name);
+            stat.setString(1, value);
+            stat.setString(2, name);
             return stat.executeUpdate();
         }
     }

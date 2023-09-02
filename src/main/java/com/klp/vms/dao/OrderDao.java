@@ -42,12 +42,11 @@ public class OrderDao implements Dao<Order> {
 
     @Override
     public List<Order> execQuery(String column, String value) throws SQLException {
-        String sql = "select * from \"Order\" where ?=?;";
+        String sql = "select * from \"Order\" where " + column + "=?;";
         if (value == null) return null;
         ArrayList<Order> list = new ArrayList<>();
         try (Stat stat = new Stat(sql)) {
-            stat.setString(1, column);
-            stat.setString(2, value);
+            stat.setString(1, value);
             ResultSet rs = stat.executeQuery();
             while (rs.next()) {
                 Order order = new Order();
@@ -73,11 +72,10 @@ public class OrderDao implements Dao<Order> {
 
     @Override
     public int execUpdate(String column, String value, String number) throws SQLException {
-        String sql = "UPDATE \"Order\" SET ?=? WHERE number=?";
+        String sql = "UPDATE \"Order\" SET " + column + "=? WHERE number=?";
         try (Stat stat = new Stat(sql)) {
-            stat.setString(1, column);
-            stat.setString(2, value);
-            stat.setString(3, number);
+            stat.setString(1, value);
+            stat.setString(2, number);
             return stat.executeUpdate();
         }
     }

@@ -89,11 +89,10 @@ public class VenueDao implements Dao<Venue> {//场地
     @Override
     public ArrayList<Venue> execQuery(String column, String value) throws SQLException, RuntimeError {
         if (value == null) return null;
-        String sql = "select * from Venue where ?=?;";
+        String sql = "select * from Venue where " + column + "=?;";
         ArrayList<Venue> list = new ArrayList<>();
         try (Stat stat = new Stat(sql)) {
-            stat.setString(1, column);
-            stat.setString(2, value);
+            stat.setString(1, value);
             ResultSet rs = stat.executeQuery();
             while (rs.next()) {
                 Venue venue = new Venue();
@@ -136,7 +135,7 @@ public class VenueDao implements Dao<Venue> {//场地
                 throw new RuntimeError("The same Stadium.name exists!", 224);
             }
         }
-        String sql = "UPDATE Venue SET ?=? WHERE name=? and stadium=?;";
+        String sql = "UPDATE Venue SET " + column + "=? WHERE name=? and stadium=?;";
         try (Stat stat = new Stat(sql)) {
             stat.setString(1, column);
             stat.setString(2, value);
