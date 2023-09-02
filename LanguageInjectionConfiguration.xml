@@ -1,0 +1,7 @@
+<LanguageInjectionConfiguration>
+  <injection language="SQL" injector-id="java">
+    <display-name>Stat.Stat (com.klp.vms.dao)</display-name>
+    <single-file value="false" />
+    <place><![CDATA[psiParameter().ofMethod(0, psiMethod().withName("Stat").withParameters("java.lang.String").definedInClass("com.klp.vms.dao.Stat"))]]></place>
+  </injection>
+</LanguageInjectionConfiguration>
