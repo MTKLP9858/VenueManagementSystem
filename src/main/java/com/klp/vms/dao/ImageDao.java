@@ -4,6 +4,7 @@ import com.klp.vms.exception.RuntimeError;
 
 import java.io.*;
 import java.sql.*;
+import java.util.Date;
 import java.util.UUID;
 
 import static com.klp.vms.dao.Dao.defaultDataBaseUrl;
@@ -11,12 +12,21 @@ import static com.klp.vms.dao.Dao.defaultDataBaseUrl;
 public class ImageDao {
     public final static String imgTempPath = System.getProperty("user.dir") + File.separator + "temp" + File.separator + "img" + File.separator;
 
-    public void cleanTemp() {
+    public ImageDao() {
+        ImageDao.clearOutDateTemp();
+    }
+
+    public static void clearOutDateTemp() {
         File file = new File(imgTempPath);
+        if (file.isDirectory()) return;
         File[] files = file.listFiles();
         if (files != null) {
             for (File f : files) {
-                f.delete();
+                Date fileOutDate = new Date(f.lastModified() + 60 * 60 * 1000);
+                Date nowDate = new Date();
+                if (nowDate.after(fileOutDate)) {
+                    f.delete();
+                }
             }
         }
     }

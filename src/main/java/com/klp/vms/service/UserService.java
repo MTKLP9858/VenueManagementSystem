@@ -4,7 +4,6 @@ import com.klp.vms.dao.ImageDao;
 import com.klp.vms.dao.UserDao;
 import com.klp.vms.entity.User;
 import com.klp.vms.exception.RuntimeError;
-import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,6 +22,7 @@ public class UserService {
 
 
     public static boolean updateAvatar(String access_token, @NotNull MultipartFile img) throws RuntimeError, SQLException {
+        ImageDao.clearOutDateTemp();
         File file = new File(ImageDao.imgTempPath + img.getOriginalFilename());
         try {
             User user = verifyAccessToken(access_token);
@@ -36,6 +36,7 @@ public class UserService {
     }
 
     public static byte[] queryAvatar(String access_token) throws RuntimeError, SQLException {
+        ImageDao.clearOutDateTemp();
         UserDao userDao = new UserDao();
         User user = verifyAccessToken(access_token);
         File file = userDao.queryAvatar(user.getUserid());
