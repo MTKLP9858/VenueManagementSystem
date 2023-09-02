@@ -68,9 +68,7 @@ public class UserDao implements Dao<User> {
         try (Stat stat = new Stat(sql)) {
             stat.setString(1, value);
             ResultSet rs = stat.executeQuery();
-            System.out.println(rs);
             while (rs.next()) {
-                System.out.println("find");
                 User user = new User(-1);
                 user.setUserid(rs.getString("userid"));
                 user.setUsername(rs.getString("username"));
