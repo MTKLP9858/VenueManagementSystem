@@ -18,11 +18,12 @@ public class ImageDao {
 
     public static void clearOutDateTemp() {
         File file = new File(imgTempPath);
-        if (file.isDirectory()) return;
+        if (!file.isDirectory()) return;
         File[] files = file.listFiles();
         if (files != null) {
             for (File f : files) {
                 Date fileOutDate = new Date(f.lastModified() + 60 * 60 * 1000);
+                System.out.println(fileOutDate);
                 Date nowDate = new Date();
                 if (nowDate.after(fileOutDate)) {
                     f.delete();

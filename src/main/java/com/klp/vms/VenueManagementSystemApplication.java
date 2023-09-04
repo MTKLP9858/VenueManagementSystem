@@ -1,8 +1,6 @@
 package com.klp.vms;
 
-import com.klp.vms.dao.UserDao;
-import com.klp.vms.dao.VenueDao;
-import com.klp.vms.entity.Venue;
+import com.klp.vms.dao.ImageDao;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -12,6 +10,7 @@ public class VenueManagementSystemApplication {
     public static void main(String[] args) {
         try {
             SpringApplication.run(VenueManagementSystemApplication.class, args);
+            new ImageDao();
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
