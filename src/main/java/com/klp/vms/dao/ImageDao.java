@@ -2,12 +2,14 @@ package com.klp.vms.dao;
 
 import com.klp.vms.exception.RuntimeError;
 
-import java.io.*;
-import java.sql.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.UUID;
-
-import static com.klp.vms.dao.Dao.defaultDataBaseUrl;
 
 public class ImageDao {
     public final static String imgTempPath = System.getProperty("user.dir") + File.separator + "temp" + File.separator + "img" + File.separator;
@@ -45,20 +47,16 @@ public class ImageDao {
         } catch (IOException e) {
             throw new RuntimeError("FileInputStream error, file or path to file doesn't exists", 154);
         } catch (SQLException e) {
-            throw new RuntimeError("Database error, check if the database path or data table exists", 11);
+            throw new RuntimeError("Database error, check if the database path or data table exists, and try again!", 11);
         }
     }
 
-    public void execDelete(String index) throws RuntimeError {
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeError("Missing org.sqlite.JDBC, please check the server environment!", 10);
-        }
+    public boolean execDelete(String index) throws RuntimeError {
         String sql = "delete FROM image_list where img_index=?;";
         try (Stat stat = new Stat(sql)) {
             stat.setString(1, index);
-            stat.executeUpdate();
+            int r = stat.executeUpdate();
+            return r > 0;
         } catch (SQLException e) {
             throw new RuntimeError("Database error, check if the database path or data table exists", 11);
         }
@@ -92,7 +90,7 @@ public class ImageDao {
         if (index == null || img == null) return false;
         if (!new File(imgTempPath).exists()) new File(imgTempPath).mkdirs();
         String sql = "UPDATE image_list SET img_file=? where img_index=?;";
-        try (FileInputStream fis = new FileInputStream(img); Connection conn = DriverManager.getConnection("jdbc:sqlite:" + defaultDataBaseUrl); PreparedStatement stat = conn.prepareStatement(sql);) {
+        try (FileInputStream fis = new FileInputStream(img); Stat stat = new Stat(sql)) {
             stat.setBytes(1, fis.readAllBytes());
             stat.setString(2, index);
             int r = stat.executeUpdate();

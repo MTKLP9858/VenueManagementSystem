@@ -1,14 +1,78 @@
 package com.klp.vms.dao;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.klp.vms.entity.Venue;
 import com.klp.vms.exception.RuntimeError;
 
+import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Objects;
 
 public class VenueDao implements Dao<Venue> {//场地
+
+    private String getImageList(String name, String stadium) throws SQLException {
+        try (Stat stat = new Stat("select image_list from Venue where name=? and stadium=?;")) {
+            stat.setString(1, name);
+            stat.setString(2, stadium);
+            return stat.executeQuery().getString("image_list");
+        }
+    }
+
+    private int setImageList(String value, String name, String stadium) throws SQLException {
+        try (Stat stat = new Stat("update Venue set image_list=? where name=? and stadium=?;")) {
+            stat.setString(1, value);
+            stat.setString(2, name);
+            stat.setString(3, stadium);
+            return stat.executeUpdate();
+        }
+    }
+
+    public void imgInsert(int index, File img, String name, String stadium) throws SQLException, RuntimeError {
+        String image_list = getImageList(name, stadium);
+        JSONArray json = JSONArray.parseArray(image_list == null ? "[]" : image_list);
+        if (index > json.size()) {
+            throw new RuntimeError("Insert fail:  The index you input is bigger then image_list's size", 270);
+        }
+        String img_index = new ImageDao().execInsert(img);
+        try {
+            json.add(index, img_index);
+            setImageList(json.toString(), name, stadium);
+        } catch (SQLException e) {
+            new ImageDao().execDelete(img_index);
+            throw new SQLException(e);
+        } catch (IndexOutOfBoundsException e) {
+            new ImageDao().execDelete(img_index);
+            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 271);
+        }
+    }
+
+    public boolean imgDelete(int index, String name, String stadium) throws SQLException, RuntimeError {
+        String image_list = getImageList(name, stadium);
+        JSONArray json = JSONArray.parseArray(image_list == null ? "[]" : image_list);
+        String img_index = json.getString(index);
+        //del from image_list_string
+        json.remove(index);
+        setImageList(json.toString(), name, stadium);
+        //del from DataBase
+        return new ImageDao().execDelete(img_index);
+    }
+
+    public File imgQuery(int index, String name, String stadium) throws SQLException, RuntimeError {
+        String image_list = getImageList(name, stadium);
+        JSONArray json = JSONArray.parseArray(image_list == null ? "[]" : image_list);
+        String img_index = json.getString(index);
+        return new ImageDao().execQuery(img_index);
+    }
+
+    public void imgUpdate(int index, File img, String name, String stadium) throws SQLException, RuntimeError {
+        String image_list = getImageList(name, stadium);
+        JSONArray json = JSONArray.parseArray(image_list == null ? "[]" : image_list);
+        String img_index = json.getString(index);
+        new ImageDao().execUpdate(img_index, img);
+    }
+
 
     @Override
     public int execInsert(Venue venue) throws RuntimeError, SQLException {
