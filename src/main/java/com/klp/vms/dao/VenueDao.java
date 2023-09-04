@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class VenueDao implements Dao<Venue> {//场地
-
     private String getImageList(String name, String stadium) throws SQLException {
         try (Stat stat = new Stat("select image_list from Venue where name=? and stadium=?;")) {
             stat.setString(1, name);
@@ -173,7 +172,7 @@ public class VenueDao implements Dao<Venue> {//场地
     }
 
     /**
-     * @return
+     * @see #execUpdate(String, String, String, String)
      * @deprecated
      */
     @Deprecated

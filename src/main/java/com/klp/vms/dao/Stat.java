@@ -1,18 +1,13 @@
 package com.klp.vms.dao;
 
-import lombok.Getter;
-
 import java.sql.*;
 
 public class Stat implements AutoCloseable {
-    public static String defaultDataBaseUrl = Dao.defaultDataBaseUrl;
-    public static String fullConnectionUrl = "jdbc:sqlite:" + defaultDataBaseUrl;
     Connection conn;
-    @Getter
     PreparedStatement stat;
 
     public Stat(String sql) throws SQLException {
-        conn = DriverManager.getConnection(fullConnectionUrl);
+        conn = DriverManager.getConnection(Dao.fullConnectionUrl);
         stat = conn.prepareStatement(sql);
     }
 

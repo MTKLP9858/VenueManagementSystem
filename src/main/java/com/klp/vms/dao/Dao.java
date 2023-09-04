@@ -4,6 +4,7 @@ import java.util.List;
 
 public interface Dao<T> {
     String defaultDataBaseUrl = "main.db";
+    String fullConnectionUrl = "jdbc:sqlite:" + defaultDataBaseUrl;
 
     int execInsert(T insertValue) throws Exception;
 
