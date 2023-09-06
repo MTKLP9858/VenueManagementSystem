@@ -12,6 +12,12 @@ import java.util.Objects;
 
 public class VenueDao implements Dao<Venue> {//场地
 
+    public int getSizeOfImageList(String name, String stadium) throws SQLException {
+        String list = getImageList(name, stadium);
+        JSONArray json = JSONArray.parseArray(list == null ? "[]" : list);
+        return json.size();
+    }
+
     private String getImageList(String name, String stadium) throws SQLException {
         try (Stat stat = new Stat("select image_list from Venue where name=? and stadium=?;")) {
             stat.setString(1, name);
@@ -33,7 +39,7 @@ public class VenueDao implements Dao<Venue> {//场地
         String image_list = getImageList(name, stadium);
         JSONArray json = JSONArray.parseArray(image_list == null ? "[]" : image_list);
         if (index > json.size()) {
-            throw new RuntimeError("Insert fail:  The index you input is bigger then image_list's size", 270);
+            throw new RuntimeError("Insert fail: The index you input is bigger then image_list's size", 270);
         }
         String img_index = new ImageDao().execInsert(img);
         try {
@@ -51,7 +57,12 @@ public class VenueDao implements Dao<Venue> {//场地
     public boolean imgDelete(int index, String name, String stadium) throws SQLException, RuntimeError {
         String image_list = getImageList(name, stadium);
         JSONArray json = JSONArray.parseArray(image_list == null ? "[]" : image_list);
-        String img_index = json.getString(index);
+        String img_index;
+        try {
+            img_index = json.getString(index);
+        } catch (IndexOutOfBoundsException e) {
+            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 273);
+        }
         //del from image_list_string
         json.remove(index);
         setImageList(json.toString(), name, stadium);
@@ -62,14 +73,24 @@ public class VenueDao implements Dao<Venue> {//场地
     public File imgQuery(int index, String name, String stadium) throws SQLException, RuntimeError {
         String image_list = getImageList(name, stadium);
         JSONArray json = JSONArray.parseArray(image_list == null ? "[]" : image_list);
-        String img_index = json.getString(index);
+        String img_index;
+        try {
+            img_index = json.getString(index);
+        } catch (IndexOutOfBoundsException e) {
+            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 272);
+        }
         return new ImageDao().execQuery(img_index);
     }
 
     public void imgUpdate(int index, File img, String name, String stadium) throws SQLException, RuntimeError {
         String image_list = getImageList(name, stadium);
         JSONArray json = JSONArray.parseArray(image_list == null ? "[]" : image_list);
-        String img_index = json.getString(index);
+        String img_index;
+        try {
+            img_index = json.getString(index);
+        } catch (IndexOutOfBoundsException e) {
+            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 271);
+        }
         new ImageDao().execUpdate(img_index, img);
     }
 
@@ -97,7 +118,6 @@ public class VenueDao implements Dao<Venue> {//场地
 
     /**
      * @param stadium Delete all the Venue which stadium eq this param!
-     * @return
      */
     @Override
     public int execDelete(String stadium) throws SQLException {
