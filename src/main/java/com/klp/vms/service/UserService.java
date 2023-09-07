@@ -170,7 +170,7 @@ public class UserService {
             } catch (RuntimeError ignored) {
             }
         }
-        if (user.getOp() == 0) {
+        if (user.getOp() == 0 || user.getOp() == 10) {
             updateAccessToken(user.getUserid());
             updateRefreshToken(user.getUserid());
         }

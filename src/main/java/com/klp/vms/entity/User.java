@@ -8,16 +8,16 @@ public class User {
         this.op = op;
     }
 
-    private String userid;//KEY
-    private String username;
-    private String password;
+    private String userid;//KEY,用户唯一id
+    private String username;//用户昵称
+    private String password;//密码
     /**
      * 0=顾客,5=球场管理,10=超级用户
      */
-    private int op;
-    private String access_token;
+    private int op;//权限
+    private String access_token;//访问token
     private String access_token_age;
-    private String refresh_token;
+    private String refresh_token;//更新token
     private String refresh_token_age;
 
 

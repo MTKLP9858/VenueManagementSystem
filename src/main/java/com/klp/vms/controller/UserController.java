@@ -9,10 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.SQLException;
@@ -23,7 +20,7 @@ import java.util.HashMap;
 @RequestMapping("/user")
 public class UserController {
     @PostMapping("/update-avatar")
-    public String updateAvatar(@RequestParam String access_token, @RequestParam MultipartFile img) {
+    public String updateAvatar(@RequestHeader String access_token, @RequestParam MultipartFile img) {
         try {
             UserService.updateAvatar(access_token, img);
         } catch (SQLException e) {
@@ -47,7 +44,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/query-avatar", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
-    public ResponseEntity<byte[]> queryAvatar(@RequestParam String access_token) {
+    public ResponseEntity<byte[]> queryAvatar(@RequestHeader String access_token) {
         try {
             return new ResponseEntity<>(UserService.queryAvatar(access_token), HttpStatus.OK);
         } catch (RuntimeError e) {
@@ -71,7 +68,7 @@ public class UserController {
 
 
     @PostMapping("/rename")
-    public String rename(@RequestParam String new_username, @RequestParam String access_token) {
+    public String rename(@RequestParam String new_username, @RequestHeader String access_token) {
         try {
             UserService.rename(new_username, access_token);
         } catch (SQLException e) {
@@ -96,7 +93,7 @@ public class UserController {
 
 
     @PostMapping("/refresh")
-    public String refresh(@RequestParam String refresh_token) {
+    public String refresh(@RequestHeader String refresh_token) {
         HashMap<String, String> map;
         try {
             map = UserService.doRefreshToken(refresh_token);
