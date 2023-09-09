@@ -11,14 +11,14 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 
-import static com.klp.vms.dao.ImageDao.imgTempPath;
+import static com.klp.vms.dao.ImageDao.ImgTempPath;
 
 public class UserDao implements Dao<User> {
     public File queryAvatar(String userid) throws RuntimeError {
         String sql = "select avatar from User where userid=?;";
-        if (!new File(imgTempPath).exists()) new File(imgTempPath).mkdirs();
+        if (!new File(ImgTempPath).exists()) new File(ImgTempPath).mkdirs();
         if (userid == null) return null;
-        File file = new File(imgTempPath + userid + ".png");
+        File file = new File(ImgTempPath + userid + ".png");
         try (Stat stat = new Stat(sql)) {
             stat.setString(1, userid);
             ResultSet rs = stat.executeQuery();
@@ -44,7 +44,7 @@ public class UserDao implements Dao<User> {
             execUpdate("avatar", null, userid);
             return true;
         }
-        if (!new File(imgTempPath).exists()) new File(imgTempPath).mkdirs();
+        if (!new File(ImgTempPath).exists()) new File(ImgTempPath).mkdirs();
         try (FileInputStream fis = new FileInputStream(img); Stat stat = new Stat(sql);) {
             stat.setBytes(1, fis.readAllBytes());
             stat.setString(2, userid);

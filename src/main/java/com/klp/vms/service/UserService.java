@@ -22,8 +22,8 @@ public class UserService {
 
 
     public static boolean updateAvatar(String access_token, @NotNull MultipartFile img) throws RuntimeError, SQLException {
-        ImageDao.clearOutDateTemp();
-        File file = new File(ImageDao.imgTempPath + img.getOriginalFilename());
+        ImageDao.clearOutDateCache();
+        File file = new File(ImageDao.ImgTempPath + img.getOriginalFilename());
         try {
             User user = verifyAccessToken(access_token);
             img.transferTo(file);
@@ -36,7 +36,7 @@ public class UserService {
     }
 
     public static byte[] queryAvatar(String access_token) throws RuntimeError, SQLException {
-        ImageDao.clearOutDateTemp();
+        ImageDao.clearOutDateCache();
         UserDao userDao = new UserDao();
         User user = verifyAccessToken(access_token);
         File file = userDao.queryAvatar(user.getUserid());

@@ -3,48 +3,55 @@ package com.klp.vms.dao;
 import com.alibaba.fastjson2.JSONArray;
 import com.klp.vms.entity.Venue;
 import com.klp.vms.exception.RuntimeError;
+import com.klp.vms.service.ImageService;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.UUID;
 
 public class VenueDao implements Dao<Venue> {//场地
 
-    public int getSizeOfImageList(String name, String stadium) throws SQLException {
-        String list = getImageList(name, stadium);
-        JSONArray json = JSONArray.parseArray(list == null ? "[]" : list);
-        return json.size();
+    public void swapIndex(int a, int b, String uuid) throws SQLException {
+        JSONArray list = getImageList(uuid);
+        String strA = list.getString(a);
+        String strB = list.getString(b);
+        list.set(b, strA);
+        list.set(a, strB);
+        setImageList(list, uuid);
     }
 
-    private String getImageList(String name, String stadium) throws SQLException {
-        try (Stat stat = new Stat("select image_list from Venue where name=? and stadium=?;")) {
-            stat.setString(1, name);
-            stat.setString(2, stadium);
-            return stat.executeQuery().getString("image_list");
+    public int getSizeOfImageList(String uuid) throws SQLException {
+        return getImageList(uuid).size();
+    }
+
+    private JSONArray getImageList(String uuid) throws SQLException {
+        try (Stat stat = new Stat("select image_list from Venue where uuid=?")) {
+            stat.setString(1, uuid);
+            String image_list = stat.executeQuery().getString("image_list");
+            return JSONArray.parseArray(image_list == null ? "[]" : image_list);
         }
     }
 
-    private int setImageList(String value, String name, String stadium) throws SQLException {
-        try (Stat stat = new Stat("update Venue set image_list=? where name=? and stadium=?;")) {
-            stat.setString(1, value);
-            stat.setString(2, name);
-            stat.setString(3, stadium);
+    private int setImageList(JSONArray value, String uuid) throws SQLException {
+        try (Stat stat = new Stat("update Venue set image_list=? where uuid=?;")) {
+            stat.setString(1, value.toString());
+            stat.setString(2, uuid);
             return stat.executeUpdate();
         }
     }
 
-    public void imgInsert(int index, File img, String name, String stadium) throws SQLException, RuntimeError {
-        String image_list = getImageList(name, stadium);
-        JSONArray json = JSONArray.parseArray(image_list == null ? "[]" : image_list);
+    public void imgInsert(int index, MultipartFile img, String uuid) throws SQLException, RuntimeError {
+        JSONArray json = getImageList(uuid);
         if (index > json.size()) {
             throw new RuntimeError("Insert fail: The index you input is bigger then image_list's size", 270);
         }
-        String img_index = new ImageDao().execInsert(img);
+        String img_index = ImageService.add(img);
         try {
             json.add(index, img_index);
-            setImageList(json.toString(), name, stadium);
+            setImageList(json, uuid);
         } catch (SQLException e) {
             new ImageDao().execDelete(img_index);
             throw new SQLException(e);
@@ -54,9 +61,8 @@ public class VenueDao implements Dao<Venue> {//场地
         }
     }
 
-    public boolean imgDelete(int index, String name, String stadium) throws SQLException, RuntimeError {
-        String image_list = getImageList(name, stadium);
-        JSONArray json = JSONArray.parseArray(image_list == null ? "[]" : image_list);
+    public boolean imgDelete(int index, String uuid) throws SQLException, RuntimeError {
+        JSONArray json = getImageList(uuid);
         String img_index;
         try {
             img_index = json.getString(index);
@@ -65,35 +71,42 @@ public class VenueDao implements Dao<Venue> {//场地
         }
         //del from image_list_string
         json.remove(index);
-        setImageList(json.toString(), name, stadium);
+        setImageList(json, uuid);
         //del from DataBase
-        return new ImageDao().execDelete(img_index);
+        return ImageService.delete(img_index);
     }
 
-    public File imgQuery(int index, String name, String stadium) throws SQLException, RuntimeError {
-        String image_list = getImageList(name, stadium);
-        JSONArray json = JSONArray.parseArray(image_list == null ? "[]" : image_list);
+    public byte[] imgQuery(int index, String uuid) throws SQLException, RuntimeError {
+        JSONArray json = getImageList(uuid);
         String img_index;
         try {
             img_index = json.getString(index);
         } catch (IndexOutOfBoundsException e) {
             throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 272);
         }
-        return new ImageDao().execQuery(img_index);
+        return ImageService.query(img_index);
     }
 
-    public void imgUpdate(int index, File img, String name, String stadium) throws SQLException, RuntimeError {
-        String image_list = getImageList(name, stadium);
-        JSONArray json = JSONArray.parseArray(image_list == null ? "[]" : image_list);
+    public boolean imgUpdate(int index, MultipartFile img, String uuid) throws SQLException, RuntimeError {
+        JSONArray json = getImageList(uuid);
         String img_index;
         try {
             img_index = json.getString(index);
         } catch (IndexOutOfBoundsException e) {
             throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 271);
         }
-        new ImageDao().execUpdate(img_index, img);
+        return ImageService.update(img_index, img);
     }
 
+    public String getUUID(String name, String area, String stadium) throws SQLException {
+        String sql = "select uuid from Venue where name=? and area=? and stadium=?;";
+        try (Stat stat = new Stat(sql)) {
+            stat.setString(1, name);
+            stat.setString(2, area);
+            stat.setString(3, stadium);
+            return stat.executeQuery().getString("uuid");
+        }
+    }
 
     @Override
     public int execInsert(Venue venue) throws RuntimeError, SQLException {
@@ -101,27 +114,51 @@ public class VenueDao implements Dao<Venue> {//场地
         if (new StadiumDao().execQuery("name", venue.getStadium()).isEmpty()) {
             throw new RuntimeError("no such value in Stadium.name!", 223);
         }
-        if (execQueryBy(venue.getName(), venue.getStadium()) != null) {
-            throw new RuntimeError("The same Stadium.name exists!", 223);
+
+        String uuid = getUUID(venue.getName(), venue.getArea(), venue.getStadium());
+        if (uuid != null) {
+            throw new RuntimeError("The same venue exists!", 223);
         }
-        String sql = "insert into Venue (name, area, stadium, introduction, active, price) VALUES (?,?,?,?,?,?);";
+        String sql = "insert into Venue (uuid,name, area, stadium, introduction, active, price) VALUES (?,?,?,?,?,?,?);";
         try (Stat stat = new Stat(sql)) {
-            stat.setString(1, venue.getName());
-            stat.setString(2, venue.getArea());
-            stat.setString(3, venue.getStadium());
-            stat.setString(4, venue.getIntroduction());
-            stat.setBoolean(5, venue.isActive());
-            stat.setDouble(6, venue.getPrice());
+            stat.setString(1, String.valueOf(UUID.randomUUID()));
+            stat.setString(2, venue.getName());
+            stat.setString(3, venue.getArea());
+            stat.setString(4, venue.getStadium());
+            stat.setString(5, venue.getIntroduction());
+            stat.setBoolean(6, venue.isActive());
+            stat.setDouble(7, venue.getPrice());
             return stat.executeUpdate();
         }
     }
 
-    /**
-     * @param stadium Delete all the Venue which stadium eq this param!
-     */
     @Override
-    public int execDelete(String stadium) throws SQLException {
-        if (stadium != null) {
+    public int execDelete(String uuid) throws SQLException {
+        if (uuid != null) {
+            String sql = "delete FROM Venue where uuid=?;";
+            try (Stat stat = new Stat(sql)) {
+                stat.setString(1, uuid);
+                return stat.executeUpdate();
+            }
+        }
+        return -1;
+    }
+
+
+    /**
+     * @param area    if area is null then delete all venue which stadium match
+     * @param stadium necessity
+     */
+    public int execDelete(String area, String stadium) throws SQLException {
+        if (area != null && stadium != null) {
+            String sql = "delete FROM Venue where area=? and stadium=?;";
+            try (Stat stat = new Stat(sql)) {
+                stat.setString(1, area);
+                stat.setString(2, stadium);
+                return stat.executeUpdate();
+            }
+        }
+        if (area == null && stadium != null) {
             String sql = "delete FROM Venue where stadium=?;";
             try (Stat stat = new Stat(sql)) {
                 stat.setString(1, stadium);
@@ -131,47 +168,20 @@ public class VenueDao implements Dao<Venue> {//场地
         return -1;
     }
 
-    public int execDelete(String name, String stadium) throws SQLException {
-        if (name != null && stadium != null) {
-            String sql = "delete FROM Venue where name=? and stadium=?;";
-            try (Stat stat = new Stat(sql)) {
-                stat.setString(1, name);
-                stat.setString(2, stadium);
-                return stat.executeUpdate();
-            }
-        }
-        return -1;
-    }
-
-    public ArrayList<Venue> execQuery(long price) throws SQLException, RuntimeError {
+    public ArrayList<Venue> execQuery(long price) throws SQLException {
         return execQuery("price", String.valueOf(price));
     }
 
-    public ArrayList<Venue> execQuery(boolean isActive) throws SQLException, RuntimeError {
+    public ArrayList<Venue> execQuery(boolean isActive) throws SQLException {
         return execQuery("active", isActive ? "1" : "0");
     }
 
-    public Venue execQueryBy(String name, String stadium) throws SQLException, RuntimeError {
-        if (stadium == null) return null;
-        ArrayList<Venue> listOfName = execQuery("name", name);
-        if (listOfName == null) return null;
-        ArrayList<Venue> list = new ArrayList<>();
-        for (Venue v : listOfName) {
-            if (Objects.equals(v.getStadium(), stadium)) {
-                list.add(v);
-            }
-        }
-        if (list.size() == 1) {
-            return list.get(0);
-        } else if (list.isEmpty()) {
-            return null;
-        } else {
-            throw new RuntimeError("There are more than one Venue have the same name and stadium!", 222);
-        }
+    public Venue execQuery(String uuid) throws SQLException {
+        return execQuery("uuid", uuid).get(0);
     }
 
     @Override
-    public ArrayList<Venue> execQuery(String column, String value) throws SQLException, RuntimeError {
+    public ArrayList<Venue> execQuery(String column, String value) throws SQLException {
         if (value == null) return null;
         String sql = "select * from Venue where " + column + "=?;";
         ArrayList<Venue> list = new ArrayList<>();
@@ -180,6 +190,7 @@ public class VenueDao implements Dao<Venue> {//场地
             ResultSet rs = stat.executeQuery();
             while (rs.next()) {
                 Venue venue = new Venue();
+                venue.setUuid(rs.getString("uuid"));
                 venue.setName(rs.getString("name"));
                 venue.setArea(rs.getString("area"));
                 venue.setStadium(rs.getString("stadium"));
@@ -192,39 +203,33 @@ public class VenueDao implements Dao<Venue> {//场地
         return list;
     }
 
-    /**
-     * @see #execUpdate(String, String, String, String)
-     * @deprecated
-     */
-    @Deprecated
-    public int execUpdate(String column, String value, String KEY) {
-        return -1;
-    }
-
-    public int execUpdate(String column, String value, String name, String stadium) throws RuntimeError, SQLException {
-        if (column == null || value == null || name == null || stadium == null) return 0;
-        if (execQueryBy(name, stadium) == null) {
+    public int execUpdate(String column, String value, String uuid) throws RuntimeError, SQLException {
+        if (column == null || value == null || uuid == null) return 0;
+        Venue venue = execQuery(uuid);
+        if (venue == null) {
             throw new RuntimeError("Target not found!", 220);
         }
-        if (new StadiumDao().execQuery("name", stadium).isEmpty()) {
-            throw new RuntimeError("no such value in Stadium.name!", 223);
-        }
+////      凭UUID查询是否存在该场馆
+//        if (new StadiumDao().execQuery("name", venue.getStadium()).isEmpty()) {
+////          如果没有该场馆，证明该uuid对应的venue失效，执行删除
+//            execDelete(null, venue.getStadium());
+//            throw new RuntimeError("error!", 219);
+//        }
         if (Objects.equals(column, "stadium")) {
             if (new StadiumDao().execQuery("name", value).isEmpty()) {
                 throw new RuntimeError("no such value in Stadium.name!", 223);
             }
         }
         if (Objects.equals(column, "name")) {
-            if (execQueryBy(value, stadium) != null) {
+            if (getUUID(value, venue.getArea(), venue.getStadium()) != null) {
                 throw new RuntimeError("The same Stadium.name exists!", 224);
             }
         }
-        String sql = "UPDATE Venue SET " + column + "=? WHERE name=? and stadium=?;";
+        String sql = "UPDATE Venue SET " + column + "=? WHERE uuid=?;";
         try (Stat stat = new Stat(sql)) {
             stat.setString(1, column);
             stat.setString(2, value);
-            stat.setString(3, name);
-            stat.setString(4, stadium);
+            stat.setString(3, uuid);
             return stat.executeUpdate();
         }
     }

@@ -12,19 +12,21 @@ import java.util.Date;
 import java.util.UUID;
 
 public class ImageDao {
-    public final static String imgTempPath = System.getProperty("user.dir") + File.separator + "temp" + File.separator + "img" + File.separator;
+    public final static String ImgTempPath = System.getProperty("user.dir") + File.separator + "temp" + File.separator + "img" + File.separator;
+
+    public final static long ImageCacheTime = 60 * 60 * 1000;
 
     public ImageDao() {
-        ImageDao.clearOutDateTemp();
+        ImageDao.clearOutDateCache();
     }
 
-    public static void clearOutDateTemp() {
-        File file = new File(imgTempPath);
+    public static void clearOutDateCache() {
+        File file = new File(ImgTempPath);
         if (!file.isDirectory()) return;
         File[] files = file.listFiles();
         if (files != null) {
             for (File f : files) {
-                Date fileOutDate = new Date(f.lastModified() + 60 * 60 * 1000);
+                Date fileOutDate = new Date(f.lastModified() + ImageCacheTime);
                 System.out.println(fileOutDate);
                 Date nowDate = new Date();
                 if (nowDate.after(fileOutDate)) {
@@ -36,7 +38,7 @@ public class ImageDao {
 
     public String execInsert(File img) throws RuntimeError {
         if (img == null) return null;
-        if (!new File(imgTempPath).exists()) new File(imgTempPath).mkdirs();
+        if (!new File(ImgTempPath).exists()) new File(ImgTempPath).mkdirs();
         String sql = "INSERT INTO image_list(img_index,img_file) VALUES(?,?)";
         try (FileInputStream fis = new FileInputStream(img); Stat stat = new Stat(sql)) {
             String uuid = String.valueOf(UUID.randomUUID());
@@ -64,8 +66,8 @@ public class ImageDao {
 
     public File execQuery(String index) throws RuntimeError {
         if (index == null) return null;
-        if (!new File(imgTempPath).exists()) new File(imgTempPath).mkdirs();
-        File file = new File(imgTempPath + index + ".png");
+        if (!new File(ImgTempPath).exists()) new File(ImgTempPath).mkdirs();
+        File file = new File(ImgTempPath + index + ".png");
         String sql = "select * from image_list where img_index=?;";
         try (Stat stat = new Stat(sql)) {
             stat.setString(1, index);
@@ -88,7 +90,7 @@ public class ImageDao {
 
     public boolean execUpdate(String index, File img) throws RuntimeError {
         if (index == null || img == null) return false;
-        if (!new File(imgTempPath).exists()) new File(imgTempPath).mkdirs();
+        if (!new File(ImgTempPath).exists()) new File(ImgTempPath).mkdirs();
         String sql = "UPDATE image_list SET img_file=? where img_index=?;";
         try (FileInputStream fis = new FileInputStream(img); Stat stat = new Stat(sql)) {
             stat.setBytes(1, fis.readAllBytes());

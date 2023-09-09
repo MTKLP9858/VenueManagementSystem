@@ -28,7 +28,7 @@ public class ImageService {
     }
 
     public static String add(@NotNull MultipartFile img) throws RuntimeError {
-        File file = new File(ImageDao.imgTempPath + img.getOriginalFilename());
+        File file = new File(ImageDao.ImgTempPath + img.getOriginalFilename());
         try {
             FileUtils.copyInputStreamToFile(img.getInputStream(), file);
             if (!isImage(file)) throw new RuntimeError("image was broken, add failed", 165);
@@ -53,12 +53,12 @@ public class ImageService {
         }
     }
 
-    public static void delete(String index) throws RuntimeError {
-        new ImageDao().execDelete(index);
+    public static boolean delete(String index) throws RuntimeError {
+        return new ImageDao().execDelete(index);
     }
 
     public static boolean update(String index, @NotNull MultipartFile img) throws RuntimeError {
-        File file = new File(ImageDao.imgTempPath + img.getOriginalFilename());
+        File file = new File(ImageDao.ImgTempPath + img.getOriginalFilename());
         try {
             FileUtils.copyInputStreamToFile(img.getInputStream(), file);
             if (!isImage(file)) throw new RuntimeError("image was broken, update failed", 165);

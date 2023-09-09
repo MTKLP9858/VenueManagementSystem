@@ -4,9 +4,10 @@ import lombok.Data;
 
 @Data
 public class Venue {//场地
+    String uuid;//KEY
     String name;
     String area;
-    String stadium;//KEY
+    String stadium;
     String introduction;
     boolean active;
     double price;
@@ -14,6 +15,6 @@ public class Venue {//场地
 
     @Override
     public String toString() {
-        return "{\"name\":\"" + name + "\"" + ", \"area\":\"" + area + "\"" + ", \"stadium\":\"" + stadium + "\"" + ", \"introduction\":\"" + introduction + "\"" + ", \"active\":" + active + ", \"price\":" + price + '}';
+        return "{\"uuid\":\"" + uuid + "\"" + ", \"name\":\"" + name + "\"" + ", \"area\":\"" + area + "\"" + ", \"stadium\":\"" + stadium + "\"" + ", \"introduction\":\"" + introduction + "\"" + ", \"active\":" + active + ", \"price\":" + price + '}';
     }
 }

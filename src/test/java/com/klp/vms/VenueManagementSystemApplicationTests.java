@@ -1,26 +1,20 @@
 package com.klp.vms;
 
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
-import com.klp.vms.entity.Venue;
+import com.klp.vms.dao.VenueDao;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.sql.SQLException;
+import java.util.UUID;
 
 @SpringBootTest
 class VenueManagementSystemApplicationTests {
 
     @Test
-    void contextLoads() {
+    void contextLoads() throws SQLException {
 
-        JSONArray jsonArray = JSONArray.parse("[]");
-        jsonArray.add(0, "0");
-        jsonArray.add(1, "1");
-        jsonArray.add(2, "2");
-        jsonArray.add(3, "3");
-        jsonArray.add(4, "4");
-        jsonArray.add(6, "5");
-        String string = jsonArray.toString();
-        System.out.println(string);
+       String str= new VenueDao().getUUID("12","12","11");
+        System.out.println(str);
     }
 
 }
