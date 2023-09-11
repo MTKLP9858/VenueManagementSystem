@@ -19,10 +19,10 @@ import java.util.HashMap;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-    @PostMapping("/update-avatar")
-    public String updateAvatar(@RequestHeader String access_token, @RequestParam MultipartFile img) {
+    @PostMapping("/updateAvatar")
+    public String updateAvatar(@RequestHeader String accessToken, @RequestParam MultipartFile img) {
         try {
-            UserService.updateAvatar(access_token, img);
+            UserService.updateAvatar(accessToken, img);
         } catch (SQLException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
@@ -43,10 +43,10 @@ public class UserController {
         return json.toString();
     }
 
-    @PostMapping(value = "/query-avatar", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
-    public ResponseEntity<byte[]> queryAvatar(@RequestHeader String access_token) {
+    @PostMapping(value = "/queryAvatar", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
+    public ResponseEntity<byte[]> queryAvatar(@RequestHeader String accessToken) {
         try {
-            return new ResponseEntity<>(UserService.queryAvatar(access_token), HttpStatus.OK);
+            return new ResponseEntity<>(UserService.queryAvatar(accessToken), HttpStatus.OK);
         } catch (RuntimeError e) {
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE);
@@ -68,9 +68,9 @@ public class UserController {
 
 
     @PostMapping("/rename")
-    public String rename(@RequestParam String new_username, @RequestHeader String access_token) {
+    public String rename(@RequestParam String new_username, @RequestHeader String accessToken) {
         try {
-            UserService.rename(new_username, access_token);
+            UserService.rename(new_username, accessToken);
         } catch (SQLException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
@@ -93,10 +93,10 @@ public class UserController {
 
 
     @PostMapping("/refresh")
-    public String refresh(@RequestHeader String refresh_token) {
+    public String refresh(@RequestHeader String refreshToken) {
         HashMap<String, String> map;
         try {
-            map = UserService.doRefreshToken(refresh_token);
+            map = UserService.doRefreshToken(refreshToken);
         } catch (SQLException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
@@ -111,8 +111,8 @@ public class UserController {
             return json.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("access_token", map.get("access_token"));
-        json.put("refresh_token", map.get("refresh_token"));
+        json.put("accessToken", map.get("access_token"));
+        json.put("refreshToken", map.get("refresh_token"));
         json.put("code", 203);
         json.put("success", true);
         json.put("message", "refresh success");

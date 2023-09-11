@@ -26,10 +26,10 @@ public class User {
         return "{\"userid\":\"" + userid + "\"" +
                 ", \"username\":\"" + username + "\"" +
                 ", \"op\":" + op +
-                ", \"access_token\":\"" + access_token + "\"" +
-                ", \"access_token_age\":\"" + access_token_age + "\"" +
-                ", \"refresh_token\":\"" + refresh_token + "\"" +
-                ", \"refresh_token_age\":\"" + refresh_token_age + "\"" +
+                ", \"accessToken\":\"" + access_token + "\"" +
+                ", \"accessTokenAge\":\"" + access_token_age + "\"" +
+                ", \"refreshToken\":\"" + refresh_token + "\"" +
+                ", \"refreshTokenAge\":\"" + refresh_token_age + "\"" +
                 '}';
     }
 }

@@ -119,14 +119,14 @@ public class VenueDao implements Dao<Venue> {//场地
         if (uuid != null) {
             throw new RuntimeError("The same venue exists!", 223);
         }
-        String sql = "insert into Venue (uuid,name, area, stadium, introduction, active, price) VALUES (?,?,?,?,?,?,?);";
+        String sql = "insert into Venue (uuid,name, area, stadium, introduction, state, price) VALUES (?,?,?,?,?,?,?);";
         try (Stat stat = new Stat(sql)) {
-            stat.setString(1, String.valueOf(UUID.randomUUID()));
+            stat.setString(1, venue.getUUID() == null ? String.valueOf(UUID.randomUUID()) : venue.getUUID());
             stat.setString(2, venue.getName());
             stat.setString(3, venue.getArea());
             stat.setString(4, venue.getStadium());
             stat.setString(5, venue.getIntroduction());
-            stat.setBoolean(6, venue.isActive());
+            stat.setString(6, venue.getState());
             stat.setDouble(7, venue.getPrice());
             return stat.executeUpdate();
         }
@@ -172,10 +172,6 @@ public class VenueDao implements Dao<Venue> {//场地
         return execQuery("price", String.valueOf(price));
     }
 
-    public ArrayList<Venue> execQuery(boolean isActive) throws SQLException {
-        return execQuery("active", isActive ? "1" : "0");
-    }
-
     public Venue execQuery(String uuid) throws SQLException {
         return execQuery("uuid", uuid).get(0);
     }
@@ -190,12 +186,12 @@ public class VenueDao implements Dao<Venue> {//场地
             ResultSet rs = stat.executeQuery();
             while (rs.next()) {
                 Venue venue = new Venue();
-                venue.setUuid(rs.getString("uuid"));
+                venue.setUUID(rs.getString("uuid"));
                 venue.setName(rs.getString("name"));
                 venue.setArea(rs.getString("area"));
                 venue.setStadium(rs.getString("stadium"));
                 venue.setIntroduction(rs.getString("introduction"));
-                venue.setActive(rs.getBoolean("active"));
+                venue.setState(rs.getString("state"));
                 venue.setPrice(rs.getDouble("price"));
                 list.add(venue);
             }
