@@ -8,6 +8,12 @@ public class User {
         this.op = op;
     }
 
+    public static class OP {
+        public final static int USER = 0;
+        public final static int ADMIN = 5;
+        public final static int SU = 10;
+    }
+
     private String userid;//KEY,用户唯一id
     private String username;//用户昵称
     private String password;//密码
@@ -23,13 +29,6 @@ public class User {
 
     @Override
     public String toString() {
-        return "{\"userid\":\"" + userid + "\"" +
-                ", \"username\":\"" + username + "\"" +
-                ", \"op\":" + op +
-                ", \"accessToken\":\"" + access_token + "\"" +
-                ", \"accessTokenAge\":\"" + access_token_age + "\"" +
-                ", \"refreshToken\":\"" + refresh_token + "\"" +
-                ", \"refreshTokenAge\":\"" + refresh_token_age + "\"" +
-                '}';
+        return "{\"userid\":\"" + userid + "\"" + ", \"username\":\"" + username + "\"" + ", \"op\":" + op + ", \"accessToken\":\"" + access_token + "\"" + ", \"accessTokenAge\":\"" + access_token_age + "\"" + ", \"refreshToken\":\"" + refresh_token + "\"" + ", \"refreshTokenAge\":\"" + refresh_token_age + "\"" + '}';
     }
 }
