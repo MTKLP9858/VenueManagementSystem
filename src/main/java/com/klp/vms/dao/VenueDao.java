@@ -178,7 +178,6 @@ public class VenueDao implements Dao<Venue> {//场地
 
     @Override
     public ArrayList<Venue> execQuery(String column, String value) throws SQLException {
-        if (value == null) return null;
         String sql = "select * from Venue where " + column + "=?;";
         ArrayList<Venue> list = new ArrayList<>();
         try (Stat stat = new Stat(sql)) {

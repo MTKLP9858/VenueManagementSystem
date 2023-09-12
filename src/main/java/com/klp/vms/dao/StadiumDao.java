@@ -122,7 +122,6 @@ public class StadiumDao implements Dao<Stadium> {
 
     @Override
     public List<Stadium> execQuery(String column, String value) throws SQLException, RuntimeError {
-        if (value == null) return null;
         String sql = "select * from Stadium where " + column + "=?;";
         ArrayList<Stadium> list = new ArrayList<>();
         try (Stat stat = new Stat(sql)) {

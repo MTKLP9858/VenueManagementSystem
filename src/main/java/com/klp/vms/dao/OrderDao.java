@@ -43,7 +43,6 @@ public class OrderDao implements Dao<Order> {
     @Override
     public List<Order> execQuery(String column, String value) throws SQLException {
         String sql = "select * from \"Order\" where " + column + "=?;";
-        if (value == null) return null;
         ArrayList<Order> list = new ArrayList<>();
         try (Stat stat = new Stat(sql)) {
             stat.setString(1, value);

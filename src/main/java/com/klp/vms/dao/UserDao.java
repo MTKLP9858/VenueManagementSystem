@@ -62,7 +62,6 @@ public class UserDao implements Dao<User> {
     @Override
     public ArrayList<User> execQuery(String column, String value) throws SQLException {
         String sql = "select * from User where " + column + "=?;";
-        if (value == null) return null;
         ArrayList<User> list = new ArrayList<>();
         try (Stat stat = new Stat(sql)) {
             stat.setString(1, value);

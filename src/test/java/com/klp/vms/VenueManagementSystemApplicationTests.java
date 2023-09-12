@@ -1,6 +1,7 @@
 package com.klp.vms;
 
 import com.klp.vms.entity.Venue;
+import com.klp.vms.service.StadiumService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -10,8 +11,7 @@ import java.sql.SQLException;
 class VenueManagementSystemApplicationTests {
 
     @Test
-    void contextLoads() throws SQLException {
-
+    void contextLoads() {
     }
 
 }

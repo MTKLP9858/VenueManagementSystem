@@ -50,7 +50,8 @@ public class VenueController {
     @PostMapping("/delete")
     public String delete(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium) {
         try {
-            VenueService.delete(accessToken, name, area, stadium);
+
+            VenueService.delete(accessToken, VenueService.getUUID(name, area, stadium));
         } catch (SQLException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
@@ -72,13 +73,19 @@ public class VenueController {
     }
 
     @PostMapping("/query")
-    public String query(@RequestParam String name, @RequestParam String area, @RequestParam String stadium) {
+    public String query(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium) {
         Venue venue;
         try {
-            venue = VenueService.query(name, area, stadium);
+            venue = VenueService.query(accessToken, VenueService.getUUID(name, area, stadium));
         } catch (SQLException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
+            json.put("success", false);
+            json.put("message", e.getMessage());
+            return json.toString();
+        } catch (RuntimeError e) {
+            JSONObject json = new JSONObject();
+            json.put("code", e.getCode());
             json.put("success", false);
             json.put("message", e.getMessage());
             return json.toString();
