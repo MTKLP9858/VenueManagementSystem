@@ -20,6 +20,16 @@ public class StadiumService {
         return stadiumList.get(0).getAdminUser();
     }
 
+    private static void verifyAdminOfStadiumByName(String accessToken, String name) throws SQLException, RuntimeError {
+        User user = UserService.verifyAccessToken(accessToken);
+        if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
+
+        String adminUserID = StadiumService.getAdminUser(name).getUserid();
+        if (!Objects.equals(user.getUserid(), adminUserID) && user.getOp() == User.OP.ADMIN) {
+            throw new RuntimeError("You are not the administrator of this stadium! Permission denied!", 271);
+        }
+    }
+
     public static byte[] queryImg(String accessToken, int imgIndex, String name) throws SQLException, RuntimeError {
         User user = UserService.verifyAccessToken(accessToken);
 //        if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
@@ -38,26 +48,14 @@ public class StadiumService {
     }
 
     public static void addImg(String accessToken, @NotNull MultipartFile img, String name) throws SQLException, RuntimeError {
-        User user = UserService.verifyAccessToken(accessToken);
-        if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
-
-        String adminUserID = StadiumService.getAdminUser(name).getUserid();
-        if (!Objects.equals(user.getUserid(), adminUserID) && user.getOp() == User.OP.ADMIN) {
-            throw new RuntimeError("You are not the administrator of this stadium! Permission denied!", 271);
-        }
+        verifyAdminOfStadiumByName(accessToken, name);
 
         int oldSize = new StadiumDao().getSizeOfImageList(name);
         new StadiumDao().imgInsert(oldSize, img, name);
     }
 
     public static boolean deleteImg(String accessToken, int imgIndex, String name) throws SQLException, RuntimeError {
-        User user = UserService.verifyAccessToken(accessToken);
-        if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
-
-        String adminUserID = StadiumService.getAdminUser(name).getUserid();
-        if (!Objects.equals(user.getUserid(), adminUserID) && user.getOp() == User.OP.ADMIN) {
-            throw new RuntimeError("You are not the administrator of this stadium! Permission denied!", 271);
-        }
+        verifyAdminOfStadiumByName(accessToken, name);
 
         int size = new StadiumDao().getSizeOfImageList(name);
         if (imgIndex < size) {
@@ -68,13 +66,7 @@ public class StadiumService {
     }
 
     public static boolean updateImg(String accessToken, int index, @NotNull MultipartFile img, String name) throws SQLException, RuntimeError {
-        User user = UserService.verifyAccessToken(accessToken);
-        if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
-
-        String adminUserID = StadiumService.getAdminUser(name).getUserid();
-        if (!Objects.equals(user.getUserid(), adminUserID) && user.getOp() == User.OP.ADMIN) {
-            throw new RuntimeError("You are not the administrator of this stadium! Permission denied!", 271);
-        }
+        verifyAdminOfStadiumByName(accessToken, name);
 
         return new StadiumDao().imgUpdate(index, img, name);
     }
