@@ -114,7 +114,7 @@ public class StadiumService {
         return null;
     }
 
-    public static void update(String accessToken, String name, String column, String value) throws RuntimeError, SQLException {
+    public static int update(String accessToken, String name, String column, String value) throws RuntimeError, SQLException {
         User user = UserService.verifyAccessToken(accessToken);
         if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
         switch (column) {
@@ -125,7 +125,7 @@ public class StadiumService {
                 }
                 Stadium stadium = stadiumList.get(0);
                 if (Objects.equals(stadium.getAdminUserID(), user.getUserid()) && user.getOp() == User.OP.ADMIN) {//验证是否为管理员
-                    new StadiumDao().execUpdate(column, value, name);
+                    return new StadiumDao().execUpdate(column, value, name);
                 } else {
                     throw new RuntimeError("Permission denied: you are not the Admin of this stadium!", 500);
                 }

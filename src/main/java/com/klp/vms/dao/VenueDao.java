@@ -204,12 +204,12 @@ public class VenueDao implements Dao<Venue> {//场地
         if (venue == null) {
             throw new RuntimeError("Target not found!", 220);
         }
-////      凭UUID查询是否存在该场馆
-//        if (new StadiumDao().execQuery("name", venue.getStadium()).isEmpty()) {
-////          如果没有该场馆，证明该uuid对应的venue失效，执行删除
+//      凭UUID查询是否存在该场馆
+        if (new StadiumDao().execQuery("name", venue.getStadium()).isEmpty()) {
+//          如果没有该场馆，证明该uuid对应的venue失效，执行删除
 //            execDelete(null, venue.getStadium());
-//            throw new RuntimeError("error!", 219);
-//        }
+            throw new RuntimeError("error!", 219);
+        }
         if (Objects.equals(column, "stadium")) {
             if (new StadiumDao().execQuery("name", value).isEmpty()) {
                 throw new RuntimeError("no such value in Stadium.name!", 223);
