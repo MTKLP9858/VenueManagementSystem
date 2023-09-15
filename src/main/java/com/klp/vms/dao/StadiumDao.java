@@ -121,11 +121,11 @@ public class StadiumDao implements Dao<Stadium> {
     }
 
     @Override
-    public List<Stadium> execQuery(String column, String value) throws SQLException, RuntimeError {
+    public List<Stadium> execQuery(String column, Object value) throws SQLException, RuntimeError {
         String sql = "select * from Stadium where " + column + "=?;";
         ArrayList<Stadium> list = new ArrayList<>();
         try (Stat stat = new Stat(sql)) {
-            stat.setString(1, value);
+            stat.setObject(1, value);
             ResultSet rs = stat.executeQuery();
             while (rs.next()) {
                 Stadium stadium = new Stadium();

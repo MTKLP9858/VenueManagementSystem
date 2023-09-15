@@ -10,7 +10,7 @@ public interface Dao<T> {
 
     int execDelete(String KeyColumn) throws Exception;
 
-    List<T> execQuery(String column, String value) throws Exception;
+    List<T> execQuery(String column, Object value) throws Exception;
 
-    int execUpdate(String column, Object value, String KeyColumn) throws Exception;
+    int execUpdate(String column, Object value, String KeyIndexValue) throws Exception;
 }

@@ -177,11 +177,11 @@ public class VenueDao implements Dao<Venue> {//场地
     }
 
     @Override
-    public ArrayList<Venue> execQuery(String column, String value) throws SQLException {
+    public ArrayList<Venue> execQuery(String column, Object value) throws SQLException {
         String sql = "select * from Venue where " + column + "=?;";
         ArrayList<Venue> list = new ArrayList<>();
         try (Stat stat = new Stat(sql)) {
-            stat.setString(1, value);
+            stat.setObject(1, value);
             ResultSet rs = stat.executeQuery();
             while (rs.next()) {
                 Venue venue = new Venue();
