@@ -12,5 +12,5 @@ public interface Dao<T> {
 
     List<T> execQuery(String column, String value) throws Exception;
 
-    int execUpdate(String column, String value, String KeyColumn) throws Exception;
+    int execUpdate(String column, Object value, String KeyColumn) throws Exception;
 }

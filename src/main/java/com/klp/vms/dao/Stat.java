@@ -99,4 +99,7 @@ public class Stat implements AutoCloseable {
         return this;
     }
 
+    public void setObject(int index, Object x) throws SQLException {
+        stat.setObject(index,x);
+    }
 }

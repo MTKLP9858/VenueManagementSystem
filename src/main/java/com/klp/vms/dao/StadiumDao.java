@@ -144,10 +144,10 @@ public class StadiumDao implements Dao<Stadium> {
     }
 
     @Override
-    public int execUpdate(String column, String value, String name) throws SQLException {
+    public int execUpdate(String column, Object value, String name) throws SQLException {
         String sql = "UPDATE Stadium SET " + column + "=? WHERE name=?";
         try (Stat stat = new Stat(sql)) {
-            stat.setString(1, value);
+            stat.setObject(1, value);
             stat.setString(2, name);
             return stat.executeUpdate();
         }

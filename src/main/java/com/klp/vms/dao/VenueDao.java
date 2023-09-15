@@ -198,7 +198,7 @@ public class VenueDao implements Dao<Venue> {//场地
         return list;
     }
 
-    public int execUpdate(String column, String value, String uuid) throws RuntimeError, SQLException {
+    public int execUpdate(String column, Object value, String uuid) throws RuntimeError, SQLException {
         if (column == null || value == null || uuid == null) return 0;
         Venue venue = execQuery(uuid);
         if (venue == null) {
@@ -211,19 +211,19 @@ public class VenueDao implements Dao<Venue> {//场地
             throw new RuntimeError("error!", 219);
         }
         if (Objects.equals(column, "stadium")) {
-            if (new StadiumDao().execQuery("name", value).isEmpty()) {
+            if (new StadiumDao().execQuery("name", (String) value).isEmpty()) {
                 throw new RuntimeError("no such value in Stadium.name!", 223);
             }
         }
         if (Objects.equals(column, "name")) {
-            if (getUUID(value, venue.getArea(), venue.getStadium()) != null) {
+            if (getUUID((String) value, venue.getArea(), venue.getStadium()) != null) {
                 throw new RuntimeError("The same Stadium.name exists!", 224);
             }
         }
         String sql = "UPDATE Venue SET " + column + "=? WHERE uuid=?;";
         try (Stat stat = new Stat(sql)) {
             stat.setString(1, column);
-            stat.setString(2, value);
+            stat.setObject(2, value);
             stat.setString(3, uuid);
             return stat.executeUpdate();
         }

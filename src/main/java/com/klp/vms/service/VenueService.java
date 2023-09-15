@@ -120,4 +120,32 @@ public class VenueService {
         }
         return -1;
     }
+
+    public static void setState(String accessToken, String uuid, String state) throws RuntimeError, SQLException {
+        verifyAdminOfVenueByUUID(accessToken, uuid);
+        if (Objects.equals(state, Venue.STATE.OPENED) || Objects.equals(state, Venue.STATE.CLOSING) || Objects.equals(state, Venue.STATE.CLOSED)) {
+            new VenueDao().execUpdate("state", state, uuid);
+        } else {
+            throw new RuntimeError("Illegal entry at " + state, 303);
+        }
+    }
+
+    public static String getState(String uuid) throws SQLException {
+        return new VenueDao().execQuery(uuid).getState();
+    }
+
+    public static void setPrice(String accessToken, String uuid, double price) throws RuntimeError, SQLException {
+        verifyAdminOfVenueByUUID(accessToken, uuid);
+        if (price >= 0) {
+            new VenueDao().execUpdate("state", price, uuid);
+        } else {
+            throw new RuntimeError("The price cannot be negative", 303);
+        }
+    }
+
+    public static String getPrice(String uuid) throws SQLException {
+        return new VenueDao().execQuery(uuid).getState();
+    }
 }
+
+

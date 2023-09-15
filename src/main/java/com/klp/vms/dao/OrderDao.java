@@ -12,7 +12,7 @@ import java.util.Objects;
 public class OrderDao implements Dao<Order> {
     @Override
     public int execInsert(Order order) throws SQLException {
-        String sql = "insert into \"Order\" (number, userid, stadiumName, venueName, state, payTime, occupyStartTime, occupyEndTime, information, message) VALUES (?,?,?,?,?,?,?,?,?,?);";
+        String sql = "insert into \"Order\" (number, userid, stadiumName, venueUUID, state, payTime, occupyStartTime, occupyEndTime, information, message) VALUES (?,?,?,?,?,?,?,?,?,?);";
         try (Stat stat = new Stat(sql)) {
             stat.setDouble(1, order.getNumber());
             stat.setString(2, order.getUserid());
@@ -70,10 +70,10 @@ public class OrderDao implements Dao<Order> {
     }
 
     @Override
-    public int execUpdate(String column, String value, String number) throws SQLException {
+    public int execUpdate(String column, Object value, String number) throws SQLException {
         String sql = "UPDATE \"Order\" SET " + column + "=? WHERE number=?";
         try (Stat stat = new Stat(sql)) {
-            stat.setString(1, value);
+            stat.setObject(1, value);
             stat.setString(2, number);
             return stat.executeUpdate();
         }

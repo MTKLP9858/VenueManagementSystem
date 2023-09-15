@@ -108,10 +108,10 @@ public class UserDao implements Dao<User> {
         }
     }
 
-    public int execUpdate(String column, String value, String userid) throws SQLException {
+    public int execUpdate(String column, Object value, String userid) throws SQLException {
         String sql = "UPDATE User SET " + column + "=? WHERE userid=?;";
         try (Stat stat = new Stat(sql)) {
-            stat.setString(1, value);
+            stat.setObject(1, value);
             stat.setString(2, userid);
             return stat.executeUpdate();
         }
