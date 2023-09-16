@@ -172,8 +172,12 @@ public class VenueDao implements Dao<Venue> {//场地
         return execQuery("price", String.valueOf(price));
     }
 
-    public Venue execQuery(String uuid) throws SQLException {
-        return execQuery("uuid", uuid).get(0);
+    public Venue execQuery(String uuid) throws SQLException, RuntimeError {
+        ArrayList<Venue> list = execQuery("uuid", uuid);
+        if (list.size() != 1) {
+            throw new RuntimeError("The target was not found or there are multiple identical targets!", 371);
+        }
+        return list.get(0);
     }
 
     @Override

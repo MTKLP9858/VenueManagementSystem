@@ -120,6 +120,14 @@ public class StadiumDao implements Dao<Stadium> {
         }
     }
 
+    public Stadium execQuery(String name) throws SQLException, RuntimeError {
+        List<Stadium> stadiumList = execQuery("name", name);
+        if (stadiumList.size() != 1) {
+            throw new RuntimeError("The target was not found or there are multiple identical targets!", 371);
+        }
+        return stadiumList.get(0);
+    }
+
     @Override
     public List<Stadium> execQuery(String column, Object value) throws SQLException, RuntimeError {
         String sql = "select * from Stadium where " + column + "=?;";
