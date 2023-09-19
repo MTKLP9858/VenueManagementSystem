@@ -42,4 +42,14 @@ public class OrderService {
     public static Order query(String accessToken, int number) throws SQLException, RuntimeError {
         return verifyAdminOfVenueByNumber(accessToken, number);
     }
+
+    public static void newOrder(String accessToken, String userid, String stadiumName, String venueUUID, String state) {
+
+    }
+
+    public static void updatePayTime(String accessToken, int number) {
+
+    }
+
+
 }
