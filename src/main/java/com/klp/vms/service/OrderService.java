@@ -43,8 +43,18 @@ public class OrderService {
         return verifyAdminOfVenueByNumber(accessToken, number);
     }
 
-    public static void newOrder(String accessToken, String userid, String stadiumName, String venueUUID, String state) {
-
+    /**
+     * @param accessToken
+     * @param userid
+     * @param venueUUID
+     * @param state
+     */
+    public static void newOrder(String accessToken, String userid, String venueUUID, String state) throws SQLException, RuntimeError {
+        User user = UserService.verifyAccessToken(accessToken);
+        Order order = new Order();
+        order.setUserid(userid);
+        order.setVenueUUID(venueUUID);
+        order.setState(state);
     }
 
     public static void updatePayTime(String accessToken, int number) {

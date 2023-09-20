@@ -17,7 +17,7 @@ public class OrderDao implements Dao<Order> {
             stat.setDouble(1, order.getNumber());
             stat.setString(2, order.getUserid());
             stat.setString(3, order.getStadiumName());
-            stat.setString(4, order.getVenueName());
+            stat.setString(4, order.getVenueUUID());
             stat.setString(5, order.getState());
             stat.setString(6, order.getPayTime());
             stat.setString(7, order.getOccupyStartTime());
@@ -52,7 +52,7 @@ public class OrderDao implements Dao<Order> {
                 order.setNumber(rs.getLong("number"));
                 order.setUserid(rs.getString("userid"));
                 order.setStadiumName(rs.getString("stadiumName"));
-                order.setVenueName(rs.getString("venueName"));
+                order.setVenueUUID(rs.getString("venueUUID"));
                 order.setState(rs.getString("state"));
                 order.setPayTime(rs.getString("payTime"));
                 order.setOccupyStartTime(rs.getString("occupyStartTime"));

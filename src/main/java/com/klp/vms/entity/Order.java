@@ -7,7 +7,7 @@ public class Order {
     private long number;//KEY
     private String userid;
     private String stadiumName;
-    private String venueName;
+    private String venueUUID;
     private String state;
     private String payTime;
     private String occupyStartTime;

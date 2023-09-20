@@ -12,6 +12,11 @@ import java.util.List;
 import java.util.Objects;
 
 public class StadiumService {
+    public static List<Stadium> getStadiumName(String adminAccessToken) throws SQLException, RuntimeError {
+        User user = UserService.verifyAccessToken(adminAccessToken);
+        return new StadiumDao().execQuery("adminUserID", user.getUserid());
+    }
+
     public static User getAdminUser(String stadiumName) throws SQLException, RuntimeError {
         List<Stadium> stadiumList = new StadiumDao().execQuery("name", stadiumName);
         if (stadiumList.size() != 1) {
