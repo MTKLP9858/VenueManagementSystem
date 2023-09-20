@@ -12,9 +12,16 @@ import java.util.List;
 import java.util.Objects;
 
 public class StadiumService {
-    public static List<Stadium> getStadiumName(String adminAccessToken) throws SQLException, RuntimeError {
+    public static Stadium getStadiumName(String adminAccessToken) throws SQLException, RuntimeError {
         User user = UserService.verifyAccessToken(adminAccessToken);
-        return new StadiumDao().execQuery("adminUserID", user.getUserid());
+        if (user.getOp() == User.OP.USER) {
+            throw new RuntimeError("The AdminAccessToken you input is not an admin!", 282);
+        }
+        List<Stadium> stadiumList = new StadiumDao().execQuery("adminUserID", user.getUserid());
+        if (stadiumList.size() != 1) {
+            throw new RuntimeError("Can't find this name from all the stadiums! Or more than one stadiums have the same name!", 280);
+        }
+        return stadiumList.get(0);
     }
 
     public static User getAdminUser(String stadiumName) throws SQLException, RuntimeError {

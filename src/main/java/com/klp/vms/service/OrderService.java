@@ -51,6 +51,8 @@ public class OrderService {
      */
     public static void newOrder(String accessToken, String userid, String venueUUID, String state) throws SQLException, RuntimeError {
         User user = UserService.verifyAccessToken(accessToken);
+        Stadium stadium = StadiumService.getStadiumName(accessToken);
+        stadium.getName();
         Order order = new Order();
         order.setUserid(userid);
         order.setVenueUUID(venueUUID);
