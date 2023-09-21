@@ -34,11 +34,7 @@ public class VenueController {
             json.put("message", e.getMessage());
             return json.toString();
         } catch (RuntimeError e) {
-            JSONObject json = new JSONObject();
-            json.put("code", e.getCode());
-            json.put("success", false);
-            json.put("message", e.getMessage());
-            return json.toString();
+            return e.toString();
         }
         JSONObject json = new JSONObject();
         json.put("code", 220);
@@ -59,11 +55,7 @@ public class VenueController {
             json.put("message", e.getMessage());
             return json.toString();
         } catch (RuntimeError e) {
-            JSONObject json = new JSONObject();
-            json.put("code", e.getCode());
-            json.put("success", false);
-            json.put("message", e.getMessage());
-            return json.toString();
+            return e.toString();
         }
         JSONObject json = new JSONObject();
         json.put("code", 220);
@@ -84,11 +76,7 @@ public class VenueController {
             json.put("message", e.getMessage());
             return json.toString();
         } catch (RuntimeError e) {
-            JSONObject json = new JSONObject();
-            json.put("code", e.getCode());
-            json.put("success", false);
-            json.put("message", e.getMessage());
-            return json.toString();
+            return e.toString();
         }
         JSONObject json = JSON.parseObject(venue.toString());
         json.put("code", 220);

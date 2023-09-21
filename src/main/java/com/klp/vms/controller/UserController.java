@@ -30,11 +30,7 @@ public class UserController {
             json.put("message", e.getMessage());
             return json.toString();
         } catch (RuntimeError e) {
-            JSONObject json = new JSONObject();
-            json.put("code", e.getCode());
-            json.put("success", false);
-            json.put("message", e.getMessage());
-            return json.toString();
+            return e.toString();
         }
         JSONObject json = new JSONObject();
         json.put("code", 211);
@@ -50,11 +46,7 @@ public class UserController {
         } catch (RuntimeError e) {
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE);
-            JSONObject json = new JSONObject();
-            json.put("code", e.getCode());
-            json.put("success", false);
-            json.put("message", e.getMessage());
-            return new ResponseEntity<>(json.toString().getBytes(), headers, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.toString().getBytes(), headers, HttpStatus.NOT_FOUND);
         } catch (SQLException e) {
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE);
@@ -78,11 +70,7 @@ public class UserController {
             json.put("message", e.getMessage());
             return json.toString();
         } catch (RuntimeError e) {
-            JSONObject json = new JSONObject();
-            json.put("code", e.getCode());
-            json.put("success", false);
-            json.put("message", e.getMessage());
-            return json.toString();
+            return e.toString();
         }
         JSONObject json = new JSONObject();
         json.put("code", 205);
@@ -104,11 +92,7 @@ public class UserController {
             json.put("message", e.getMessage());
             return json.toString();
         } catch (RuntimeError e) {
-            JSONObject json = new JSONObject();
-            json.put("code", e.getCode());
-            json.put("success", false);
-            json.put("message", e.getMessage());
-            return json.toString();
+            return e.toString();
         }
         JSONObject json = new JSONObject();
         json.put("accessToken", map.get("access_token"));
@@ -135,11 +119,7 @@ public class UserController {
             json.put("message", e.getMessage());
             return json.toString();
         } catch (RuntimeError e) {
-            JSONObject json = new JSONObject();
-            json.put("code", e.getCode());
-            json.put("success", false);
-            json.put("message", e.getMessage());
-            return json.toString();
+            return e.toString();
         }
         JSONObject json = (JSONObject) JSONObject.parse(user.toString());
         json.put("code", 201);
@@ -164,11 +144,7 @@ public class UserController {
             json.put("message", e.getMessage());
             return json.toString();
         } catch (RuntimeError e) {
-            JSONObject json = new JSONObject();
-            json.put("code", e.getCode());
-            json.put("success", false);
-            json.put("message", e.getMessage());
-            return json.toString();
+            return e.toString();
         }
         JSONObject json = (JSONObject) JSONObject.parse(user.toString());
         json.put("code", 201);
@@ -190,11 +166,7 @@ public class UserController {
             json.put("message", e.getMessage());
             return json.toString();
         } catch (RuntimeError e) {
-            JSONObject json = new JSONObject();
-            json.put("code", e.getCode());
-            json.put("success", false);
-            json.put("message", e.getMessage());
-            return json.toString();
+            return e.toString();
         }
         JSONObject json = (JSONObject) JSONObject.parse(user.toString());
         json.put("code", 200);

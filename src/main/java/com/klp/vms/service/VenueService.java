@@ -99,7 +99,7 @@ public class VenueService {
 
     public static Venue query(String accessToken, String uuid) throws SQLException, RuntimeError {
         User user = UserService.verifyAccessToken(accessToken);
-        if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
+//        if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
         String stadiumFromUUID = new VenueDao().execQuery(uuid).getStadium();
         String adminUserID = StadiumService.getAdminUser(stadiumFromUUID).getUserid();
         if (!Objects.equals(user.getUserid(), adminUserID) && user.getOp() == User.OP.ADMIN) {
@@ -130,7 +130,7 @@ public class VenueService {
         }
     }
 
-    public static String getState(String uuid) throws SQLException {
+    public static String getState(String uuid) throws SQLException, RuntimeError {
         return new VenueDao().execQuery(uuid).getState();
     }
 
@@ -143,7 +143,7 @@ public class VenueService {
         }
     }
 
-    public static String getPrice(String uuid) throws SQLException {
+    public static String getPrice(String uuid) throws SQLException, RuntimeError {
         return new VenueDao().execQuery(uuid).getState();
     }
 }

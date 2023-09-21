@@ -14,7 +14,7 @@ import java.util.Objects;
 public class StadiumService {
     public static Stadium getStadiumName(String adminAccessToken) throws SQLException, RuntimeError {
         User user = UserService.verifyAccessToken(adminAccessToken);
-        if (user.getOp() == User.OP.USER) {
+        if (user.getOp() != User.OP.ADMIN) {
             throw new RuntimeError("The AdminAccessToken you input is not an admin!", 282);
         }
         List<Stadium> stadiumList = new StadiumDao().execQuery("adminUserID", user.getUserid());

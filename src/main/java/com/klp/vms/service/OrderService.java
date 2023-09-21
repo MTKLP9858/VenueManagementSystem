@@ -5,9 +5,12 @@ import com.klp.vms.dao.StadiumDao;
 import com.klp.vms.entity.Order;
 import com.klp.vms.entity.Stadium;
 import com.klp.vms.entity.User;
+import com.klp.vms.entity.Venue;
 import com.klp.vms.exception.RuntimeError;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -51,12 +54,21 @@ public class OrderService {
      */
     public static void newOrder(String accessToken, String userid, String venueUUID, String state) throws SQLException, RuntimeError {
         User user = UserService.verifyAccessToken(accessToken);
-        Stadium stadium = StadiumService.getStadiumName(accessToken);
-        stadium.getName();
-        Order order = new Order();
-        order.setUserid(userid);
-        order.setVenueUUID(venueUUID);
-        order.setState(state);
+        if (user.getOp() == User.OP.ADMIN) {
+            Venue venue = VenueService.query(accessToken, venueUUID);
+            Stadium stadium = StadiumService.getStadiumName(accessToken);
+            if (Objects.equals(stadium.getAdminUserID(), user.getUserid())) {
+                Order order = new Order();
+                order.setUserid(userid);
+                order.setStadiumName(venue.getStadium());
+                order.setVenueUUID(venueUUID);
+
+                order.setState(Order.STATE.PAID);
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                order.setPayTime(sdf.format(new Date()));
+
+            }
+        }
     }
 
     public static void updatePayTime(String accessToken, int number) {
