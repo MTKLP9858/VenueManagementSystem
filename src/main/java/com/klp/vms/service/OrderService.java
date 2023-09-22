@@ -50,9 +50,8 @@ public class OrderService {
      * @param accessToken
      * @param userid
      * @param venueUUID
-     * @param state
      */
-    public static void newOrder(String accessToken, String userid, String venueUUID, String state) throws SQLException, RuntimeError {
+    public static void newOrder(String accessToken, String userid, String venueUUID, long occupyStartTime, long occupyEndTime) throws SQLException, RuntimeError {
         User user = UserService.verifyAccessToken(accessToken);
         if (user.getOp() == User.OP.ADMIN) {
             Venue venue = VenueService.query(accessToken, venueUUID);
@@ -67,6 +66,10 @@ public class OrderService {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 order.setPayTime(sdf.format(new Date()));
 
+                if (new Date().after(new Date(occupyStartTime))) {
+
+                }
+                order.setOccupyStartTime(sdf.format(new Date(occupyStartTime)));
             }
         }
     }
