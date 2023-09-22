@@ -53,25 +53,38 @@ public class OrderService {
      */
     public static void newOrder(String accessToken, String userid, String venueUUID, long occupyStartTime, long occupyEndTime) throws SQLException, RuntimeError {
         User user = UserService.verifyAccessToken(accessToken);
+        Order order = new Order();
+
+        Venue venue = VenueService.query(accessToken, venueUUID);
+        order.setUserid(userid);
+        order.setStadiumName(venue.getStadium());
+        order.setVenueUUID(venueUUID);
+
         if (user.getOp() == User.OP.ADMIN) {
-            Venue venue = VenueService.query(accessToken, venueUUID);
-            Stadium stadium = StadiumService.getStadiumName(accessToken);
-            if (Objects.equals(stadium.getAdminUserID(), user.getUserid())) {
-                Order order = new Order();
-                order.setUserid(userid);
-                order.setStadiumName(venue.getStadium());
-                order.setVenueUUID(venueUUID);
-
+            if (Objects.equals(StadiumService.getStadiumByAdminAccessToken(accessToken).getName(), venue.getStadium())) {
                 order.setState(Order.STATE.PAID);
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                order.setPayTime(sdf.format(new Date()));
-
-                if (new Date().after(new Date(occupyStartTime))) {
-
-                }
-                order.setOccupyStartTime(sdf.format(new Date(occupyStartTime)));
             }
         }
+        if (user.getOp() == User.OP.USER) {
+            order.setState(Order.STATE.UNPAID);
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date now = new Date();
+        order.setPayTime(sdf.format(now));
+
+        Date startTime = new Date(occupyStartTime);
+        Date endTime = new Date(occupyEndTime);
+
+        if (startTime.after(now) && endTime.after(now) && endTime.after(startTime)) {
+            order.setOccupyStartTime(sdf.format(startTime));
+            order.setOccupyEndTime(sdf.format(endTime));
+        } else {
+            throw new RuntimeError("The time format is incorrect!", 533);
+        }
+
+
+
     }
 
     public static void updatePayTime(String accessToken, int number) {

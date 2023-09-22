@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class Order {
     public static class STATE {
-        public final static String NOTPAID = "未支付";
+        public final static String UNPAID = "未支付";
         public final static String PAYING = "支付中";
         public final static String PAID = "已支付";
         public final static String USING = "使用中";
