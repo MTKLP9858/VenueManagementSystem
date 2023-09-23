@@ -60,6 +60,9 @@ public class OrderService {
         Order order = new Order();
 
         Venue venue = VenueService.query(accessToken, venueUUID);
+        if (venue == null) {
+            throw new RuntimeError("No such venueUUID!", 403);
+        }
         order.setUserid(userid);
         order.setStadiumName(venue.getStadium());
         order.setVenueUUID(venueUUID);
@@ -98,7 +101,7 @@ public class OrderService {
         new OrderDao().execInsert(order);
     }
 
-    private static void queryOrderByTime(String venueUUID,long occupyStartTime,long occupyEndTime){
+    private static void queryOrderByTime(String venueUUID, long occupyStartTime, long occupyEndTime) {
 //        new OrderDao().execQuery();
     }
 
