@@ -50,8 +50,12 @@ public class OrderService {
      * @param accessToken
      * @param userid
      * @param venueUUID
+     * @param occupyStartTime
+     * @param occupyEndTime
+     * @param information     not require
+     * @param message         not require
      */
-    public static void newOrder(String accessToken, String userid, String venueUUID, long occupyStartTime, long occupyEndTime) throws SQLException, RuntimeError {
+    public static void newOrder(String accessToken, String userid, String venueUUID, long occupyStartTime, long occupyEndTime, String information, String message) throws SQLException, RuntimeError {
         User user = UserService.verifyAccessToken(accessToken);
         Order order = new Order();
 
@@ -83,12 +87,19 @@ public class OrderService {
             throw new RuntimeError("The time format is incorrect!", 533);
         }
 
+        ////////////////////////////////////////
+        //查询重复订单
 
+        ////////////////////////////////////////
 
+        order.setInformation(information);
+        order.setMessage(message);
+
+        new OrderDao().execInsert(order);
     }
 
-    public static void updatePayTime(String accessToken, int number) {
-
+    private static void queryOrderByTime(String venueUUID,long occupyStartTime,long occupyEndTime){
+//        new OrderDao().execQuery();
     }
 
 
