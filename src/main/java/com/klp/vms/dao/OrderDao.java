@@ -43,14 +43,13 @@ public class OrderDao implements Dao<Order> {
     }
 
 
-    public Order queryOrderByStartTime(String venueUUID, long fromTime, long toTime) throws SQLException, RuntimeError {
+    public ArrayList<Order> verifyOrderByStartTime(String venueUUID, long fromTime, long toTime) throws SQLException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        java.util.Date now = new java.util.Date();
         String from = sdf.format(new java.util.Date(fromTime));
         String to = sdf.format(new Date(toTime));
 
         ArrayList<Order> list = new ArrayList<>();
-        try (Stat stat = new Stat("select * from \"Order\" where venueUUID = ? and occupyStartTime > ? and occupyStartTime < ?")) {
+        try (Stat stat = new Stat("select * from \"Order\" where venueUUID = ? and (occupyStartTime between ? and ?)")) {
             stat.setString(1, venueUUID);
             stat.setString(2, from);
             stat.setString(3, to);
@@ -70,21 +69,17 @@ public class OrderDao implements Dao<Order> {
                 list.add(order);
             }
         }
-        if (list.size() == 1) {
-            return list.get(0);
-        } else {
-            throw new RuntimeError("No such order!", 402);
-        }
+        return list;
     }
 
-    public Order queryOrderByEndTime(String venueUUID, long fromTime, long toTime) throws SQLException, RuntimeError {
+    public ArrayList<Order> verifyOrderByEndTime(String venueUUID, long fromTime, long toTime) throws SQLException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         java.util.Date now = new java.util.Date();
         String from = sdf.format(new java.util.Date(fromTime));
         String to = sdf.format(new Date(toTime));
 
         ArrayList<Order> list = new ArrayList<>();
-        try (Stat stat = new Stat("select * from \"Order\" where venueUUID = ? and occupyEndTime > ? and occupyEndTime < ?")) {
+        try (Stat stat = new Stat("select * from \"Order\" where venueUUID = ? and (occupyEndTime between ? and ?)")) {
             stat.setString(1, venueUUID);
             stat.setString(2, from);
             stat.setString(3, to);
@@ -104,11 +99,7 @@ public class OrderDao implements Dao<Order> {
                 list.add(order);
             }
         }
-        if (list.size() == 1) {
-            return list.get(0);
-        } else {
-            throw new RuntimeError("No such order!", 402);
-        }
+        return list;
     }
 
     @Override

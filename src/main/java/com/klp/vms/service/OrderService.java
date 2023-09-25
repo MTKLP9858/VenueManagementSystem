@@ -96,7 +96,9 @@ public class OrderService {
 
         ////////////////////////////////////////
         //查询重复订单
-
+        if (!new OrderDao().verifyOrderByStartTime(venueUUID, occupyStartTime, occupyEndTime).isEmpty() || !new OrderDao().verifyOrderByEndTime(venueUUID, occupyStartTime, occupyEndTime).isEmpty()) {
+            throw new RuntimeError("Another user has already occupied the time period!", 500);
+        }
         ////////////////////////////////////////
 
         order.setInformation(information);
