@@ -2,6 +2,7 @@ package com.klp.vms.service;
 
 import com.klp.vms.dao.OrderDao;
 import com.klp.vms.dao.StadiumDao;
+import com.klp.vms.dao.Stat;
 import com.klp.vms.entity.Order;
 import com.klp.vms.entity.Stadium;
 import com.klp.vms.entity.User;
@@ -58,7 +59,7 @@ public class OrderService {
     public static void newOrder(String accessToken, String userid, String venueUUID, long occupyStartTime, long occupyEndTime, String information, String message) throws SQLException, RuntimeError {
         User user = UserService.verifyAccessToken(accessToken);
         Order order = new Order();
-
+        order.setNumber(new Date().getTime());
         Venue venue = VenueService.query(accessToken, venueUUID);
         if (venue == null) {
             throw new RuntimeError("No such venueUUID!", 403);
@@ -73,6 +74,9 @@ public class OrderService {
             }
         }
         if (user.getOp() == User.OP.USER) {
+            if (userid == null) {
+                order.setUserid(user.getUserid());
+            }
             order.setState(Order.STATE.UNPAID);
         }
 
@@ -99,10 +103,6 @@ public class OrderService {
         order.setMessage(message);
 
         new OrderDao().execInsert(order);
-    }
-
-    private static void queryOrderByTime(String venueUUID, long occupyStartTime, long occupyEndTime) {
-//        new OrderDao().execQuery();
     }
 
 

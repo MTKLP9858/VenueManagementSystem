@@ -5,7 +5,9 @@ import com.klp.vms.exception.RuntimeError;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,6 +40,75 @@ public class OrderDao implements Dao<Order> {
 
     public int execDelete(long number) throws SQLException {
         return execDelete(String.valueOf(number));
+    }
+
+
+    public Order queryOrderByStartTime(String venueUUID, long fromTime, long toTime) throws SQLException, RuntimeError {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        java.util.Date now = new java.util.Date();
+        String from = sdf.format(new java.util.Date(fromTime));
+        String to = sdf.format(new Date(toTime));
+
+        ArrayList<Order> list = new ArrayList<>();
+        try (Stat stat = new Stat("select * from \"Order\" where venueUUID = ? and occupyStartTime > ? and occupyStartTime < ?")) {
+            stat.setString(1, venueUUID);
+            stat.setString(2, from);
+            stat.setString(3, to);
+            ResultSet rs = stat.executeQuery();
+            while (rs.next()) {
+                Order order = new Order();
+                order.setNumber(rs.getLong("number"));
+                order.setUserid(rs.getString("userid"));
+                order.setStadiumName(rs.getString("stadiumName"));
+                order.setVenueUUID(rs.getString("venueUUID"));
+                order.setState(rs.getString("state"));
+                order.setPayTime(rs.getString("payTime"));
+                order.setOccupyStartTime(rs.getString("occupyStartTime"));
+                order.setOccupyEndTime(rs.getString("occupyEndTime"));
+                order.setInformation(rs.getString("information"));
+                order.setMessage(rs.getString("message"));
+                list.add(order);
+            }
+        }
+        if (list.size() == 1) {
+            return list.get(0);
+        } else {
+            throw new RuntimeError("No such order!", 402);
+        }
+    }
+
+    public Order queryOrderByEndTime(String venueUUID, long fromTime, long toTime) throws SQLException, RuntimeError {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        java.util.Date now = new java.util.Date();
+        String from = sdf.format(new java.util.Date(fromTime));
+        String to = sdf.format(new Date(toTime));
+
+        ArrayList<Order> list = new ArrayList<>();
+        try (Stat stat = new Stat("select * from \"Order\" where venueUUID = ? and occupyEndTime > ? and occupyEndTime < ?")) {
+            stat.setString(1, venueUUID);
+            stat.setString(2, from);
+            stat.setString(3, to);
+            ResultSet rs = stat.executeQuery();
+            while (rs.next()) {
+                Order order = new Order();
+                order.setNumber(rs.getLong("number"));
+                order.setUserid(rs.getString("userid"));
+                order.setStadiumName(rs.getString("stadiumName"));
+                order.setVenueUUID(rs.getString("venueUUID"));
+                order.setState(rs.getString("state"));
+                order.setPayTime(rs.getString("payTime"));
+                order.setOccupyStartTime(rs.getString("occupyStartTime"));
+                order.setOccupyEndTime(rs.getString("occupyEndTime"));
+                order.setInformation(rs.getString("information"));
+                order.setMessage(rs.getString("message"));
+                list.add(order);
+            }
+        }
+        if (list.size() == 1) {
+            return list.get(0);
+        } else {
+            throw new RuntimeError("No such order!", 402);
+        }
     }
 
     @Override
