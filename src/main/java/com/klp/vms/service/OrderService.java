@@ -2,7 +2,6 @@ package com.klp.vms.service;
 
 import com.klp.vms.dao.OrderDao;
 import com.klp.vms.dao.StadiumDao;
-import com.klp.vms.dao.Stat;
 import com.klp.vms.entity.Order;
 import com.klp.vms.entity.Stadium;
 import com.klp.vms.entity.User;
@@ -11,6 +10,7 @@ import com.klp.vms.exception.RuntimeError;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -107,5 +107,17 @@ public class OrderService {
         new OrderDao().execInsert(order);
     }
 
+    public static ArrayList<Order> queryOrderByTime(String venueUUID, long startTime, long endTime) throws SQLException {
+        ArrayList<Order> orders = new OrderDao().verifyOrderByStartTime(venueUUID, startTime, endTime);
+        ArrayList<Order> ordersAdder = new OrderDao().verifyOrderByEndTime(venueUUID, startTime, endTime);
+        for (Order oa : ordersAdder) {
+            for (Order o : orders) {
+                if (oa.getNumber() != o.getNumber()) {
+                    orders.add(oa);
+                }
+            }
+        }
+        return orders;
+    }
 
 }
