@@ -2,6 +2,9 @@ package com.klp.vms.entity;
 
 import lombok.Data;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 @Data
 public class Order {
     public static class STATE {
@@ -24,6 +27,32 @@ public class Order {
     private String occupyEndTime;
 
 
-    private String information;
-    private String message;
+    private String information = null;
+    private String message = null;
+
+    @Override
+    public String toString() {
+        long startTime;
+        long endTime;
+        long payTimeLong;
+        try {
+            payTimeLong = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(payTime).getTime();
+            startTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(occupyStartTime).getTime();
+            endTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(occupyEndTime).getTime();
+        } catch (ParseException | RuntimeException e) {
+            return "This order is broken! " + e.getMessage();
+
+        }
+        return "{\"number\":" + number +
+                ", \"userid\":\"" + userid + "\"" +
+                ", \"stadiumName\":\"" + stadiumName + "\"" +
+                ", \"venueUUID\":\"" + venueUUID + "\"" +
+                ", \"state\":\"" + state + "\"" +
+                ", \"payTime\":" + payTimeLong +
+                ", \"occupyStartTime\":" + startTime +
+                ", \"occupyEndTime\":" + endTime +
+                ", \"information\":" + (information == null ? "null" : "\"" + information + "\"") +
+                ", \"message\":" + (message == null ? "null" : "\"" + message + "\"") +
+                '}';
+    }
 }

@@ -55,8 +55,9 @@ public class OrderService {
      * @param occupyEndTime
      * @param information     not require
      * @param message         not require
+     * @return
      */
-    public static void newOrder(String accessToken, String userid, String venueUUID, long occupyStartTime, long occupyEndTime, String information, String message) throws SQLException, RuntimeError {
+    public static Order newOrder(String accessToken, String userid, String venueUUID, long occupyStartTime, long occupyEndTime, String information, String message) throws SQLException, RuntimeError {
         User user = UserService.verifyAccessToken(accessToken);
         Order order = new Order();
         order.setNumber(new Date().getTime());
@@ -105,6 +106,7 @@ public class OrderService {
         order.setMessage(message);
 
         new OrderDao().execInsert(order);
+        return order;
     }
 
     public static ArrayList<Order> queryOrderByTime(String venueUUID, long startTime, long endTime) throws SQLException {
@@ -119,8 +121,6 @@ public class OrderService {
         }
         return orders;
     }
-
-
 
 
 }

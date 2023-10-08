@@ -97,6 +97,10 @@ public class VenueService {
         }
     }
 
+    public static Venue query(String uuid) throws SQLException, RuntimeError {
+        return new VenueDao().execQuery(uuid);
+    }
+
     public static Venue query(String accessToken, String uuid) throws SQLException, RuntimeError {
         User user = UserService.verifyAccessToken(accessToken);
 //        if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);

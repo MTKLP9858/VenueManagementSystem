@@ -52,7 +52,6 @@ public class VenueController {
     @PostMapping("/delete")
     public String delete(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium) {
         try {
-
             VenueService.delete(accessToken, VenueService.getUUID(name, area, stadium));
         } catch (SQLException e) {
             JSONObject json = new JSONObject();
