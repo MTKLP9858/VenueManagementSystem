@@ -15,7 +15,7 @@ public class VenueService {
         return new VenueDao().getUUID(name, area, stadium);
     }
 
-    private static void verifyAdminOfVenueByUUID(String accessToken, String uuid) throws SQLException, RuntimeError {
+    public static void verifyAdminOfVenueByUUID(String accessToken, String uuid) throws SQLException, RuntimeError {
         User user = UserService.verifyAccessToken(accessToken);
         if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
         String stadiumFromUUID = new VenueDao().execQuery(uuid).getStadium();
@@ -125,12 +125,12 @@ public class VenueService {
         return -1;
     }
 
-    public static void setState(String accessToken, String uuid, String state) throws RuntimeError, SQLException {
+    private static void setState(String accessToken, String uuid, String state) throws RuntimeError, SQLException {
         verifyAdminOfVenueByUUID(accessToken, uuid);
         if (Objects.equals(state, Venue.STATE.OPENED) || Objects.equals(state, Venue.STATE.CLOSING) || Objects.equals(state, Venue.STATE.CLOSED)) {
             new VenueDao().execUpdate("state", state, uuid);
         } else {
-            throw new RuntimeError("Illegal entry at " + state, 303);
+            throw new RuntimeError("Illegal entry at " + state + "! You can enter:" + Venue.STATE.list(), 303);
         }
     }
 

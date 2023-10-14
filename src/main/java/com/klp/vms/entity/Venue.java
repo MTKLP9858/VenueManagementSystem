@@ -9,6 +9,10 @@ public class Venue {//场地
         public final static String OPENED = "已开启";
         public final static String CLOSED = "已关闭";
         public final static String CLOSING = "待关闭";
+
+        public static String list() {
+            return "{\"" + OPENED + "\",\"" + CLOSED + "\",\"" + CLOSING + "\"}";
+        }
     }
 
     String UUID;//KEY

@@ -113,10 +113,8 @@ public class OrderService {
         ArrayList<Order> orders = new OrderDao().verifyOrderByStartTime(venueUUID, startTime, endTime);
         ArrayList<Order> ordersAdder = new OrderDao().verifyOrderByEndTime(venueUUID, startTime, endTime);
         for (Order oa : ordersAdder) {
-            for (Order o : orders) {
-                if (oa.getNumber() != o.getNumber()) {
-                    orders.add(oa);
-                }
+            if(!orders.contains(oa)){
+                orders.add(oa);
             }
         }
         return orders;
