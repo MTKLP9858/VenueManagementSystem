@@ -128,7 +128,7 @@ public class UserController {
         return json.toString();
     }
 
-    @PostMapping("/register-admin")
+    @PostMapping("/registerAdmin")
     public String registerAdmin(@RequestParam String userid, @RequestParam String password, @RequestParam(required = false) String username) {
         System.out.println("register:" + userid + " pwd:" + password);
         User user;
@@ -174,4 +174,23 @@ public class UserController {
         json.put("message", "login success");
         return json.toString();
     }
+
+
+    @PostMapping("/changePassword")
+    public String changePassword(@RequestHeader String accessToken, @RequestParam String oldPassword, @RequestParam String newPassword) {
+        try {
+            UserService.changePassword(accessToken, oldPassword, newPassword);
+        } catch (SQLException e) {
+            JSONObject json = new JSONObject();
+            json.put("code", 9);
+            json.put("success", false);
+            json.put("message", e.getMessage());
+            return json.toString();
+        } catch (RuntimeError e) {
+            return e.toString();
+        }
+
+    }
+
+
 }
