@@ -209,14 +209,16 @@ public class UserService {
     public static void changePassword(String accessToken, String oldPassword, String newPassword) throws RuntimeError, SQLException {
         User user = verifyAccessToken(accessToken);
         String userid = user.getUserid();
-        if(oldPassword==newPassword){
-            throw new RuntimeError("The old password is the same as the new password!",501);
+        if (Objects.equals(oldPassword, newPassword)) {
+            throw new RuntimeError("The old password is the same as the new password!", 501);
         }
         if (Objects.equals(user.getPassword(), oldPassword)) {
             new UserDao().execUpdate("password", newPassword, userid);
         } else {
             throw new RuntimeError("The password is incorrect!", 102);
         }
+        UserService.updateAccessToken(userid);
+        UserService.updateRefreshToken(userid);
     }
 
 }

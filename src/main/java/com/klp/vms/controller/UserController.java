@@ -19,6 +19,17 @@ import java.util.HashMap;
 @RestController
 @RequestMapping("/user")
 public class UserController {
+
+    /**
+     * 更新或新建用户头像
+     *
+     * @param accessToken 位于请求头的用户令牌
+     * @param img         MultipartFile图片文件
+     * @return 返回带有多个变量的json对象
+     * <li>成功：success=true</li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
     @PostMapping("/updateAvatar")
     public String updateAvatar(@RequestHeader String accessToken, @RequestParam MultipartFile img) {
         try {
@@ -39,6 +50,14 @@ public class UserController {
         return json.toString();
     }
 
+    /**
+     * 拉取用户头像
+     *
+     * @param accessToken 位于请求头的用户令牌
+     * @return 若成功则返回图片的二进制流，可于请求头Accept指定："image/png","image/jpeg","image/gif"
+     * <li>成功：图片二进制</li>
+     * <li>失败：success=false   请参阅返回json中的message</li>
+     */
     @PostMapping(value = "/queryAvatar", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
     public ResponseEntity<byte[]> queryAvatar(@RequestHeader String accessToken) {
         try {
@@ -58,11 +77,18 @@ public class UserController {
         }
     }
 
-
+    /**
+     * @param accessToken 位于请求头的用户令牌
+     * @param newUsername 用户的新昵称
+     * @return 返回带有多个变量的json对象
+     * <li>成功：success=true</li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
     @PostMapping("/rename")
-    public String rename(@RequestParam String new_username, @RequestHeader String accessToken) {
+    public String rename(@RequestParam String newUsername, @RequestHeader String accessToken) {
         try {
-            UserService.rename(new_username, accessToken);
+            UserService.rename(newUsername, accessToken);
         } catch (SQLException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
@@ -79,7 +105,21 @@ public class UserController {
         return json.toString();
     }
 
-
+    /**
+     * <li>若accessToken过期，则使用此接口刷新accessToken</li>
+     * <li>若refreshToken即将过期，则在自动刷新期限内返回新的refreshToken</li>
+     * <li>若refreshToken过期，则需要重新登录</li>
+     *
+     * @param refreshToken 用户的刷新令牌
+     * @return <p>返回带有多个变量的json对象</p>
+     * <li>成功：
+     * <p>success=true</p>
+     * <p>accessToken:更新后的用户令牌</p>
+     * <p>refreshToken:更新后的用户刷新令牌（若有）</p>
+     * </li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
     @PostMapping("/refresh")
     public String refresh(@RequestHeader String refreshToken) {
         HashMap<String, String> map;
@@ -96,13 +136,35 @@ public class UserController {
         }
         JSONObject json = new JSONObject();
         json.put("accessToken", map.get("access_token"));
-        json.put("refreshToken", map.get("refresh_token"));
+        if (map.containsKey("refreshToken")) {
+            json.put("refreshToken", map.get("refresh_token"));
+        }
         json.put("code", 203);
         json.put("success", true);
         json.put("message", "refresh success");
         return json.toString();
     }
 
+    /**
+     * 为用户（顾客）注册
+     *
+     * @param userid   用户id：应为手机号（没有验证机制）
+     * @param password 用户密码
+     * @param username 用户昵称
+     * @return <p>返回带有多个变量的json对象</p>
+     * <li>成功：
+     * <p>success=true</p>
+     * <p>userid:用户id：应为手机号</p>
+     * <p>username:用户昵称</p>
+     * <p>op:0</p>
+     * <p>accessToken:用户令牌</p>
+     * <p>accessTokenAge:用户令牌有效截至日期</p>
+     * <p>refreshToken:用户刷新令牌</p>
+     * <p>refreshTokenAge:用户刷新令牌有效截至日期</p>
+     * </li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
     @PostMapping("/register")
     public String register(@RequestParam String userid, @RequestParam String password, @RequestParam(required = false) String username) {
         System.out.println("register:" + userid + " pwd:" + password);
@@ -128,6 +190,27 @@ public class UserController {
         return json.toString();
     }
 
+    /**
+     * ！！！不应启用（无超级管理员认证）
+     * 为用户（场地管理员）注册
+     *
+     * @param userid   用户id：应为手机号（没有验证机制）
+     * @param password 用户密码
+     * @param username 用户昵称
+     * @return <p>返回带有多个变量的json对象</p>
+     * <li>成功：
+     * <p>success=true</p>
+     * <p>userid:用户id：应为手机号</p>
+     * <p>username:用户昵称</p>
+     * <p>op:0</p>
+     * <p>accessToken:用户令牌</p>
+     * <p>accessTokenAge:用户令牌有效截至日期</p>
+     * <p>refreshToken:用户刷新令牌</p>
+     * <p>refreshTokenAge:用户刷新令牌有效截至日期</p>
+     * </li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
     @PostMapping("/registerAdmin")
     public String registerAdmin(@RequestParam String userid, @RequestParam String password, @RequestParam(required = false) String username) {
         System.out.println("register:" + userid + " pwd:" + password);
@@ -153,6 +236,25 @@ public class UserController {
         return json.toString();
     }
 
+    /**
+     * 为用户登录并获取其accessToken等信息
+     *
+     * @param userid   用户id/唯一标识
+     * @param password 用户密码
+     * @return <p>返回带有多个变量的json对象</p>
+     * <li>成功：
+     * <p>success=true</p>
+     * <p>userid:用户id：应为手机号</p>
+     * <p>username:用户昵称</p>
+     * <p>op:权限等级</p>
+     * <p>accessToken:用户令牌</p>
+     * <p>accessTokenAge:用户令牌有效截至日期</p>
+     * <p>refreshToken:用户刷新令牌</p>
+     * <p>refreshTokenAge:用户刷新令牌有效截至日期</p>
+     * </li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
     @PostMapping("/login")
     public String login(@RequestParam String userid, @RequestParam String password) {
         System.out.println("login:" + userid + " pwd:" + password);
@@ -175,7 +277,17 @@ public class UserController {
         return json.toString();
     }
 
-
+    /**
+     * 更改用户密码，这将需要重新登录
+     *
+     * @param accessToken 位于请求头的用户令牌
+     * @param oldPassword 需要验证的旧密码
+     * @param newPassword 需要更新的新密码
+     * @return <p>返回带有多个变量的json对象</p>
+     * <li>成功：success=true</li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
     @PostMapping("/changePassword")
     public String changePassword(@RequestHeader String accessToken, @RequestParam String oldPassword, @RequestParam String newPassword) {
         try {
@@ -189,7 +301,11 @@ public class UserController {
         } catch (RuntimeError e) {
             return e.toString();
         }
-
+        JSONObject json = new JSONObject();
+        json.put("code", 200);
+        json.put("success", true);
+        json.put("message", "change password success");
+        return json.toString();
     }
 
 
