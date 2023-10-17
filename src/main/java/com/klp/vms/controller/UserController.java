@@ -78,6 +78,8 @@ public class UserController {
     }
 
     /**
+     * 更新用户昵称
+     *
      * @param accessToken 位于请求头的用户令牌
      * @param newUsername 用户的新昵称
      * @return 返回带有多个变量的json对象
@@ -202,7 +204,7 @@ public class UserController {
      * <p>success=true</p>
      * <p>userid:用户id：应为手机号</p>
      * <p>username:用户昵称</p>
-     * <p>op:0</p>
+     * <p>op:5</p>
      * <p>accessToken:用户令牌</p>
      * <p>accessTokenAge:用户令牌有效截至日期</p>
      * <p>refreshToken:用户刷新令牌</p>
