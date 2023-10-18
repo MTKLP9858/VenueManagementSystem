@@ -21,13 +21,18 @@ import java.sql.SQLException;
 @RequestMapping("/venue")
 public class VenueController {
     /**
-     * @param accessToken  an access token of admin or su
-     * @param name         venue name
-     * @param area         the area of this venue
-     * @param stadium      the stadium of this venue
-     * @param price        a number
-     * @param introduction not required, an introduction
-     * @return a {@link String} serialization by {@link Venue}
+     * 新增场地（自动添加区域）
+     *
+     * @param accessToken  管理员用户的令牌
+     * @param name         新增场地的名字，在相同的area和stadium下唯一
+     * @param area         新增场地的所属区域
+     * @param stadium      新增场地的所属场馆
+     * @param price        价格，double类型，单位：元/小时
+     * @param introduction 场地介绍，不必须
+     * @return 返回带有多个变量的json对象
+     * <li>成功：success=true</li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
      */
     @PostMapping("/add")
     public String add(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium, @RequestParam double price, @RequestParam(required = false) String introduction) {
@@ -49,6 +54,18 @@ public class VenueController {
         return json.toString();
     }
 
+    /**
+     * 删除场地，前提是场地已经被关闭
+     *
+     * @param accessToken 管理员用户的令牌
+     * @param name        需要删除的场地名字，在相同的area和stadium下唯一
+     * @param area        需要删除的场地所属区域
+     * @param stadium     需要删除的场地所属场馆
+     * @return 返回带有多个变量的json对象
+     * <li>成功：success=true</li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
     @PostMapping("/delete")
     public String delete(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium) {
         try {
@@ -69,6 +86,27 @@ public class VenueController {
         return json.toString();
     }
 
+    /**
+     * 查询场地，查询场地的详细信息
+     *
+     * @param accessToken 管理员用户的令牌
+     * @param name        需要查询的场地名字，在相同的area和stadium下唯一
+     * @param area        需要查询的场地所属区域
+     * @param stadium     需要查询的场地所属场馆
+     * @return <p>返回带有多个变量的json对象</p>
+     * <li>成功：
+     * <p>success=true</p>
+     * <p>uuid:场地的uuid 非必要信息，输入里有</p>
+     * <p>name:场地名字 非必要信息，输入里有</p>
+     * <p>area:场地区域 非必要信息，输入里有</p>
+     * <p>stadium:所属场馆 非必要信息，输入里有</p>
+     * <p>introduction:球场介绍，可能为null</p>
+     * <p>state:状态字符串，可能为："已开启","已关闭","待关闭"</p>
+     * <p>price:价格，double值</p>
+     * </li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
     @PostMapping("/query")
     public String query(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium) {
         Venue venue;
@@ -89,7 +127,16 @@ public class VenueController {
         return json.toString();
     }
 
-
+    /**
+     *
+     * @param accessToken
+     * @param name
+     * @param area
+     * @param stadium
+     * @param column
+     * @param value
+     * @return
+     */
     @PostMapping("/update")
     public String update(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium, @RequestParam String column, @RequestParam String value) {
         try {

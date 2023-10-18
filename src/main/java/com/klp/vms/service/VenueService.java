@@ -116,7 +116,7 @@ public class VenueService {
         verifyAdminOfVenueByUUID(accessToken, uuid);
         if (column != null) {
             switch (column) {
-                case "name", "address", "introduction", "contact", "adminUserID" -> {//限制column为Stadium的列名
+                case "name", "area", "stadium", "introduction", "price" -> {//限制column为Stadium的列名
                     return new VenueDao().execUpdate(column, value, uuid);
                 }
                 default -> throw new RuntimeError("Illegal column!", 283);
@@ -134,7 +134,14 @@ public class VenueService {
         }
     }
 
+    /**
+     * 更新状态并返回
+     *
+     * @param uuid Venue UUID
+     * @return Venue.STATE
+     */
     public static String getState(String uuid) throws SQLException, RuntimeError {
+
         return new VenueDao().execQuery(uuid).getState();
     }
 
