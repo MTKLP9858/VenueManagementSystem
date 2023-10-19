@@ -5,6 +5,7 @@ import com.klp.vms.exception.RuntimeError;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,6 +13,9 @@ import java.util.List;
 import java.util.Objects;
 
 public class OrderDao implements Dao<Order> {
+    public static long UNPAIDTimeOut = 20 * 60 * 1000;//20min
+    public static long PAYINGTimeOut = 10 * 60 * 1000;//20min
+
     @Override
     public int execInsert(Order order) throws SQLException {
         String sql = "insert into \"Order\" (number, userid, stadiumName, venueUUID, state, payTime, occupyStartTime, occupyEndTime, information, message) VALUES (?,?,?,?,?,?,?,?,?,?);";
@@ -103,7 +107,7 @@ public class OrderDao implements Dao<Order> {
     }
 
     @Override
-    public List<Order> execQuery(String column, Object value) throws SQLException {
+    public List<Order> execQuery(String column, Object value) throws SQLException, ParseException {
         String sql = "select * from \"Order\" where " + column + "=?;";
         ArrayList<Order> list = new ArrayList<>();
         try (Stat stat = new Stat(sql)) {
@@ -121,13 +125,48 @@ public class OrderDao implements Dao<Order> {
                 order.setOccupyEndTime(rs.getString("occupyEndTime"));
                 order.setInformation(rs.getString("information"));
                 order.setMessage(rs.getString("message"));
+
+
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date payTime = sdf.parse(order.getPayTime());
+                Date occupyStartTime = sdf.parse(order.getOccupyStartTime());
+                Date occupyEndTime = sdf.parse(order.getOccupyEndTime());
+
+                if (Objects.equals(order.getState(), Order.STATE.UNPAID)) {
+                    //如果超时
+                    if ((payTime.getTime() + UNPAIDTimeOut) < new Date().getTime()) {
+                        execDelete(order.getNumber());
+                        continue;//not return
+                    }
+                }
+                if (Objects.equals(order.getState(), Order.STATE.PAYING)) {
+                    //如果超时
+                    if ((payTime.getTime() + PAYINGTimeOut) < new Date().getTime()) {
+                        execUpdate("state", Order.STATE.UNPAID, order.getNumber());
+                        order.setState(Order.STATE.UNPAID);
+                    }
+                }
+                if (Objects.equals(order.getState(), Order.STATE.PAID)) {
+                    //如果到达开始时间
+                    if ((occupyStartTime.getTime()) < new Date().getTime() && (occupyEndTime.getTime()) > new Date().getTime()) {
+                        execUpdate("state", Order.STATE.USING, order.getNumber());
+                        order.setState(Order.STATE.USING);
+                    }
+                }
+                if (Objects.equals(order.getState(), Order.STATE.USING)) {
+                    //如果到达开始时间
+                    if ((occupyEndTime.getTime()) < new Date().getTime()) {
+                        execUpdate("state", Order.STATE.DONE, order.getNumber());
+                        order.setState(Order.STATE.DONE);
+                    }
+                }
                 list.add(order);
             }
         }
         return list;
     }
 
-    public List<Order> execQuery(long number) throws SQLException, RuntimeError {
+    public List<Order> execQuery(long number) throws SQLException, RuntimeError, ParseException {
         return execQuery("number", String.valueOf(number));
     }
 
@@ -141,7 +180,7 @@ public class OrderDao implements Dao<Order> {
         }
     }
 
-    public int execUpdate(String column, String value, long number) throws SQLException {
+    public int execUpdate(String column, Object value, long number) throws SQLException {
         return execUpdate(column, value, String.valueOf(number));
     }
 

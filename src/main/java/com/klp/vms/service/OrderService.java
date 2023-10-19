@@ -9,6 +9,7 @@ import com.klp.vms.entity.Venue;
 import com.klp.vms.exception.RuntimeError;
 
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class OrderService {
-    public static Order verifyAdminOfVenueByNumber(String accessToken, int number) throws SQLException, RuntimeError {
+    public static Order verifyAdminOfVenueByNumber(String accessToken, int number) throws SQLException, RuntimeError, ParseException {
         User user = UserService.verifyAccessToken(accessToken);
         List<Order> orderList = new OrderDao().execQuery(number);
         Order order;
@@ -43,7 +44,7 @@ public class OrderService {
     }
 
 
-    public static Order query(String accessToken, int number) throws SQLException, RuntimeError {
+    public static Order query(String accessToken, int number) throws SQLException, RuntimeError, ParseException {
         return verifyAdminOfVenueByNumber(accessToken, number);
     }
 

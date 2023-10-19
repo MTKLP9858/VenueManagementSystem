@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class UserService {
-    public static long accessTokenAgeAdder = 12L * 60 * 60 * 1000;
+    public static long accessTokenAgeAdder = 12L * 60 * 60 * 1000;//12h
     public static long refreshTokenAgeAdder = 30L * 24 * 60 * 60 * 1000;
     public static long autoRefreshAgeAdder = 3L * 24 * 60 * 60 * 1000;
 
