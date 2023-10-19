@@ -1,13 +1,17 @@
 package com.klp.vms.dao;
 
 import com.alibaba.fastjson2.JSONArray;
+import com.klp.vms.entity.Order;
 import com.klp.vms.entity.Venue;
 import com.klp.vms.exception.RuntimeError;
 import com.klp.vms.service.ImageService;
+import com.klp.vms.service.OrderService;
+import com.klp.vms.service.VenueService;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
@@ -109,7 +113,7 @@ public class VenueDao implements Dao<Venue> {//场地
     }
 
     @Override
-    public int execInsert(Venue venue) throws RuntimeError, SQLException {
+    public int execInsert(Venue venue) throws RuntimeError, SQLException, ParseException {
         if (venue == null) return 0;
         if (new StadiumDao().execQuery("name", venue.getStadium()).isEmpty()) {
             throw new RuntimeError("no such value in Stadium.name!", 223);
@@ -168,11 +172,11 @@ public class VenueDao implements Dao<Venue> {//场地
         return -1;
     }
 
-    public ArrayList<Venue> execQuery(long price) throws SQLException {
+    public ArrayList<Venue> execQuery(long price) throws SQLException, ParseException, RuntimeError {
         return execQuery("price", String.valueOf(price));
     }
 
-    public Venue execQuery(String uuid) throws SQLException, RuntimeError {
+    public Venue execQuery(String uuid) throws SQLException, RuntimeError, ParseException {
         ArrayList<Venue> list = execQuery("uuid", uuid);
         if (list.size() != 1) {
             throw new RuntimeError("The target was not found or there are multiple identical targets!", 371);
@@ -181,7 +185,7 @@ public class VenueDao implements Dao<Venue> {//场地
     }
 
     @Override
-    public ArrayList<Venue> execQuery(String column, Object value) throws SQLException {
+    public ArrayList<Venue> execQuery(String column, Object value) throws SQLException, ParseException, RuntimeError {
         String sql = "select * from Venue where " + column + "=?;";
         ArrayList<Venue> list = new ArrayList<>();
         try (Stat stat = new Stat(sql)) {
@@ -196,13 +200,19 @@ public class VenueDao implements Dao<Venue> {//场地
                 venue.setIntroduction(rs.getString("introduction"));
                 venue.setState(rs.getString("state"));
                 venue.setPrice(rs.getDouble("price"));
+                if (Objects.equals(venue.getState(), Venue.STATE.CLOSING)) {
+                    if (OrderService.StateFilter(OrderService.queryOrderByVenueUUID(venue.getUUID()), new String[]{Order.STATE.PAID, Order.STATE.USING, Order.STATE.PAYING}).isEmpty()) {
+                        venue.setState(Venue.STATE.CLOSED);
+                        new VenueDao().execUpdate("state", Venue.STATE.CLOSED, venue.getUUID());
+                    }
+                }
                 list.add(venue);
             }
         }
         return list;
     }
 
-    public int execUpdate(String column, Object value, String uuid) throws RuntimeError, SQLException {
+    public int execUpdate(String column, Object value, String uuid) throws RuntimeError, SQLException, ParseException {
         if (column == null || value == null || uuid == null) return 0;
         Venue venue = execQuery(uuid);
         if (venue == null) {

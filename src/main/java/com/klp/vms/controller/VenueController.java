@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.SQLException;
+import java.text.ParseException;
 
 @Controller
 @RestController
@@ -38,7 +39,7 @@ public class VenueController {
     public String add(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium, @RequestParam double price, @RequestParam(required = false) String introduction) {
         try {
             VenueService.add(accessToken, name, area, stadium, price, introduction);
-        } catch (SQLException e) {
+        } catch (SQLException | ParseException  e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
             json.put("success", false);
@@ -70,7 +71,7 @@ public class VenueController {
     public String delete(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium) {
         try {
             VenueService.delete(accessToken, VenueService.getUUID(name, area, stadium));
-        } catch (SQLException e) {
+        } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
             json.put("success", false);
@@ -112,7 +113,7 @@ public class VenueController {
         Venue venue;
         try {
             venue = VenueService.query(accessToken, VenueService.getUUID(name, area, stadium));
-        } catch (SQLException e) {
+        } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
             json.put("success", false);
@@ -128,7 +129,6 @@ public class VenueController {
     }
 
     /**
-     *
      * @param accessToken
      * @param name
      * @param area
@@ -141,7 +141,7 @@ public class VenueController {
     public String update(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium, @RequestParam String column, @RequestParam String value) {
         try {
             VenueService.update(accessToken, VenueService.getUUID(name, area, stadium), column, value);
-        } catch (SQLException e) {
+        } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
             json.put("success", false);
@@ -165,7 +165,7 @@ public class VenueController {
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE);
             return new ResponseEntity<>(e.toString().getBytes(), headers, HttpStatus.NOT_FOUND);
-        } catch (SQLException e) {
+        } catch (SQLException | ParseException e) {
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE);
             JSONObject json = new JSONObject();
@@ -181,7 +181,7 @@ public class VenueController {
     public String addImg(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium, @RequestParam MultipartFile img) {
         try {
             VenueService.addImg(accessToken, img, VenueService.getUUID(name, area, stadium));
-        } catch (SQLException e) {
+        } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
             json.put("success", false);
@@ -200,7 +200,7 @@ public class VenueController {
     public String updateImg(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium, @RequestParam int imgIndex, @RequestParam MultipartFile img) {
         try {
             VenueService.updateImg(accessToken, imgIndex, img, VenueService.getUUID(name, area, stadium));
-        } catch (SQLException e) {
+        } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
             json.put("success", false);
@@ -219,7 +219,7 @@ public class VenueController {
     public String deleteImg(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium, @RequestParam int imgIndex) {
         try {
             VenueService.deleteImg(accessToken, imgIndex, VenueService.getUUID(name, area, stadium));
-        } catch (SQLException e) {
+        } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
             json.put("success", false);

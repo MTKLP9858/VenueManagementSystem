@@ -8,11 +8,12 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Objects;
 
 public class StadiumService {
-    public static Stadium getStadiumByAdminAccessToken(String adminAccessToken) throws SQLException, RuntimeError {
+    public static Stadium getStadiumByAdminAccessToken(String adminAccessToken) throws SQLException, RuntimeError, ParseException {
         User user = UserService.verifyAccessToken(adminAccessToken);
         if (user.getOp() != User.OP.ADMIN) {
             throw new RuntimeError("The AdminAccessToken you input is not an admin!", 282);
@@ -24,7 +25,7 @@ public class StadiumService {
         return stadiumList.get(0);
     }
 
-    public static User getAdminUser(String stadiumName) throws SQLException, RuntimeError {
+    public static User getAdminUser(String stadiumName) throws SQLException, RuntimeError, ParseException {
         List<Stadium> stadiumList = new StadiumDao().execQuery("name", stadiumName);
         if (stadiumList.size() != 1) {
             throw new RuntimeError("Can't find this name from all the stadiums! Or more than one stadiums have the same name!", 280);
@@ -32,7 +33,7 @@ public class StadiumService {
         return stadiumList.get(0).getAdminUser();
     }
 
-    private static void verifyAdminOfStadiumByName(String accessToken, String name) throws SQLException, RuntimeError {
+    private static void verifyAdminOfStadiumByName(String accessToken, String name) throws SQLException, RuntimeError, ParseException {
         User user = UserService.verifyAccessToken(accessToken);
         if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
 
@@ -42,7 +43,7 @@ public class StadiumService {
         }
     }
 
-    public static byte[] queryImg(String accessToken, int imgIndex, String name) throws SQLException, RuntimeError {
+    public static byte[] queryImg(String accessToken, int imgIndex, String name) throws SQLException, RuntimeError, ParseException {
         User user = UserService.verifyAccessToken(accessToken);
 //        if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
 
@@ -59,14 +60,14 @@ public class StadiumService {
         }
     }
 
-    public static void addImg(String accessToken, @NotNull MultipartFile img, String name) throws SQLException, RuntimeError {
+    public static void addImg(String accessToken, @NotNull MultipartFile img, String name) throws SQLException, RuntimeError, ParseException {
         verifyAdminOfStadiumByName(accessToken, name);
 
         int oldSize = new StadiumDao().getSizeOfImageList(name);
         new StadiumDao().imgInsert(oldSize, img, name);
     }
 
-    public static boolean deleteImg(String accessToken, int imgIndex, String name) throws SQLException, RuntimeError {
+    public static boolean deleteImg(String accessToken, int imgIndex, String name) throws SQLException, RuntimeError, ParseException {
         verifyAdminOfStadiumByName(accessToken, name);
 
         int size = new StadiumDao().getSizeOfImageList(name);
@@ -77,7 +78,7 @@ public class StadiumService {
         }
     }
 
-    public static boolean updateImg(String accessToken, int index, @NotNull MultipartFile img, String name) throws SQLException, RuntimeError {
+    public static boolean updateImg(String accessToken, int index, @NotNull MultipartFile img, String name) throws SQLException, RuntimeError, ParseException {
         verifyAdminOfStadiumByName(accessToken, name);
 
         return new StadiumDao().imgUpdate(index, img, name);
@@ -101,7 +102,7 @@ public class StadiumService {
         return new StadiumDao().execDelete(name);
     }
 
-    public static Stadium query(String accessToken, String name) throws SQLException, RuntimeError {
+    public static Stadium query(String accessToken, String name) throws SQLException, RuntimeError, ParseException {
         User user = UserService.verifyAccessToken(accessToken);
 //        if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
         if (user.getOp() == User.OP.ADMIN) {
@@ -126,7 +127,7 @@ public class StadiumService {
         return null;
     }
 
-    public static int update(String accessToken, String name, String column, String value) throws RuntimeError, SQLException {
+    public static int update(String accessToken, String name, String column, String value) throws RuntimeError, SQLException, ParseException {
         User user = UserService.verifyAccessToken(accessToken);
         if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
         switch (column) {

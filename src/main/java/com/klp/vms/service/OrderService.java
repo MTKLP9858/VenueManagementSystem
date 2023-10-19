@@ -11,10 +11,7 @@ import com.klp.vms.exception.RuntimeError;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class OrderService {
     public static Order verifyAdminOfVenueByNumber(String accessToken, long number) throws SQLException, RuntimeError, ParseException {
@@ -58,7 +55,7 @@ public class OrderService {
      * @param message         not require
      * @return
      */
-    public static Order newOrder(String accessToken, String userid, String venueUUID, long occupyStartTime, long occupyEndTime, String information, String message) throws SQLException, RuntimeError {
+    public static Order newOrder(String accessToken, String userid, String venueUUID, long occupyStartTime, long occupyEndTime, String information, String message) throws SQLException, RuntimeError, ParseException {
         User user = UserService.verifyAccessToken(accessToken);
         Order order = new Order();
         order.setNumber(new Date().getTime());
@@ -131,6 +128,20 @@ public class OrderService {
 
     public static void RefundRefuse(long number) throws SQLException {
 
+    }
+
+    public static List<Order> queryOrderByVenueUUID(String UUID) throws SQLException, ParseException {
+        return new OrderDao().execQuery("venueUUID", UUID);
+    }
+
+    public static List<Order> StateFilter(List<Order> orders, String[] states) throws SQLException {
+        List<Order> orderList = new ArrayList<>();
+        for (Order order : orders) {
+            if (Arrays.asList(states).contains(order.getState())) {
+                orderList.add(order);
+            }
+        }
+        return orderList;
     }
 
 

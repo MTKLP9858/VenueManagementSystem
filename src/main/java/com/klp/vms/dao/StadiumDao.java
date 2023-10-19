@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.sql.*;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -120,7 +121,7 @@ public class StadiumDao implements Dao<Stadium> {
         }
     }
 
-    public Stadium execQuery(String name) throws SQLException, RuntimeError {
+    public Stadium execQuery(String name) throws SQLException, RuntimeError, ParseException {
         List<Stadium> stadiumList = execQuery("name", name);
         if (stadiumList.size() != 1) {
             throw new RuntimeError("The target was not found or there are multiple identical targets!", 371);
@@ -129,7 +130,7 @@ public class StadiumDao implements Dao<Stadium> {
     }
 
     @Override
-    public List<Stadium> execQuery(String column, Object value) throws SQLException, RuntimeError {
+    public List<Stadium> execQuery(String column, Object value) throws SQLException, RuntimeError, ParseException {
         String sql = "select * from Stadium where " + column + "=?;";
         ArrayList<Stadium> list = new ArrayList<>();
         try (Stat stat = new Stat(sql)) {

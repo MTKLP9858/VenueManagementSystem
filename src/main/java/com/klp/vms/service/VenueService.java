@@ -1,6 +1,7 @@
 package com.klp.vms.service;
 
 import com.klp.vms.dao.VenueDao;
+import com.klp.vms.entity.Order;
 import com.klp.vms.entity.User;
 import com.klp.vms.entity.Venue;
 import com.klp.vms.exception.RuntimeError;
@@ -8,6 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.List;
 import java.util.Objects;
 
 public class VenueService {
@@ -15,7 +18,7 @@ public class VenueService {
         return new VenueDao().getUUID(name, area, stadium);
     }
 
-    public static void verifyAdminOfVenueByUUID(String accessToken, String uuid) throws SQLException, RuntimeError {
+    public static void verifyAdminOfVenueByUUID(String accessToken, String uuid) throws SQLException, RuntimeError, ParseException {
         User user = UserService.verifyAccessToken(accessToken);
         if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
         String stadiumFromUUID = new VenueDao().execQuery(uuid).getStadium();
@@ -25,7 +28,7 @@ public class VenueService {
         }
     }
 
-    public static byte[] queryImg(String accessToken, int imgIndex, String uuid) throws SQLException, RuntimeError {
+    public static byte[] queryImg(String accessToken, int imgIndex, String uuid) throws SQLException, RuntimeError, ParseException {
         User user = UserService.verifyAccessToken(accessToken);
 //        if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
         String stadiumFromUUID = new VenueDao().execQuery(uuid).getStadium();
@@ -41,14 +44,14 @@ public class VenueService {
         }
     }
 
-    public static void addImg(String accessToken, @NotNull MultipartFile img, String uuid) throws SQLException, RuntimeError {
+    public static void addImg(String accessToken, @NotNull MultipartFile img, String uuid) throws SQLException, RuntimeError, ParseException {
         verifyAdminOfVenueByUUID(accessToken, uuid);
 
         int oldSize = new VenueDao().getSizeOfImageList(uuid);
         new VenueDao().imgInsert(oldSize, img, uuid);
     }
 
-    public static boolean deleteImg(String accessToken, int imgIndex, String uuid) throws SQLException, RuntimeError {
+    public static boolean deleteImg(String accessToken, int imgIndex, String uuid) throws SQLException, RuntimeError, ParseException {
         verifyAdminOfVenueByUUID(accessToken, uuid);
 
         int size = new VenueDao().getSizeOfImageList(uuid);
@@ -59,12 +62,12 @@ public class VenueService {
         }
     }
 
-    public static boolean updateImg(String accessToken, int index, @NotNull MultipartFile img, String uuid) throws SQLException, RuntimeError {
+    public static boolean updateImg(String accessToken, int index, @NotNull MultipartFile img, String uuid) throws SQLException, RuntimeError, ParseException {
         verifyAdminOfVenueByUUID(accessToken, uuid);
         return new VenueDao().imgUpdate(index, img, uuid);
     }
 
-    public static int add(String accessToken, String name, String area, String stadium, double price, String introduction) throws SQLException, RuntimeError {
+    public static int add(String accessToken, String name, String area, String stadium, double price, String introduction) throws SQLException, RuntimeError, ParseException {
         User user = UserService.verifyAccessToken(accessToken);
         if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
         String adminUserID = StadiumService.getAdminUser(stadium).getUserid();
@@ -81,7 +84,7 @@ public class VenueService {
         return new VenueDao().execInsert(venue);
     }
 
-    public static int delete(String accessToken, String uuid) throws SQLException, RuntimeError {
+    public static int delete(String accessToken, String uuid) throws SQLException, RuntimeError, ParseException {
         User user = UserService.verifyAccessToken(accessToken);
         if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
         Venue venue = new VenueDao().execQuery(uuid);
@@ -97,11 +100,11 @@ public class VenueService {
         }
     }
 
-    public static Venue query(String uuid) throws SQLException, RuntimeError {
+    public static Venue query(String uuid) throws SQLException, RuntimeError, ParseException {
         return new VenueDao().execQuery(uuid);
     }
 
-    public static Venue query(String accessToken, String uuid) throws SQLException, RuntimeError {
+    public static Venue query(String accessToken, String uuid) throws SQLException, RuntimeError, ParseException {
         User user = UserService.verifyAccessToken(accessToken);
 //        if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
         String stadiumFromUUID = new VenueDao().execQuery(uuid).getStadium();
@@ -112,7 +115,7 @@ public class VenueService {
         return new VenueDao().execQuery(uuid);
     }
 
-    public static int update(String accessToken, String uuid, String column, String value) throws RuntimeError, SQLException {
+    public static int update(String accessToken, String uuid, String column, String value) throws RuntimeError, SQLException, ParseException {
         verifyAdminOfVenueByUUID(accessToken, uuid);
         if (column != null) {
             switch (column) {
@@ -125,7 +128,7 @@ public class VenueService {
         return -1;
     }
 
-    private static void setState(String accessToken, String uuid, String state) throws RuntimeError, SQLException {
+    private static void setState(String accessToken, String uuid, String state) throws RuntimeError, SQLException, ParseException {
         verifyAdminOfVenueByUUID(accessToken, uuid);
         if (Objects.equals(state, Venue.STATE.OPENED) || Objects.equals(state, Venue.STATE.CLOSING) || Objects.equals(state, Venue.STATE.CLOSED)) {
             new VenueDao().execUpdate("state", state, uuid);
@@ -140,12 +143,12 @@ public class VenueService {
      * @param uuid Venue UUID
      * @return Venue.STATE
      */
-    public static String getState(String uuid) throws SQLException, RuntimeError {
+    public static String getState(String uuid) throws SQLException, RuntimeError, ParseException {
 
         return new VenueDao().execQuery(uuid).getState();
     }
 
-    public static void setPrice(String accessToken, String uuid, double price) throws RuntimeError, SQLException {
+    public static void setPrice(String accessToken, String uuid, double price) throws RuntimeError, SQLException, ParseException {
         verifyAdminOfVenueByUUID(accessToken, uuid);
         if (price >= 0) {
             new VenueDao().execUpdate("state", price, uuid);
@@ -154,9 +157,32 @@ public class VenueService {
         }
     }
 
-    public static String getPrice(String uuid) throws SQLException, RuntimeError {
+    public static String getPrice(String uuid) throws SQLException, RuntimeError, ParseException {
         return new VenueDao().execQuery(uuid).getState();
     }
+
+    public static void close(String uuid) throws SQLException, RuntimeError, ParseException {
+        Venue venue = VenueService.query(uuid);
+        List<Order> orders = OrderService.queryOrderByVenueUUID(uuid);
+        orders = OrderService.StateFilter(orders, new String[]{Order.STATE.PAID, Order.STATE.USING, Order.STATE.PAYING});
+        if (!orders.isEmpty()) {
+            new VenueDao().execUpdate("state", Venue.STATE.CLOSING, uuid);
+            throw new RuntimeError("Some orders are not yet fulfilled, so this venue cannot be closed! But it's closing now.", 101);
+        } else {
+            new VenueDao().execUpdate("state", Venue.STATE.CLOSED, uuid);
+        }
+    }
+
+    public static void open(String uuid) throws SQLException, RuntimeError, ParseException {
+        Venue venue = VenueService.query(uuid);
+        if (Objects.equals(venue.getState(), Venue.STATE.OPENED)) {
+            throw new RuntimeError("Already opened!", 601);
+        }
+        if (Objects.equals(venue.getState(), Venue.STATE.CLOSING) || Objects.equals(venue.getState(), Venue.STATE.CLOSED)) {
+            new VenueDao().execUpdate("state", Venue.STATE.OPENED, uuid);
+        }
+    }
+
 }
 
 

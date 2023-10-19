@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 @Controller
@@ -38,7 +39,7 @@ public class OrderController {
             String venueUUID = VenueService.getUUID(venueName, venueArea, stadium);
             order = OrderService.newOrder(accessToken, userid, venueUUID, occupyStartTime, occupyEndTime, information, message);
             venue = VenueService.query(order.getVenueUUID());
-        } catch (SQLException e) {
+        } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
             json.put("success", false);
@@ -71,7 +72,7 @@ public class OrderController {
                 VenueService.verifyAdminOfVenueByUUID(accessToken, venueUUID);
                 orders = OrderService.queryOrderByTime(venueUUID, occupyStartTime, occupyEndTime);
             }
-        } catch (SQLException e) {
+        } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
             json.put("success", false);
