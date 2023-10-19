@@ -125,44 +125,45 @@ public class OrderDao implements Dao<Order> {
                 order.setOccupyEndTime(rs.getString("occupyEndTime"));
                 order.setInformation(rs.getString("information"));
                 order.setMessage(rs.getString("message"));
-
-
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                Date payTime = sdf.parse(order.getPayTime());
-                Date occupyStartTime = sdf.parse(order.getOccupyStartTime());
-                Date occupyEndTime = sdf.parse(order.getOccupyEndTime());
-
-                if (Objects.equals(order.getState(), Order.STATE.UNPAID)) {
-                    //如果超时
-                    if ((payTime.getTime() + UNPAIDTimeOut) < new Date().getTime()) {
-                        execDelete(order.getNumber());
-                        continue;//not return
-                    }
-                }
-                if (Objects.equals(order.getState(), Order.STATE.PAYING)) {
-                    //如果超时
-                    if ((payTime.getTime() + PAYINGTimeOut) < new Date().getTime()) {
-                        execUpdate("state", Order.STATE.UNPAID, order.getNumber());
-                        order.setState(Order.STATE.UNPAID);
-                    }
-                }
-                if (Objects.equals(order.getState(), Order.STATE.PAID)) {
-                    //如果到达开始时间
-                    if ((occupyStartTime.getTime()) < new Date().getTime() && (occupyEndTime.getTime()) > new Date().getTime()) {
-                        execUpdate("state", Order.STATE.USING, order.getNumber());
-                        order.setState(Order.STATE.USING);
-                    }
-                }
-                if (Objects.equals(order.getState(), Order.STATE.USING)) {
-                    //如果到达开始时间
-                    if ((occupyEndTime.getTime()) < new Date().getTime()) {
-                        execUpdate("state", Order.STATE.DONE, order.getNumber());
-                        order.setState(Order.STATE.DONE);
-                    }
-                }
                 list.add(order);
             }
         }
+        for (Order order : list) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date payTime = sdf.parse(order.getPayTime());
+            Date occupyStartTime = sdf.parse(order.getOccupyStartTime());
+            Date occupyEndTime = sdf.parse(order.getOccupyEndTime());
+
+            if (Objects.equals(order.getState(), Order.STATE.UNPAID)) {
+                //如果超时
+                if ((payTime.getTime() + UNPAIDTimeOut) < new Date().getTime()) {
+                    execDelete(order.getNumber());
+                    continue;//not return
+                }
+            }
+            if (Objects.equals(order.getState(), Order.STATE.PAYING)) {
+                //如果超时
+                if ((payTime.getTime() + PAYINGTimeOut) < new Date().getTime()) {
+                    execUpdate("state", Order.STATE.UNPAID, order.getNumber());
+                    order.setState(Order.STATE.UNPAID);
+                }
+            }
+            if (Objects.equals(order.getState(), Order.STATE.PAID)) {
+                //如果到达开始时间
+                if ((occupyStartTime.getTime()) < new Date().getTime() && (occupyEndTime.getTime()) > new Date().getTime()) {
+                    execUpdate("state", Order.STATE.USING, order.getNumber());
+                    order.setState(Order.STATE.USING);
+                }
+            }
+            if (Objects.equals(order.getState(), Order.STATE.USING)) {
+                //如果到达开始时间
+                if ((occupyEndTime.getTime()) < new Date().getTime()) {
+                    execUpdate("state", Order.STATE.DONE, order.getNumber());
+                    order.setState(Order.STATE.DONE);
+                }
+            }
+        }
+
         return list;
     }
 

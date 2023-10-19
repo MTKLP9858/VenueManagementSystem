@@ -2,6 +2,7 @@ package com.klp.vms.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.klp.vms.entity.User;
 import com.klp.vms.entity.Venue;
 import com.klp.vms.exception.RuntimeError;
 import com.klp.vms.service.UserService;
@@ -39,7 +40,7 @@ public class VenueController {
     public String add(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium, @RequestParam double price, @RequestParam(required = false) String introduction) {
         try {
             VenueService.add(accessToken, name, area, stadium, price, introduction);
-        } catch (SQLException | ParseException  e) {
+        } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
             json.put("success", false);
@@ -97,7 +98,7 @@ public class VenueController {
      * @return <p>返回带有多个变量的json对象</p>
      * <li>成功：
      * <p>success=true</p>
-     * <p>uuid:场地的uuid 非必要信息，输入里有</p>
+     * <p>uuid:场地的uuid</p>
      * <p>name:场地名字 非必要信息，输入里有</p>
      * <p>area:场地区域 非必要信息，输入里有</p>
      * <p>stadium:所属场馆 非必要信息，输入里有</p>
@@ -129,13 +130,61 @@ public class VenueController {
     }
 
     /**
-     * @param accessToken
-     * @param name
-     * @param area
-     * @param stadium
-     * @param column
-     * @param value
-     * @return
+     * 通过场地UUID来查询场地详细信息
+     *
+     * @param accessToken 应为管理员令牌
+     * @param venueUUID   场地UUID
+     * @return <p>返回带有多个变量的json对象</p>
+     * <li>成功：
+     * <p>success=true</p>
+     * <p>uuid:场地的uuid 非必要信息，输入里有</p>
+     * <p>name:场地名字</p>
+     * <p>area:场地区域</p>
+     * <p>stadium:所属场馆</p>
+     * <p>introduction:球场介绍，可能为null</p>
+     * <p>state:状态字符串，可能为："已开启","已关闭","待关闭"</p>
+     * <p>price:价格，double值</p>
+     * </li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
+
+    @PostMapping("/queryByUUID")
+    public String queryByUUID(@RequestHeader String accessToken, @RequestParam String venueUUID) {
+        Venue venue;
+        try {
+            if (UserService.verifyAccessToken(accessToken).getOp() == User.OP.ADMIN) {
+                venue = VenueService.query(accessToken, venueUUID);
+            } else {
+                return new RuntimeError("Query by venueUUID? Permission denied! Please query by name,area,stadium.", 501).toString();
+            }
+        } catch (SQLException | ParseException e) {
+            JSONObject json = new JSONObject();
+            json.put("code", 9);
+            json.put("success", false);
+            json.put("message", e.getMessage());
+            return json.toString();
+        } catch (RuntimeError e) {
+            return e.toString();
+        }
+        JSONObject json = JSON.parseObject(venue.toString());
+        json.put("code", 432);
+        json.put("success", true);
+        return json.toString();
+    }
+
+
+    /**
+     * @param accessToken 应为管理员令牌
+     * @param name        需要查询的场地名字，在相同的area和stadium下唯一
+     * @param area        需要查询的场地所属区域
+     * @param stadium     需要查询的场地所属场馆
+     * @param column      需要更改的信息类型："name", "area", "stadium", "introduction", "price" ;只能从中选一
+     * @param value       需要更改的值（在column列表中，除了price类型为double，其余均为String
+     * @return <p>返回带有多个变量的json对象</p>
+     * <li>成功：success=true</li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
      */
     @PostMapping("/update")
     public String update(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium, @RequestParam String column, @RequestParam String value) {

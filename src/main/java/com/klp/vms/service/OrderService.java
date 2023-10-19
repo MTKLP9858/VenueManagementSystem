@@ -2,6 +2,7 @@ package com.klp.vms.service;
 
 import com.klp.vms.dao.OrderDao;
 import com.klp.vms.dao.StadiumDao;
+import com.klp.vms.dao.VenueDao;
 import com.klp.vms.entity.Order;
 import com.klp.vms.entity.Stadium;
 import com.klp.vms.entity.User;
@@ -14,6 +15,26 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class OrderService {
+
+    public static void updateVenue(String accessToken, long number, String venueName, String venueArea) throws SQLException, RuntimeError, ParseException {
+        Order order = verifyAdminOfVenueByNumber(accessToken, number);
+        String venueUUID = new VenueDao().getUUID(venueName, venueArea, order.getStadiumName());
+        new OrderDao().execUpdate("venueUUID", venueUUID, number);
+    }
+
+    public static void update(String accessToken, long number, String column, String value) throws SQLException, RuntimeError, ParseException {
+        verifyAdminOfVenueByNumber(accessToken, number);
+        if (column != null) {
+            switch (column) {
+                case "userid", "occupyStartTime", "occupyEndTime", "information", "message" -> {//限制column为Stadium的列名
+                    new OrderDao().execUpdate(column, value, number);
+                }
+                default -> throw new RuntimeError("Illegal column!", 283);
+            }
+        }
+
+    }
+
     public static Order verifyAdminOfVenueByNumber(String accessToken, long number) throws SQLException, RuntimeError, ParseException {
         User user = UserService.verifyAccessToken(accessToken);
         List<Order> orderList = new OrderDao().execQuery(number);
@@ -86,10 +107,12 @@ public class OrderService {
         Date startTime = new Date(occupyStartTime);
         Date endTime = new Date(occupyEndTime);
 
-        if (startTime.after(now) && endTime.after(now) && endTime.after(startTime)) {
+        if (endTime.after(now) && endTime.after(startTime)) {
             order.setOccupyStartTime(sdf.format(startTime));
             order.setOccupyEndTime(sdf.format(endTime));
         } else {
+            System.out.println(now);
+            System.out.println(startTime);
             throw new RuntimeError("The time format is incorrect!", 533);
         }
 
@@ -117,6 +140,11 @@ public class OrderService {
         }
         return orders;
     }
+
+    public static void ConfirmOrder(long number) throws SQLException {
+//没有支付验证，该功能异常
+    }
+
 
     public static void RefundRequest(long number) throws SQLException {
 
