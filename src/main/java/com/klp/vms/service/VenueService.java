@@ -128,26 +128,6 @@ public class VenueService {
         return -1;
     }
 
-    private static void setState(String accessToken, String uuid, String state) throws RuntimeError, SQLException, ParseException {
-        verifyAdminOfVenueByUUID(accessToken, uuid);
-        if (Objects.equals(state, Venue.STATE.OPENED) || Objects.equals(state, Venue.STATE.CLOSING) || Objects.equals(state, Venue.STATE.CLOSED)) {
-            new VenueDao().execUpdate("state", state, uuid);
-        } else {
-            throw new RuntimeError("Illegal entry at " + state + "! You can enter:" + Venue.STATE.list(), 303);
-        }
-    }
-
-    /**
-     * 更新状态并返回
-     *
-     * @param uuid Venue UUID
-     * @return Venue.STATE
-     */
-    public static String getState(String uuid) throws SQLException, RuntimeError, ParseException {
-
-        return new VenueDao().execQuery(uuid).getState();
-    }
-
     public static void setPrice(String accessToken, String uuid, double price) throws RuntimeError, SQLException, ParseException {
         verifyAdminOfVenueByUUID(accessToken, uuid);
         if (price >= 0) {

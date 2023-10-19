@@ -106,6 +106,12 @@ public class OrderController {
         json.put("code", 200);
         json.put("success", true);
         return json.toString();
-
     }
+
+    //update "userid", "occupyStartTime", "occupyEndTime", "information", "message"
+    //updateVenue
+    //ConfirmOrder
+    //RefundRequest
+    //RefundConfirm
+    //RefundRefuse
 }

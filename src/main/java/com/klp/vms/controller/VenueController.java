@@ -205,6 +205,27 @@ public class VenueController {
         return json.toString();
     }
 
+
+
+    //price get/set
+
+    //open/close
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     @PostMapping("/queryImg")
     public ResponseEntity<byte[]> queryImg(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium, @RequestParam int imgIndex) {
         try {
