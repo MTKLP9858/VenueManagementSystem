@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class OrderService {
-    public static Order verifyAdminOfVenueByNumber(String accessToken, int number) throws SQLException, RuntimeError, ParseException {
+    public static Order verifyAdminOfVenueByNumber(String accessToken, long number) throws SQLException, RuntimeError, ParseException {
         User user = UserService.verifyAccessToken(accessToken);
         List<Order> orderList = new OrderDao().execQuery(number);
         Order order;
@@ -44,7 +44,7 @@ public class OrderService {
     }
 
 
-    public static Order query(String accessToken, int number) throws SQLException, RuntimeError, ParseException {
+    public static Order query(String accessToken, long number) throws SQLException, RuntimeError, ParseException {
         return verifyAdminOfVenueByNumber(accessToken, number);
     }
 
@@ -114,11 +114,23 @@ public class OrderService {
         ArrayList<Order> orders = new OrderDao().verifyOrderByStartTime(venueUUID, startTime, endTime);
         ArrayList<Order> ordersAdder = new OrderDao().verifyOrderByEndTime(venueUUID, startTime, endTime);
         for (Order oa : ordersAdder) {
-            if(!orders.contains(oa)){
+            if (!orders.contains(oa)) {
                 orders.add(oa);
             }
         }
         return orders;
+    }
+
+    public static void RefundRequest(long number) throws SQLException {
+
+    }
+
+    public static void RefundConfirm(long number) throws SQLException {
+
+    }
+
+    public static void RefundRefuse(long number) throws SQLException {
+
     }
 
 
