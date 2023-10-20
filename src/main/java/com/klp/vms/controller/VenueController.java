@@ -175,6 +175,8 @@ public class VenueController {
 
 
     /**
+     * 修改场地信息
+     *
      * @param accessToken 应为管理员令牌
      * @param name        需要查询的场地名字，在相同的area和stadium下唯一
      * @param area        需要查询的场地所属区域
@@ -187,7 +189,7 @@ public class VenueController {
      * <li>详细信息见message</li>
      */
     @PostMapping("/update")
-    public String update(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium, @RequestParam String column, @RequestParam String value) {
+    public String update(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium, @RequestParam String column, @RequestParam Object value) {
         try {
             VenueService.update(accessToken, VenueService.getUUID(name, area, stadium), column, value);
         } catch (SQLException | ParseException e) {
@@ -205,27 +207,148 @@ public class VenueController {
         return json.toString();
     }
 
+    /**
+     * 启用场地，通过uuid来启用
+     * （若场地已启用，则返回报错）
+     *
+     * @param accessToken 场地管理员令牌
+     * @param uuid        场地UUID
+     * @return <p>返回带有多个变量的json对象</p>
+     * <li>成功：success=true</li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
+    @PostMapping("/openByUUID")
+    public String openByUUID(@RequestHeader String accessToken, @RequestParam String uuid) {
+        try {
+            VenueService.verifyAdminOfVenueByUUID(accessToken, uuid);
+            VenueService.open(uuid);
+        } catch (SQLException | ParseException e) {
+            JSONObject json = new JSONObject();
+            json.put("code", 9);
+            json.put("success", false);
+            json.put("message", e.getMessage());
+            return json.toString();
+        } catch (RuntimeError e) {
+            return e.toString();
+        }
+        JSONObject json = new JSONObject();
+        json.put("code", 232);
+        json.put("success", true);
+        return json.toString();
+    }
+
+    /**
+     * 关闭场地，通过uuid来停用场地，若还有订单未结算，则显示为待关闭
+     *
+     * @param accessToken 场地管理员令牌
+     * @param uuid        场地UUID
+     * @return <p>返回带有多个变量的json对象</p>
+     * <li>成功：success=true</li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
+    @PostMapping("/closeByUUID")
+    public String closeByUUID(@RequestHeader String accessToken, @RequestParam String uuid) {
+        try {
+            VenueService.verifyAdminOfVenueByUUID(accessToken, uuid);
+            VenueService.close(uuid);
+        } catch (SQLException | ParseException e) {
+            JSONObject json = new JSONObject();
+            json.put("code", 9);
+            json.put("success", false);
+            json.put("message", e.getMessage());
+            return json.toString();
+        } catch (RuntimeError e) {
+            return e.toString();
+        }
+        JSONObject json = new JSONObject();
+        json.put("code", 232);
+        json.put("success", true);
+        return json.toString();
+    }
+
+    /**
+     * 启用场地，通过venueName, venueArea, stadium来启用
+     * （若场地已启用，则返回报错）
+     *
+     * @param accessToken 场地管理员令牌
+     * @param venueName   场地名字
+     * @param venueArea   场地区域
+     * @param stadium     场馆名字，用于验证
+     * @return <p>返回带有多个变量的json对象</p>
+     * <li>成功：success=true</li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
+    @PostMapping("/open")
+    public String open(@RequestHeader String accessToken, @RequestParam String venueName, @RequestParam String venueArea, @RequestParam String stadium) {
+        try {
+            String venueUUID = VenueService.getUUID(venueName, venueArea, stadium);
+            VenueService.verifyAdminOfVenueByUUID(accessToken, venueUUID);
+            VenueService.open(venueUUID);
+        } catch (SQLException | ParseException e) {
+            JSONObject json = new JSONObject();
+            json.put("code", 9);
+            json.put("success", false);
+            json.put("message", e.getMessage());
+            return json.toString();
+        } catch (RuntimeError e) {
+            return e.toString();
+        }
+        JSONObject json = new JSONObject();
+        json.put("code", 232);
+        json.put("success", true);
+        return json.toString();
+    }
+
+    /**
+     * 关闭场地，通过venueName, venueArea, stadium来停用场地，若还有订单未结算，则显示为待关闭
+     *
+     * @param accessToken 场地管理员令牌
+     * @param venueName   场地名字
+     * @param venueArea   场地区域
+     * @param stadium     场馆名字，用于验证
+     * @return <p>返回带有多个变量的json对象</p>
+     * <li>成功：success=true</li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
+    @PostMapping("/close")
+    public String close(@RequestHeader String accessToken, @RequestParam String venueName, @RequestParam String venueArea, @RequestParam String stadium) {
+        try {
+            String venueUUID = VenueService.getUUID(venueName, venueArea, stadium);
+            VenueService.verifyAdminOfVenueByUUID(accessToken, venueUUID);
+            VenueService.close(venueUUID);
+        } catch (SQLException | ParseException e) {
+            JSONObject json = new JSONObject();
+            json.put("code", 9);
+            json.put("success", false);
+            json.put("message", e.getMessage());
+            return json.toString();
+        } catch (RuntimeError e) {
+            return e.toString();
+        }
+        JSONObject json = new JSONObject();
+        json.put("code", 232);
+        json.put("success", true);
+        return json.toString();
+    }
 
 
-    //price get/set
-
-    //open/close
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * 拉取场地的图片
+     *
+     * @param accessToken 管理员令牌/用户令牌
+     * @param name        场地名字
+     * @param area        场地所属区域
+     * @param stadium     场馆名字
+     * @param imgIndex    图片的索引，如：0，1，2，3，4...  等，类型为int
+     * @return <p>返回带有多个变量的json对象</p>
+     * <li>成功：返回图片二进制</li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
     @PostMapping("/queryImg")
     public ResponseEntity<byte[]> queryImg(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium, @RequestParam int imgIndex) {
         try {
@@ -247,10 +370,23 @@ public class VenueController {
 
     }
 
+    /**
+     * 添加图片，总是在图片列表的最后添加
+     *
+     * @param accessToken 管理员令牌
+     * @param venueName   场地名字
+     * @param venueArea   场地区域
+     * @param stadium     场馆名字，用于验证
+     * @param img         MultipartFile图片文件
+     * @return <p>返回带有多个变量的json对象</p>
+     * <li>成功：success=true</li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
     @PostMapping("/addImg")
-    public String addImg(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium, @RequestParam MultipartFile img) {
+    public String addImg(@RequestHeader String accessToken, @RequestParam String venueName, @RequestParam String venueArea, @RequestParam String stadium, @RequestParam MultipartFile img) {
         try {
-            VenueService.addImg(accessToken, img, VenueService.getUUID(name, area, stadium));
+            VenueService.addImg(accessToken, img, VenueService.getUUID(venueName, venueArea, stadium));
         } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
@@ -266,10 +402,24 @@ public class VenueController {
         return json.toString();
     }
 
+    /**
+     * 按索引更新图片，将会替换旧图片
+     *
+     * @param accessToken 管理员令牌
+     * @param venueName   场地名字
+     * @param venueArea   场地区域
+     * @param stadium     场馆名字，用于验证
+     * @param img         MultipartFile图片文件
+     * @param imgIndex    图片列表的索引，如：0，1，2，3，4。。。等，类型为int
+     * @return <p>返回带有多个变量的json对象</p>
+     * <li>成功：success=true</li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
     @PostMapping("/updateImg")
-    public String updateImg(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium, @RequestParam int imgIndex, @RequestParam MultipartFile img) {
+    public String updateImg(@RequestHeader String accessToken, @RequestParam String venueName, @RequestParam String venueArea, @RequestParam String stadium, @RequestParam int imgIndex, @RequestParam MultipartFile img) {
         try {
-            VenueService.updateImg(accessToken, imgIndex, img, VenueService.getUUID(name, area, stadium));
+            VenueService.updateImg(accessToken, imgIndex, img, VenueService.getUUID(venueName, venueArea, stadium));
         } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
@@ -285,10 +435,23 @@ public class VenueController {
         return json.toString();
     }
 
+    /**
+     * 按索引删除图片
+     *
+     * @param accessToken 管理员令牌
+     * @param venueName   场地名字
+     * @param venueArea   场地区域
+     * @param stadium     场馆名字，用于验证
+     * @param imgIndex    图片列表的索引，如：0，1，2，3，4。。。等，类型为int
+     * @return <p>返回带有多个变量的json对象</p>
+     * <li>成功：success=true</li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
     @PostMapping("/deleteImg")
-    public String deleteImg(@RequestHeader String accessToken, @RequestParam String name, @RequestParam String area, @RequestParam String stadium, @RequestParam int imgIndex) {
+    public String deleteImg(@RequestHeader String accessToken, @RequestParam String venueName, @RequestParam String venueArea, @RequestParam String stadium, @RequestParam int imgIndex) {
         try {
-            VenueService.deleteImg(accessToken, imgIndex, VenueService.getUUID(name, area, stadium));
+            VenueService.deleteImg(accessToken, imgIndex, VenueService.getUUID(venueName, venueArea, stadium));
         } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);

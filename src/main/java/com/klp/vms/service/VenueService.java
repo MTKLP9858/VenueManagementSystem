@@ -115,7 +115,7 @@ public class VenueService {
         return new VenueDao().execQuery(uuid);
     }
 
-    public static int update(String accessToken, String uuid, String column, String value) throws RuntimeError, SQLException, ParseException {
+    public static int update(String accessToken, String uuid, String column, Object value) throws RuntimeError, SQLException, ParseException {
         verifyAdminOfVenueByUUID(accessToken, uuid);
         if (column != null) {
             switch (column) {

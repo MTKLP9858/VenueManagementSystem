@@ -235,9 +235,8 @@ public class VenueDao implements Dao<Venue> {//场地
         }
         String sql = "UPDATE Venue SET " + column + "=? WHERE uuid=?;";
         try (Stat stat = new Stat(sql)) {
-            stat.setString(1, column);
-            stat.setObject(2, value);
-            stat.setString(3, uuid);
+            stat.setObject(1, value);
+            stat.setString(2, uuid);
             return stat.executeUpdate();
         }
     }
