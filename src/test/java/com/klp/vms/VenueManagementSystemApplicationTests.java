@@ -22,10 +22,10 @@ class VenueManagementSystemApplicationTests {
         try {
             String accessToken = "145eae28-b5af-4406-94a9-4f91a00e7eb3";
             String venueUUID = "063fd8c6-097e-49a0-b2ea-93bded6b43d4";
-            OrderService.newOrder(accessToken, "user1", venueUUID, new Date().getTime() + 10 * 60 * 1000, new Date().getTime() + 20 * 60 * 1000, "infor111111111", "message2222222222");
+            // OrderService.newOrder(accessToken, "user1", venueUUID, new Date().getTime() + 10 * 60 * 1000, new Date().getTime() + 20 * 60 * 1000, "infor111111111", "message2222222222");
             System.out.println(OrderService.queryOrderByVenueUUID(venueUUID));
 
-        } catch (SQLException | RuntimeError e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }

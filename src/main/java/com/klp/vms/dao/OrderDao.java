@@ -14,7 +14,8 @@ import java.util.Objects;
 
 public class OrderDao implements Dao<Order> {
     public static long UNPAIDTimeOut = 20 * 60 * 1000;//20min
-    public static long PAYINGTimeOut = 10 * 60 * 1000;//20min
+    public static long PAYINGTimeOut = 10 * 60 * 1000;//10min
+    public static long PAYINGDeadTimeOut = 20 * 60 * 1000;//10min
 
     @Override
     public int execInsert(Order order) throws SQLException {
@@ -128,6 +129,8 @@ public class OrderDao implements Dao<Order> {
                 list.add(order);
             }
         }
+
+
         for (Order order : list) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date payTime = sdf.parse(order.getPayTime());
@@ -138,7 +141,7 @@ public class OrderDao implements Dao<Order> {
                 //如果超时
                 if ((payTime.getTime() + UNPAIDTimeOut) < new Date().getTime()) {
                     execDelete(order.getNumber());
-                    continue;//not return
+                    list.remove(order);
                 }
             }
             if (Objects.equals(order.getState(), Order.STATE.PAYING)) {
@@ -147,12 +150,20 @@ public class OrderDao implements Dao<Order> {
                     execUpdate("state", Order.STATE.UNPAID, order.getNumber());
                     order.setState(Order.STATE.UNPAID);
                 }
+                if ((payTime.getTime() + PAYINGDeadTimeOut) < new Date().getTime()) {
+                    execDelete(order.getNumber());
+                    list.remove(order);
+                }
             }
             if (Objects.equals(order.getState(), Order.STATE.PAID)) {
                 //如果到达开始时间
                 if ((occupyStartTime.getTime()) < new Date().getTime() && (occupyEndTime.getTime()) > new Date().getTime()) {
                     execUpdate("state", Order.STATE.USING, order.getNumber());
                     order.setState(Order.STATE.USING);
+                }
+                if ((occupyEndTime.getTime()) < new Date().getTime()) {
+                    execUpdate("state", Order.STATE.DONE, order.getNumber());
+                    order.setState(Order.STATE.DONE);
                 }
             }
             if (Objects.equals(order.getState(), Order.STATE.USING)) {

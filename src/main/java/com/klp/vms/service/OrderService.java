@@ -19,20 +19,51 @@ public class OrderService {
     public static void updateVenue(String accessToken, long number, String venueName, String venueArea) throws SQLException, RuntimeError, ParseException {
         Order order = verifyAdminOfVenueByNumber(accessToken, number);
         String venueUUID = new VenueDao().getUUID(venueName, venueArea, order.getStadiumName());
-        new OrderDao().execUpdate("venueUUID", venueUUID, number);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        long startTime = sdf.parse(order.getOccupyStartTime()).getTime();
+        long endTime = sdf.parse(order.getOccupyEndTime()).getTime();
+
+        ArrayList<Order> orders = queryOrderByTime(venueUUID, startTime, endTime);
+
+        if (orders.isEmpty()) {
+            new OrderDao().execUpdate("venueUUID", venueUUID, number);
+        } else {
+            throw new RuntimeError("There are conflicting orders!", 180);
+        }
     }
 
     public static void update(String accessToken, long number, String column, String value) throws SQLException, RuntimeError, ParseException {
         verifyAdminOfVenueByNumber(accessToken, number);
         if (column != null) {
             switch (column) {
-                case "userid", "occupyStartTime", "occupyEndTime", "information", "message" -> {//限制column为Stadium的列名
+                case "userid", "information", "message" -> {//限制column为Stadium的列名
                     new OrderDao().execUpdate(column, value, number);
+                }
+                case "occupyStartTime" -> {
+                    Order order = OrderService.query(accessToken, number);
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    long endTime = sdf.parse(order.getOccupyEndTime()).getTime();
+                    ArrayList<Order> orders = queryOrderByTime(order.getVenueUUID(), sdf.parse(value).getTime(), endTime);
+                    if (orders.isEmpty()) {
+                        new OrderDao().execUpdate(column, value, number);
+                    } else {
+                        throw new RuntimeError("There are conflicting orders!", 180);
+                    }
+                }
+                case "occupyEndTime" -> {
+                    Order order = OrderService.query(accessToken, number);
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    long startTime = sdf.parse(order.getOccupyStartTime()).getTime();
+                    ArrayList<Order> orders = queryOrderByTime(order.getVenueUUID(), startTime, sdf.parse(value).getTime());
+                    if (orders.isEmpty()) {
+                        new OrderDao().execUpdate(column, value, number);
+                    } else {
+                        throw new RuntimeError("There are conflicting orders!", 180);
+                    }
                 }
                 default -> throw new RuntimeError("Illegal column!", 283);
             }
         }
-
     }
 
     public static Order verifyAdminOfVenueByNumber(String accessToken, long number) throws SQLException, RuntimeError, ParseException {

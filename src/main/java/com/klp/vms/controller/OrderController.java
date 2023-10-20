@@ -77,7 +77,23 @@ public class OrderController {
 
     }
 
-    @PostMapping("/queryOrder")
+    /**
+     * @param accessToken     管理员令牌
+     * @param venueName       需要查询的场地名字
+     * @param venueArea       需要查询的场地区域
+     * @param stadium         需要查询的场馆名字，用作验证
+     * @param occupyStartTime 订单开始时间[long]
+     * @param occupyEndTime   订单结束时间[long]
+     * @return 返回一个包含order对象的jsonArray字符串，若返回0个订单，则应返回"[]" 。
+     * 先用jsonArray解析可得到一些jsonObject，接着解析jsonObject可得到单个订单的信息。
+     * 示例：
+     * [{"number":1697701757615, "userid":"user1", "stadiumName":"stadium1", "venueUUID":"063fd8c6-097e-49a0-b2ea-93bded6b43d4", "state":"已完成", "payTime":1697701757000, "occupyStartTime":1697701757000, "occupyEndTime":1697702117000, "information":"infor111111111", "message":"message2222222222"},
+     * {"number":1697702247822, "userid":"user1", "stadiumName":"stadium1", "venueUUID":"063fd8c6-097e-49a0-b2ea-93bded6b43d4", "state":"已完成", "payTime":1697702247000, "occupyStartTime":1697702247000, "occupyEndTime":1697702847000, "information":"infor111111111", "message":"message2222222222"},
+     * {"number":1697702299674, "userid":"user1", "stadiumName":"stadium1", "venueUUID":"063fd8c6-097e-49a0-b2ea-93bded6b43d4", "state":"已完成", "payTime":1697702299000, "occupyStartTime":1697702899000, "occupyEndTime":1697703499000, "information":"infor111111111", "message":"message2222222222"},
+     * {"number":1697771551167, "userid":"user1", "stadiumName":"stadium1", "venueUUID":"063fd8c6-097e-49a0-b2ea-93bded6b43d4", "state":"已完成", "payTime":1697771551000, "occupyStartTime":1697772150000, "occupyEndTime":1697772270000, "information":"infor111111111", "message":"message2222222222"},
+     * {"number":1697772399387, "userid":"user1", "stadiumName":"stadium1", "venueUUID":"063fd8c6-097e-49a0-b2ea-93bded6b43d4", "state":"已支付", "payTime":1697772399000, "occupyStartTime":1697772999000, "occupyEndTime":1697773599000, "information":"infor111111111", "message":"message2222222222"}]
+     */
+    @PostMapping("/queryOrderByTime")
     public String queryOrderByTime(@RequestHeader String accessToken, @RequestParam String venueName, @RequestParam String venueArea, @RequestParam String stadium, @RequestParam long occupyStartTime, @RequestParam long occupyEndTime) {
         ArrayList<Order> orders = null;
         try {
@@ -108,8 +124,73 @@ public class OrderController {
         return json.toString();
     }
 
-    //update "userid", "occupyStartTime", "occupyEndTime", "information", "message"
-    //updateVenue
+    /**
+     * 更新订单信息中的：
+     * "userid"[String], "information"[String], "message"[String], "occupyStartTime"[long], "occupyEndTime"[long]
+     * 请填写于column中
+     *
+     * @param accessToken 管理员令牌，将会验证是否为订单中场地的管理员
+     * @param number      订单号，将被提取有关信息作为冲突验证
+     * @param column      需要更改的信息类型
+     * @param value       需要更改的值
+     * @return <p>返回带有多个变量的json对象</p>
+     * <li>成功：success=true</li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
+    @PostMapping("/update")
+    public String update(@RequestHeader String accessToken, @RequestParam long number, @RequestParam String column, @RequestParam String value) {
+        try {
+            OrderService.update(accessToken, number, column, value);
+        } catch (SQLException | ParseException e) {
+            JSONObject json = new JSONObject();
+            json.put("code", 9);
+            json.put("success", false);
+            json.put("message", e.getMessage());
+            return json.toString();
+        } catch (RuntimeError e) {
+            return e.toString();
+        }
+        JSONObject json = new JSONObject();
+        json.put("code", 200);
+        json.put("success", true);
+        json.put("message", "Update succeed!");
+        return json.toString();
+    }
+
+    /**
+     * 更新订单信息中的场地信息，由于订单只能更改为馆内场地，所以只需要场地名和区域即可
+     *
+     * @param accessToken 管理员令牌，将会验证是否为订单中场地的管理员
+     * @param number      订单号，将被提取有关信息作为冲突验证
+     * @param venueName   新的场地名称值[String]
+     * @param venueArea   新的场地区域值[String]
+     * @return <p>返回带有多个变量的json对象</p>
+     * <li>成功：success=true</li>
+     * <li>失败：success=false</li>
+     * <li>详细信息见message</li>
+     */
+    @PostMapping("/updateVenue")
+    public String updateVenue(@RequestHeader String accessToken, @RequestParam long number, @RequestParam String venueName, @RequestParam String venueArea) {
+        try {
+            OrderService.updateVenue(accessToken, number, venueName, venueArea);
+        } catch (SQLException | ParseException e) {
+            JSONObject json = new JSONObject();
+            json.put("code", 9);
+            json.put("success", false);
+            json.put("message", e.getMessage());
+            return json.toString();
+        } catch (RuntimeError e) {
+            return e.toString();
+        }
+        JSONObject json = new JSONObject();
+        json.put("code", 200);
+        json.put("success", true);
+        json.put("message", "Update succeed!");
+        return json.toString();
+    }
+
+
     //ConfirmOrder
     //RefundRequest
     //RefundConfirm
