@@ -128,7 +128,8 @@ public class OrderController {
 
     /**
      * 更新订单信息中的：
-     * "userid"[String], "information"[String], "message"[String], "occupyStartTime"[long], "occupyEndTime"[long]
+     * "userid"[String], "information"[String], "message"[String],
+     * "occupyStartTime"[String(格式为：yyyy-MM-dd HH:mm:ss)], "occupyEndTime"[String(格式为：yyyy-MM-dd HH:mm:ss)]
      * 请填写于column中
      *
      * @param accessToken 管理员令牌，将会验证是否为订单中场地的管理员

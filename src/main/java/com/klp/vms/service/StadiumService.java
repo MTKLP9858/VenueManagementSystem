@@ -127,7 +127,7 @@ public class StadiumService {
         return null;
     }
 
-    public static int update(String accessToken, String name, String column, String value) throws RuntimeError, SQLException, ParseException {
+    public static int update(String accessToken, String name, String column, Object value) throws RuntimeError, SQLException, ParseException {
         User user = UserService.verifyAccessToken(accessToken);
         if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
         switch (column) {
