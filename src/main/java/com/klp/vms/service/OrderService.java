@@ -149,7 +149,7 @@ public class OrderService {
 
         ////////////////////////////////////////
         //查询重复订单
-        if (!new OrderDao().verifyOrderByStartTime(venueUUID, occupyStartTime, occupyEndTime).isEmpty() || !new OrderDao().verifyOrderByEndTime(venueUUID, occupyStartTime, occupyEndTime).isEmpty()) {
+        if (!queryOrderByTime(venueUUID, occupyStartTime, occupyEndTime).isEmpty()) {
             throw new RuntimeError("Another user has already occupied the time period!", 500);
         }
         ////////////////////////////////////////
@@ -167,6 +167,12 @@ public class OrderService {
         for (Order oa : ordersAdder) {
             if (!orders.contains(oa)) {
                 orders.add(oa);
+            }
+        }
+        ArrayList<Order> ordersAdder1 = new OrderDao().verifyOrderByTimeZone(venueUUID, startTime, endTime);
+        for (Order oa1 : ordersAdder1) {
+            if (!orders.contains(oa1)) {
+                orders.add(oa1);
             }
         }
         return orders;

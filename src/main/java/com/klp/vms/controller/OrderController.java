@@ -1,5 +1,6 @@
 package com.klp.vms.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.klp.vms.entity.Order;
 import com.klp.vms.entity.User;
@@ -102,12 +103,17 @@ public class OrderController {
             User user = UserService.verifyAccessToken(accessToken);
             if (user.getOp() == User.OP.USER) {
                 throw new RuntimeError("You are not an administrator! Permission denied!", 271);
-            }
-            if (user.getOp() == User.OP.ADMIN) {
+            } else if (user.getOp() == User.OP.ADMIN) {
                 String venueUUID = VenueService.getUUID(venueName, venueArea, stadium);
                 VenueService.verifyAdminOfVenueByUUID(accessToken, venueUUID);
                 orders = OrderService.queryOrderByTime(venueUUID, occupyStartTime, occupyEndTime);
+            } else if (user.getOp() == User.OP.SU) {
+                String venueUUID = VenueService.getUUID(venueName, venueArea, stadium);
+                orders = OrderService.queryOrderByTime(venueUUID, occupyStartTime, occupyEndTime);
+            }else {
+                throw new RuntimeError("You don't have a OP?",403);
             }
+
         } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
@@ -117,13 +123,8 @@ public class OrderController {
         } catch (RuntimeError e) {
             return e.toString();
         }
-        JSONObject json = new JSONObject();
-        if (orders != null) {
-            json = (JSONObject) JSONObject.parse(orders.toString());
-        }
-        json.put("code", 200);
-        json.put("success", true);
-        return json.toString();
+        JSONArray jsonArray = (JSONArray) JSONArray.parse(orders.toString());
+        return jsonArray.toString();
     }
 
     /**

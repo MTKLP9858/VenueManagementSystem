@@ -47,6 +47,35 @@ public class OrderDao implements Dao<Order> {
         return execDelete(String.valueOf(number));
     }
 
+    public ArrayList<Order> verifyOrderByTimeZone(String venueUUID, long fromTime, long toTime) throws SQLException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String from = sdf.format(new java.util.Date(fromTime));
+        String to = sdf.format(new Date(toTime));
+
+        ArrayList<Order> list = new ArrayList<>();
+        try (Stat stat = new Stat("select * from \"Order\" where venueUUID = ? and (occupyStartTime < ? and occupyEndTime > ?)")) {
+            stat.setString(1, venueUUID);
+            stat.setString(2, from);
+            stat.setString(3, to);
+            ResultSet rs = stat.executeQuery();
+            while (rs.next()) {
+                Order order = new Order();
+                order.setNumber(rs.getLong("number"));
+                order.setUserid(rs.getString("userid"));
+                order.setStadiumName(rs.getString("stadiumName"));
+                order.setVenueUUID(rs.getString("venueUUID"));
+                order.setState(rs.getString("state"));
+                order.setPayTime(rs.getString("payTime"));
+                order.setOccupyStartTime(rs.getString("occupyStartTime"));
+                order.setOccupyEndTime(rs.getString("occupyEndTime"));
+                order.setInformation(rs.getString("information"));
+                order.setMessage(rs.getString("message"));
+                list.add(order);
+            }
+        }
+        return list;
+    }
+
 
     public ArrayList<Order> verifyOrderByStartTime(String venueUUID, long fromTime, long toTime) throws SQLException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
