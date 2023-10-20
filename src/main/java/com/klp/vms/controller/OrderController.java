@@ -110,8 +110,8 @@ public class OrderController {
             } else if (user.getOp() == User.OP.SU) {
                 String venueUUID = VenueService.getUUID(venueName, venueArea, stadium);
                 orders = OrderService.queryOrderByTime(venueUUID, occupyStartTime, occupyEndTime);
-            }else {
-                throw new RuntimeError("You don't have a OP?",403);
+            } else {
+                throw new RuntimeError("You don't have a OP?", 403);
             }
 
         } catch (SQLException | ParseException e) {
