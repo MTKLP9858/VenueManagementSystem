@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.klp.vms.entity.Order;
 import com.klp.vms.entity.Stadium;
+import com.klp.vms.entity.Venue;
 import com.klp.vms.exception.RuntimeError;
 import com.klp.vms.service.StadiumService;
 import org.springframework.http.HttpHeaders;
@@ -146,7 +147,7 @@ public class StadiumController {
     }
 
     /**
-     * 查询该场馆所有场地的所有订单
+     * 查询该场馆所有场地的所有订单（列表）
      *
      * @param accessToken 管理员令牌
      * @param stadiumName 场馆名字
@@ -176,6 +177,34 @@ public class StadiumController {
         JSONArray jsonArray = (JSONArray) JSONArray.parse(orders.toString());
         return jsonArray.toString();
     }
+
+
+    /**
+     * 查询该场馆所有场地的所有场馆（列表）
+     *
+     * @param accessToken 管理员令牌
+     * @param stadiumName 场馆名字
+     * @return 返回一个包含order对象的jsonArray字符串，若返回0个订单，则应返回"[]" 。
+     * 先用jsonArray解析可得到一些jsonObject，接着解析jsonObject可得到单个订单的信息。
+     */
+    @PostMapping("/queryAllVenue")
+    public String queryAllVenue(@RequestHeader String accessToken, @RequestParam String stadiumName) {
+        List<Venue> orders;
+        try {
+            orders = StadiumService.queryAllVenue(accessToken, stadiumName);
+        } catch (SQLException | ParseException e) {
+            JSONObject json = new JSONObject();
+            json.put("code", 9);
+            json.put("success", false);
+            json.put("message", e.getMessage());
+            return json.toString();
+        } catch (RuntimeError e) {
+            return e.toString();
+        }
+        JSONArray jsonArray = (JSONArray) JSONArray.parse(orders.toString());
+        return jsonArray.toString();
+    }
+
 
     /**
      * 添加场馆（超级管理员）

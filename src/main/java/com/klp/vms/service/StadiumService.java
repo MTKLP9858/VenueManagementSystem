@@ -2,9 +2,11 @@ package com.klp.vms.service;
 
 import com.klp.vms.dao.OrderDao;
 import com.klp.vms.dao.StadiumDao;
+import com.klp.vms.dao.VenueDao;
 import com.klp.vms.entity.Order;
 import com.klp.vms.entity.Stadium;
 import com.klp.vms.entity.User;
+import com.klp.vms.entity.Venue;
 import com.klp.vms.exception.RuntimeError;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.multipart.MultipartFile;
@@ -131,11 +133,15 @@ public class StadiumService {
         return stadiumList.get(0);
     }
 
+    public static List<Venue> queryAllVenue(String accessToken, String name) throws SQLException, RuntimeError, ParseException {
+        StadiumService.verifyAdminOfStadiumByName(accessToken, name);
+        return new VenueDao().execQuery("stadium", name);
+    }
+
 
     public static List<Order> queryAllOrders(String accessToken, String name) throws SQLException, RuntimeError, ParseException {
         StadiumService.verifyAdminOfStadiumByName(accessToken, name);
-        List<Order> orders = new OrderDao().execQuery("stadiumName", name);
-        return orders;
+        return new OrderDao().execQuery("stadiumName", name);
     }
 
 
