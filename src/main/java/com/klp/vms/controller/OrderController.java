@@ -129,7 +129,7 @@ public class OrderController {
 
 
     /**
-     * 查询这个场馆，一段时间内的订单
+     * 查询这个场馆，一段时间内的订单（列表）
      *
      * @param accessToken     管理员令牌
      * @param stadium         需要查询的场馆名字
