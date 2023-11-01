@@ -178,6 +178,23 @@ public class OrderService {
         return orders;
     }
 
+    public static ArrayList<Order> queryOrderInStadiumByTime(String StadiumName, long startTime, long endTime) throws SQLException {
+        ArrayList<Order> orders = new OrderDao().queryOrderInStadiumByStartTime(StadiumName, startTime, endTime);
+        ArrayList<Order> ordersAdder = new OrderDao().queryOrderInStadiumByEndTime(StadiumName, startTime, endTime);
+        for (Order oa : ordersAdder) {
+            if (!orders.contains(oa)) {
+                orders.add(oa);
+            }
+        }
+        ArrayList<Order> ordersAdder1 = new OrderDao().queryOrderInStadiumByTimeZone(StadiumName, startTime, endTime);
+        for (Order oa1 : ordersAdder1) {
+            if (!orders.contains(oa1)) {
+                orders.add(oa1);
+            }
+        }
+        return orders;
+    }
+
     public static void ConfirmOrder(long number) throws SQLException {
 //没有支付验证，该功能异常
     }

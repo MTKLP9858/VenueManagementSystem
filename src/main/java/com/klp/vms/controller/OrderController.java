@@ -127,6 +127,52 @@ public class OrderController {
         return jsonArray.toString();
     }
 
+
+    /**
+     * 查询这个场馆，一段时间内的订单
+     *
+     * @param accessToken     管理员令牌
+     * @param stadium         需要查询的场馆名字
+     * @param occupyStartTime 订单开始时间[long]
+     * @param occupyEndTime   订单结束时间[long]
+     * @return 返回一个包含order对象的jsonArray字符串，若返回0个订单，则应返回"[]" 。
+     * 先用jsonArray解析可得到一些jsonObject，接着解析jsonObject可得到单个订单的信息。
+     * 示例：
+     * [{"number":1697701757615, "userid":"user1", "stadiumName":"stadium1", "venueUUID":"063fd8c6-097e-49a0-b2ea-93bded6b43d4", "state":"已完成", "payTime":1697701757000, "occupyStartTime":1697701757000, "occupyEndTime":1697702117000, "information":"infor111111111", "message":"message2222222222"},
+     * {"number":1697702247822, "userid":"user1", "stadiumName":"stadium1", "venueUUID":"063fd8c6-097e-49a0-b2ea-93bded6b43d4", "state":"已完成", "payTime":1697702247000, "occupyStartTime":1697702247000, "occupyEndTime":1697702847000, "information":"infor111111111", "message":"message2222222222"},
+     * {"number":1697702299674, "userid":"user1", "stadiumName":"stadium1", "venueUUID":"063fd8c6-097e-49a0-b2ea-93bded6b43d4", "state":"已完成", "payTime":1697702299000, "occupyStartTime":1697702899000, "occupyEndTime":1697703499000, "information":"infor111111111", "message":"message2222222222"},
+     * {"number":1697771551167, "userid":"user1", "stadiumName":"stadium1", "venueUUID":"063fd8c6-097e-49a0-b2ea-93bded6b43d4", "state":"已完成", "payTime":1697771551000, "occupyStartTime":1697772150000, "occupyEndTime":1697772270000, "information":"infor111111111", "message":"message2222222222"},
+     * {"number":1697772399387, "userid":"user1", "stadiumName":"stadium1", "venueUUID":"063fd8c6-097e-49a0-b2ea-93bded6b43d4", "state":"已支付", "payTime":1697772399000, "occupyStartTime":1697772999000, "occupyEndTime":1697773599000, "information":"infor111111111", "message":"message2222222222"}]
+     */
+    @PostMapping("/queryOrderInStadiumByTime")
+    public String queryOrderInStadiumByTime(@RequestHeader String accessToken, @RequestParam String stadium, @RequestParam long occupyStartTime, @RequestParam long occupyEndTime) {
+        ArrayList<Order> orders;
+        try {
+            User user = UserService.verifyAccessToken(accessToken);
+            if (user.getOp() == User.OP.USER) {
+                throw new RuntimeError("You are not an administrator! Permission denied!", 271);
+            } else if (user.getOp() == User.OP.ADMIN) {
+                orders = OrderService.queryOrderInStadiumByTime(stadium, occupyStartTime, occupyEndTime);
+            } else if (user.getOp() == User.OP.SU) {
+                orders = OrderService.queryOrderInStadiumByTime(stadium, occupyStartTime, occupyEndTime);
+            } else {
+                throw new RuntimeError("You don't have a OP?", 403);
+            }
+
+        } catch (SQLException e) {
+            JSONObject json = new JSONObject();
+            json.put("code", 9);
+            json.put("success", false);
+            json.put("message", e.getMessage());
+            return json.toString();
+        } catch (RuntimeError e) {
+            return e.toString();
+        }
+        JSONArray jsonArray = (JSONArray) JSONArray.parse(orders.toString());
+        return jsonArray.toString();
+    }
+
+
     /**
      * 更新订单信息中的：
      * "userid"[String], "information"[String], "message"[String],
