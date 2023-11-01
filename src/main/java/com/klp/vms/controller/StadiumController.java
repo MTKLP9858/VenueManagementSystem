@@ -163,7 +163,6 @@ public class StadiumController {
     public String queryAllOrders(@RequestHeader String accessToken, @RequestParam String stadiumName) {
         List<Order> orders;
         try {
-            StadiumService.verifyAdminOfStadiumByName(accessToken, stadiumName);
             orders = StadiumService.queryAllOrders(accessToken, stadiumName);
         } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();

@@ -133,6 +133,7 @@ public class StadiumService {
 
 
     public static List<Order> queryAllOrders(String accessToken, String name) throws SQLException, RuntimeError, ParseException {
+        StadiumService.verifyAdminOfStadiumByName(accessToken, name);
         List<Order> orders = new OrderDao().execQuery("stadiumName", name);
         return orders;
     }
