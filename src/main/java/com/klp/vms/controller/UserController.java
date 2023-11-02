@@ -241,8 +241,8 @@ public class UserController {
     /**
      * 为用户登录并获取其accessToken等信息
      *
-     * @param userid   用户id/唯一标识
-     * @param password 用户密码
+     * param userid   用户id/唯一标识
+     * param password 用户密码
      * @return <p>返回带有多个变量的json对象</p>
      * <li>成功：
      * <p>success=true</p>
@@ -258,7 +258,11 @@ public class UserController {
      * <li>详细信息见message</li>
      */
     @PostMapping("/login")
-    public String login(@RequestParam String userid, @RequestParam String password) {
+    public String login(@RequestBody JSONObject jsonParam) {
+        String userid= jsonParam.getString("userid");
+        String password= jsonParam.getString("password");
+
+
         System.out.println("login:" + userid + " pwd:" + password);
         User user;
         try {
