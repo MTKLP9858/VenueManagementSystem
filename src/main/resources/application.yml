@@ -2,7 +2,6 @@ spring:
   datasource:
     url: jdbc:sqlite:main.db
     driver-class-name: org.sqlite.JDBC
-    type: com.alibaba.druid.pool.DruidDataSource
   thymeleaf:
     cache: false
 
@@ -12,4 +11,4 @@ spring:
       max-request-size: 512MB
 
 server:
-  port: 8081
+  port: 8082
