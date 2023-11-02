@@ -1,8 +1,6 @@
 package com.klp.vms.service;
 
-import com.klp.vms.dao.OrderDao;
-import com.klp.vms.dao.StadiumDao;
-import com.klp.vms.dao.VenueDao;
+import com.klp.vms.dao.*;
 import com.klp.vms.entity.Order;
 import com.klp.vms.entity.Stadium;
 import com.klp.vms.entity.User;
@@ -149,7 +147,7 @@ public class StadiumService {
         User user = UserService.verifyAccessToken(accessToken);
         if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
         switch (column) {
-            case "name", "address", "introduction", "contact", "adminUserID" -> {//限制column为Stadium的列名
+            case "address", "introduction", "contact" -> {//限制column为Stadium的列名
                 List<Stadium> stadiumList = new StadiumDao().execQuery("name", name);
                 if (stadiumList.size() != 1) {
                     throw new RuntimeError("Can't find this name from all the stadiums! Or more than one stadiums have the same name!", 280);
@@ -161,6 +159,38 @@ public class StadiumService {
                     throw new RuntimeError("Permission denied: you are not the Admin of this stadium!", 500);
                 }
             }
+            case "name" -> {
+                List<Stadium> stadiumList = new StadiumDao().execQuery("name", value);
+                if (stadiumList.isEmpty()) {
+                    new StadiumDao().execUpdate("name", value, name);
+                    try (Stat stat = new Stat("UPDATE Venue SET stadium=? WHERE stadium=?;")) {
+                        stat.setObject(1, value);
+                        stat.setString(2, name);
+                        stat.executeUpdate();
+                    }
+                    try (Stat stat = new Stat("UPDATE \"Order\" SET stadiumName=? WHERE stadiumName=?;")) {
+                        stat.setObject(1, value);
+                        stat.setString(2, name);
+                        stat.executeUpdate();
+                    }
+                    return 200;
+                } else {
+                    throw new RuntimeError("There is already a stadium called " + value + "!", 202);
+                }
+            }
+            case "adminUserID" -> {
+                User user1 = new UserDao().execQuery((String) value);
+                if (user1 == null) {
+                    throw new RuntimeError("No such user: " + value + " !", 404);
+                } else {
+                    if (user1.getOp() == User.OP.ADMIN) {
+                        return new StadiumDao().execUpdate("adminUserID", value, name);
+                    } else {
+                        throw new RuntimeError(value + " isn't an Admin!", 500);
+                    }
+                }
+            }
+
             default -> throw new RuntimeError("Illegal column!", 283);
         }
     }

@@ -11,7 +11,7 @@ public class Stat implements AutoCloseable {
         stat = conn.prepareStatement(sql);
     }
 
-    int executeUpdate() throws SQLException {
+    public int executeUpdate() throws SQLException {
         return stat.executeUpdate();
     }
 
@@ -34,7 +34,7 @@ public class Stat implements AutoCloseable {
     }
 
 
-    Stat setString(int index, String x) throws SQLException {
+    public Stat setString(int index, String x) throws SQLException {
         stat.setString(index, x);
         return this;
     }
@@ -100,6 +100,6 @@ public class Stat implements AutoCloseable {
     }
 
     public void setObject(int index, Object x) throws SQLException {
-        stat.setObject(index,x);
+        stat.setObject(index, x);
     }
 }

@@ -186,6 +186,10 @@ public class StadiumController {
      * @param stadiumName 场馆名字
      * @return 返回一个包含order对象的jsonArray字符串，若返回0个订单，则应返回"[]" 。
      * 先用jsonArray解析可得到一些jsonObject，接着解析jsonObject可得到单个订单的信息。
+     * 示例：
+     * [{"area":"area1","price":30.5,"name":"venue1","stadium":"stadium1","state":"已开启","uuid":"62b9762d-dd99-4154-9094-1388d6423a6a","introduction":"inssss"},
+     * {"area":"area1","price":20.0,"name":"venue2","stadium":"stadium1","state":"已开启","uuid":"063fd8c6-097e-49a0-b2ea-93bded6b43d4"},
+     * {"area":"area2","price":30.5,"name":"venue1","stadium":"stadium1","state":"已开启","uuid":"6da6ca46-fb37-4fc9-a16f-c705e39748ef"}]
      */
     @PostMapping("/queryAllVenue")
     public String queryAllVenue(@RequestHeader String accessToken, @RequestParam String stadiumName) {
