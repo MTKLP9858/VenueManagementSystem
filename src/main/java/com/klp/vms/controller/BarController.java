@@ -22,9 +22,13 @@ import java.sql.SQLException;
 @RequestMapping("/bar")
 public class BarController {
     @PostMapping("/add")
-    public String add(@RequestHeader String accessToken, @RequestParam("msg") String msg) {
-
+    public String add(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        log.debug("add:" + jsonParam);
+        String msg = jsonParam.getString("msg");
         try {
+            if (msg == null) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
             if (UserService.verifyAccessToken(accessToken).getOp() != User.OP.SU) {
                 throw new RuntimeError("you are not a super admin!", 666);
             }
@@ -46,7 +50,9 @@ public class BarController {
     }
 
     @PostMapping("/delete")
-    public String detele(@RequestHeader String accessToken, @RequestParam("index") int index) {
+    public String detele(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        log.debug("detele:" + jsonParam);
+        int index = jsonParam.getIntValue("index");
         try {
             if (UserService.verifyAccessToken(accessToken).getOp() != User.OP.SU) {
                 throw new RuntimeError("you are not a super admin!", 666);
@@ -71,6 +77,7 @@ public class BarController {
 
     @PostMapping("/query")
     public String query(@RequestHeader String accessToken) {
+        log.debug("query:" + accessToken);
         JSONObject json;
         try {
             if (UserService.verifyAccessToken(accessToken).getOp() != User.OP.SU) {
@@ -94,8 +101,14 @@ public class BarController {
 
 
     @PostMapping("/update")
-    public String update(@RequestHeader String accessToken, @RequestParam("index") int index, @RequestParam("msg") String msg) {
+    public String update(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        log.debug("update:" + jsonParam);
+        int index = jsonParam.getIntValue("index");
+        String msg = jsonParam.getString("msg");
         try {
+            if (msg == null) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
             if (UserService.verifyAccessToken(accessToken).getOp() != User.OP.SU) {
                 throw new RuntimeError("you are not a super admin!", 666);
             }

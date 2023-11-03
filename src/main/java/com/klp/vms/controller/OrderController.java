@@ -6,6 +6,7 @@ import com.klp.vms.entity.Order;
 import com.klp.vms.entity.User;
 import com.klp.vms.entity.Venue;
 import com.klp.vms.exception.RuntimeError;
+import com.klp.vms.method.StringFilter;
 import com.klp.vms.service.OrderService;
 import com.klp.vms.service.UserService;
 import com.klp.vms.service.VenueService;
@@ -17,7 +18,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 
-@Slf4j//TODO
+@Slf4j
 @Controller
 @RestController
 @RequestMapping("/order")
@@ -25,15 +26,15 @@ public class OrderController {
     /**
      * 新建订单（可以以管理员或用户身份）
      *
-     * @param accessToken     管理员令牌（则订单将直接确认支付）/用户令牌（订单将成为未支付订单）
-     * @param userid          用户名（顾客名字，仅用于订单，不建议与数据库用户列表不同）
-     * @param venueName       场地的名字（场地号）
-     * @param venueArea       场地所属区域（区域号）
-     * @param stadium         场地所属场馆（管理员需验证，用户无需）
-     * @param occupyStartTime 开始占用时间（开始打球的时间）
-     * @param occupyEndTime   结束占用时间（停止打球的时间）
-     * @param information     仅用于显示，可后期更改，建议为手机号，增值业务等备注，(required = false)
-     * @param message         仅用于显示，可后期更改，建议为用户留言，(required = false)
+     * @param accessToken 管理员令牌（则订单将直接确认支付）/用户令牌（订单将成为未支付订单）
+     *                    <p>userid          用户名（顾客名字，仅用于订单，不建议与数据库用户列表不同）
+     *                    <p>venueName       场地的名字（场地号）
+     *                    <p>venueArea       场地所属区域（区域号）
+     *                    <p>stadium         场地所属场馆（管理员需验证，用户无需）
+     *                    <p>occupyStartTime 开始占用时间（开始打球的时间）
+     *                    <p>occupyEndTime   结束占用时间（停止打球的时间）
+     *                    <p>information     仅用于显示，可后期更改，建议为手机号，增值业务等备注，(required = false)
+     *                    <p>message         仅用于显示，可后期更改，建议为用户留言，(required = false)
      * @return <p>返回带有多个变量的json对象</p>
      * <li>成功：
      * <p>success=true</p>
@@ -52,10 +53,22 @@ public class OrderController {
      * <li>详细信息见message</li>
      */
     @PostMapping("/newOrder")
-    public String newOrder(@RequestHeader String accessToken, @RequestParam String userid, @RequestParam String venueName, @RequestParam String venueArea, @RequestParam String stadium, @RequestParam long occupyStartTime, @RequestParam long occupyEndTime, @RequestParam(required = false) String information, @RequestParam(required = false) String message) {
+    public String newOrder(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        log.debug("newOrder:" + jsonParam);
+        String venueName = jsonParam.getString("venueName");
+        String venueArea = jsonParam.getString("venueArea");
+        String stadium = jsonParam.getString("stadium");
+        String userid = jsonParam.getString("userid");
+        long occupyStartTime = jsonParam.getLongValue("occupyStartTime");
+        long occupyEndTime = jsonParam.getLongValue("occupyEndTime");
+        String information = jsonParam.getString("information");
+        String message = jsonParam.getString("message");
         Order order;
         Venue venue;
         try {
+            if (StringFilter.hasNull(new String[]{venueName, venueArea, stadium, userid})) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
             String venueUUID = VenueService.getUUID(venueName, venueArea, stadium);
             order = OrderService.newOrder(accessToken, userid, venueUUID, occupyStartTime, occupyEndTime, information, message);
             venue = VenueService.query(order.getVenueUUID());
@@ -82,12 +95,12 @@ public class OrderController {
     /**
      * 查询这个场地，一段时间内的订单
      *
-     * @param accessToken     管理员令牌
-     * @param venueName       需要查询的场地名字
-     * @param venueArea       需要查询的场地区域
-     * @param stadium         需要查询的场馆名字，用作验证
-     * @param occupyStartTime 订单开始时间[long]
-     * @param occupyEndTime   订单结束时间[long]
+     * @param accessToken 管理员令牌
+     *                    <p>venueName       需要查询的场地名字
+     *                    <p>venueArea       需要查询的场地区域
+     *                    <p>stadium         需要查询的场馆名字，用作验证
+     *                    <p>occupyStartTime 订单开始时间[long]
+     *                    <p>occupyEndTime   订单结束时间[long]
      * @return 返回一个包含order对象的jsonArray字符串，若返回0个订单，则应返回"[]" 。
      * 先用jsonArray解析可得到一些jsonObject，接着解析jsonObject可得到单个订单的信息。
      * 示例：
@@ -98,9 +111,18 @@ public class OrderController {
      * {"number":1697772399387, "userid":"user1", "stadiumName":"stadium1", "venueUUID":"063fd8c6-097e-49a0-b2ea-93bded6b43d4", "state":"已支付", "payTime":1697772399000, "occupyStartTime":1697772999000, "occupyEndTime":1697773599000, "information":"infor111111111", "message":"message2222222222"}]
      */
     @PostMapping("/queryOrderByTime")
-    public String queryOrderByTime(@RequestHeader String accessToken, @RequestParam String venueName, @RequestParam String venueArea, @RequestParam String stadium, @RequestParam long occupyStartTime, @RequestParam long occupyEndTime) {
-        ArrayList<Order> orders = null;
+    public String queryOrderByTime(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        log.debug("queryOrderByTime:" + jsonParam);
+        String venueName = jsonParam.getString("venueName");
+        String venueArea = jsonParam.getString("venueArea");
+        String stadium = jsonParam.getString("stadium");
+        long occupyStartTime = jsonParam.getLongValue("occupyStartTime");
+        long occupyEndTime = jsonParam.getLongValue("occupyEndTime");
+        ArrayList<Order> orders;
         try {
+            if (StringFilter.hasNull(new String[]{venueName, venueArea, stadium})) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
             User user = UserService.verifyAccessToken(accessToken);
             if (user.getOp() == User.OP.USER) {
                 throw new RuntimeError("You are not an administrator! Permission denied!", 271);
@@ -132,10 +154,10 @@ public class OrderController {
     /**
      * 查询这个场馆，一段时间内的订单（列表）
      *
-     * @param accessToken     管理员令牌
-     * @param stadium         需要查询的场馆名字
-     * @param occupyStartTime 订单开始时间[long]
-     * @param occupyEndTime   订单结束时间[long]
+     * @param accessToken 管理员令牌
+     *                    <p>stadium         需要查询的场馆名字
+     *                    <p>occupyStartTime 订单开始时间[long]
+     *                    <p>occupyEndTime   订单结束时间[long]
      * @return 返回一个包含order对象的jsonArray字符串，若返回0个订单，则应返回"[]" 。
      * 先用jsonArray解析可得到一些jsonObject，接着解析jsonObject可得到单个订单的信息。
      * 示例：
@@ -146,9 +168,16 @@ public class OrderController {
      * {"number":1697772399387, "userid":"user1", "stadiumName":"stadium1", "venueUUID":"063fd8c6-097e-49a0-b2ea-93bded6b43d4", "state":"已支付", "payTime":1697772399000, "occupyStartTime":1697772999000, "occupyEndTime":1697773599000, "information":"infor111111111", "message":"message2222222222"}]
      */
     @PostMapping("/queryOrderInStadiumByTime")
-    public String queryOrderInStadiumByTime(@RequestHeader String accessToken, @RequestParam String stadium, @RequestParam long occupyStartTime, @RequestParam long occupyEndTime) {
+    public String queryOrderInStadiumByTime(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        log.debug("queryOrderInStadiumByTime:" + jsonParam);
+        String stadium = jsonParam.getString("stadium");
+        long occupyStartTime = jsonParam.getLongValue("occupyStartTime");
+        long occupyEndTime = jsonParam.getLongValue("occupyEndTime");
         ArrayList<Order> orders;
         try {
+            if (stadium == null) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
             User user = UserService.verifyAccessToken(accessToken);
             if (user.getOp() == User.OP.USER) {
                 throw new RuntimeError("You are not an administrator! Permission denied!", 271);
@@ -181,17 +210,24 @@ public class OrderController {
      * 请填写于column中
      *
      * @param accessToken 管理员令牌，将会验证是否为订单中场地的管理员
-     * @param number      订单号，将被提取有关信息作为冲突验证
-     * @param column      需要更改的信息类型
-     * @param value       需要更改的值
+     *                    <p>number      订单号，将被提取有关信息作为冲突验证
+     *                    <p>column      需要更改的信息类型
+     *                    <p>value       需要更改的值
      * @return <p>返回带有多个变量的json对象</p>
      * <li>成功：success=true</li>
      * <li>失败：success=false</li>
      * <li>详细信息见message</li>
      */
     @PostMapping("/update")
-    public String update(@RequestHeader String accessToken, @RequestParam long number, @RequestParam String column, @RequestParam String value) {
+    public String update(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        log.debug("update:" + jsonParam);
+        long number = jsonParam.getLongValue("number");
+        String column = jsonParam.getString("column");
+        String value = jsonParam.getString("value");
         try {
+            if (StringFilter.hasNull(new String[]{column, value})) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
             OrderService.update(accessToken, number, column, value);
         } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
@@ -213,17 +249,24 @@ public class OrderController {
      * 更新订单信息中的场地信息，由于订单只能更改为馆内场地，所以只需要场地名和区域即可
      *
      * @param accessToken 管理员令牌，将会验证是否为订单中场地的管理员
-     * @param number      订单号，将被提取有关信息作为冲突验证
-     * @param venueName   新的场地名称值[String]
-     * @param venueArea   新的场地区域值[String]
+     *                    <p>number      订单号，将被提取有关信息作为冲突验证
+     *                    <p>venueName   新的场地名称值[String]
+     *                    <p>venueArea   新的场地区域值[String]
      * @return <p>返回带有多个变量的json对象</p>
      * <li>成功：success=true</li>
      * <li>失败：success=false</li>
      * <li>详细信息见message</li>
      */
     @PostMapping("/updateVenue")
-    public String updateVenue(@RequestHeader String accessToken, @RequestParam long number, @RequestParam String venueName, @RequestParam String venueArea) {
+    public String updateVenue(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        log.debug("updateVenue:" + jsonParam);
+        long number = jsonParam.getLongValue("number");
+        String venueName = jsonParam.getString("venueName");
+        String venueArea = jsonParam.getString("venueArea");
         try {
+            if (StringFilter.hasNull(new String[]{venueName, venueArea})) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
             OrderService.updateVenue(accessToken, number, venueName, venueArea);
         } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
