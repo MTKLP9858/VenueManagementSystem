@@ -18,7 +18,7 @@ class VenueManagementSystemApplicationTests {
 
     @Test
     void contextLoads() throws ParseException, SQLException, RuntimeError {
-        String accessToken = "145eae28-b5af-4406-94a9-4f91a00e7eb3";
+        String accessToken = "33210b71-3536-408c-94b5-3ad6d212c128";
         String venueUUID = "063fd8c6-097e-49a0-b2ea-93bded6b43d4";
 
         List<Venue> venues = StadiumService.queryAllVenue(accessToken, "stadium1");
