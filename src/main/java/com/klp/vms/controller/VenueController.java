@@ -23,7 +23,7 @@ import java.text.ParseException;
 @Slf4j
 @Controller
 @RestController
-@RequestMapping("/venue")
+@RequestMapping(value = "/venue", produces = "application/json;;charset=UTF-8")
 public class VenueController {
     /**
      * 新增场地（自动添加区域）

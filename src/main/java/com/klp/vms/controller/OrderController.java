@@ -21,7 +21,7 @@ import java.util.ArrayList;
 @Slf4j
 @Controller
 @RestController
-@RequestMapping("/order")
+@RequestMapping(value = "/order", produces = "application/json;;charset=UTF-8")
 public class OrderController {
     /**
      * 新建订单（可以以管理员或用户身份）

@@ -24,7 +24,7 @@ import java.util.List;
 @Slf4j
 @Controller
 @RestController
-@RequestMapping("/stadium")
+@RequestMapping(value = "/stadium", produces = "application/json;;charset=UTF-8")
 public class StadiumController {
     /**
      * 拉取场地的图片

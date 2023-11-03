@@ -20,7 +20,7 @@ import java.util.HashMap;
 @Slf4j
 @Controller
 @RestController
-@RequestMapping("/user")
+@RequestMapping(value = "/user", produces = "application/json;;charset=UTF-8")
 public class UserController {
 
     /**

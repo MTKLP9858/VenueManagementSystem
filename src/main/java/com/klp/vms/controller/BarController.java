@@ -19,7 +19,7 @@ import java.sql.SQLException;
 @Slf4j
 @Controller
 @RestController
-@RequestMapping("/bar")
+@RequestMapping(value = "/bar", produces = "application/json;;charset=UTF-8")
 public class BarController {
     @PostMapping("/add")
     public String add(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {

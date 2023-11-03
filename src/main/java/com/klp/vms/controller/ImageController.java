@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 @Controller
 @RestController
-@RequestMapping("/img")
+@RequestMapping(value = "/img", produces = "application/json;;charset=UTF-8")
 public class ImageController {
     @PostMapping("/add")
     public String add(@RequestParam("img") MultipartFile img) {
