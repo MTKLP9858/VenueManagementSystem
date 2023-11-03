@@ -3,7 +3,9 @@ package com.klp.vms.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.klp.vms.entity.User;
 import com.klp.vms.exception.RuntimeError;
+import com.klp.vms.method.StringFilter;
 import com.klp.vms.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.sql.SQLException;
 import java.util.HashMap;
 
+@Slf4j
 @Controller
 @RestController
 @RequestMapping("/user")
@@ -32,6 +35,7 @@ public class UserController {
      */
     @PostMapping("/updateAvatar")
     public String updateAvatar(@RequestHeader String accessToken, @RequestParam MultipartFile img) {
+        log.debug("updateAvatar : accessToken=" + accessToken);
         try {
             UserService.updateAvatar(accessToken, img);
         } catch (SQLException e) {
@@ -44,7 +48,7 @@ public class UserController {
             return e.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("code", 211);
+        json.put("code", 200);
         json.put("success", true);
         json.put("message", "update avatar success");
         return json.toString();
@@ -60,6 +64,7 @@ public class UserController {
      */
     @PostMapping(value = "/queryAvatar", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
     public ResponseEntity<byte[]> queryAvatar(@RequestHeader String accessToken) {
+        log.debug("queryAvatar : accessToken=" + accessToken);
         try {
             return new ResponseEntity<>(UserService.queryAvatar(accessToken), HttpStatus.OK);
         } catch (RuntimeError e) {
@@ -81,15 +86,19 @@ public class UserController {
      * 更新用户昵称
      *
      * @param accessToken 位于请求头的用户令牌
-     * @param newUsername 用户的新昵称
+     *                    <p>newUsername 用户的新昵称
      * @return 返回带有多个变量的json对象
      * <li>成功：success=true</li>
      * <li>失败：success=false</li>
      * <li>详细信息见message</li>
      */
     @PostMapping("/rename")
-    public String rename(@RequestParam String newUsername, @RequestHeader String accessToken) {
+    public String rename(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        String newUsername = jsonParam.getString("newUsername");
         try {
+            if (newUsername == null) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
             UserService.rename(newUsername, accessToken);
         } catch (SQLException e) {
             JSONObject json = new JSONObject();
@@ -101,7 +110,7 @@ public class UserController {
             return e.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("code", 205);
+        json.put("code", 200);
         json.put("success", true);
         json.put("message", "rename success");
         return json.toString();
@@ -124,6 +133,7 @@ public class UserController {
      */
     @PostMapping("/refresh")
     public String refresh(@RequestHeader String refreshToken) {
+        log.debug("refresh : refreshToken=" + refreshToken);
         HashMap<String, String> map;
         try {
             map = UserService.doRefreshToken(refreshToken);
@@ -141,7 +151,7 @@ public class UserController {
         if (map.containsKey("refreshToken")) {
             json.put("refreshToken", map.get("refresh_token"));
         }
-        json.put("code", 203);
+        json.put("code", 200);
         json.put("success", true);
         json.put("message", "refresh success");
         return json.toString();
@@ -150,9 +160,10 @@ public class UserController {
     /**
      * 为用户（顾客）注册
      *
-     * @param userid   用户id：应为手机号（没有验证机制）
-     * @param password 用户密码
-     * @param username 用户昵称
+     * @param jsonParam json传参
+     *                  <p>userid   用户id：应为手机号（没有验证机制）
+     *                  <p>password 用户密码
+     *                  <p>username 用户昵称
      * @return <p>返回带有多个变量的json对象</p>
      * <li>成功：
      * <p>success=true</p>
@@ -168,13 +179,19 @@ public class UserController {
      * <li>详细信息见message</li>
      */
     @PostMapping("/register")
-    public String register(@RequestParam String userid, @RequestParam String password, @RequestParam(required = false) String username) {
-        System.out.println("register:" + userid + " pwd:" + password);
+    public String register(@RequestBody JSONObject jsonParam) {
+        log.debug("register:" + jsonParam);
+        String userid = jsonParam.getString("userid");
+        String username = jsonParam.getString("username");
+        String password = jsonParam.getString("password");
         User user;
-        if (username == null) {
-            username = "User" + userid;
-        }
         try {
+            if (StringFilter.hasNull(new String[]{userid, password})) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
+            if (username == null) {
+                username = "User" + userid;
+            }
             user = UserService.register(userid, username, password, 0);
         } catch (SQLException e) {
             JSONObject json = new JSONObject();
@@ -186,19 +203,20 @@ public class UserController {
             return e.toString();
         }
         JSONObject json = (JSONObject) JSONObject.parse(user.toString());
-        json.put("code", 201);
+        json.put("code", 200);
         json.put("success", true);
         json.put("message", "register success");
         return json.toString();
     }
 
     /**
-     * ！！！不应启用（无超级管理员认证）
      * 为用户（场地管理员）注册
      *
-     * @param userid   用户id：应为手机号（没有验证机制）
-     * @param password 用户密码
-     * @param username 用户昵称
+     * @param accessToken 超级管理员用户令牌
+     * @param jsonParam   json传参
+     *                    <p>userid   用户id：应为手机号（没有验证机制）
+     *                    <p>password 用户密码
+     *                    <p>username 用户昵称
      * @return <p>返回带有多个变量的json对象</p>
      * <li>成功：
      * <p>success=true</p>
@@ -214,14 +232,25 @@ public class UserController {
      * <li>详细信息见message</li>
      */
     @PostMapping("/registerAdmin")
-    public String registerAdmin(@RequestParam String userid, @RequestParam String password, @RequestParam(required = false) String username) {
-        System.out.println("register:" + userid + " pwd:" + password);
+    public String registerAdmin(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        log.debug("registerAdmin:" + jsonParam);
+        String userid = jsonParam.getString("userid");
+        String username = jsonParam.getString("username");
+        String password = jsonParam.getString("password");
         User user;
-        if (username == null) {
-            username = "Admin" + userid;
-        }
         try {
-            user = UserService.register(userid, username, password, 5);
+            if (StringFilter.hasNull(new String[]{userid, password})) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
+            if (username == null) {
+                username = "Admin" + userid;
+            }
+            User user1 = UserService.verifyAccessToken(accessToken);
+            if (user1.getOp() == User.OP.SU) {
+                user = UserService.register(userid, username, password, 5);
+            } else {
+                throw new RuntimeError("You are not a SU!", 1103);
+            }
         } catch (SQLException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
@@ -232,7 +261,7 @@ public class UserController {
             return e.toString();
         }
         JSONObject json = (JSONObject) JSONObject.parse(user.toString());
-        json.put("code", 201);
+        json.put("code", 200);
         json.put("success", true);
         json.put("message", "register success");
         return json.toString();
@@ -241,8 +270,9 @@ public class UserController {
     /**
      * 为用户登录并获取其accessToken等信息
      *
-     * param userid   用户id/唯一标识
-     * param password 用户密码
+     * @param jsonParam json传参
+     *                  <P>userid 用户id/唯一标识
+     *                  <P>password 用户密码
      * @return <p>返回带有多个变量的json对象</p>
      * <li>成功：
      * <p>success=true</p>
@@ -259,13 +289,15 @@ public class UserController {
      */
     @PostMapping("/login")
     public String login(@RequestBody JSONObject jsonParam) {
-        String userid= jsonParam.getString("userid");
-        String password= jsonParam.getString("password");
-
-
-        System.out.println("login:" + userid + " pwd:" + password);
+        log.debug("login:" + jsonParam);
+        String userid = jsonParam.getString("userid");
+        String password = jsonParam.getString("password");
         User user;
         try {
+            if (StringFilter.hasNull(new String[]{userid, password})) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
+
             user = UserService.login(userid, password);
         } catch (SQLException e) {
             JSONObject json = new JSONObject();
@@ -276,6 +308,7 @@ public class UserController {
         } catch (RuntimeError e) {
             return e.toString();
         }
+        log.info("login:" + userid + " pwd:" + password);
         JSONObject json = (JSONObject) JSONObject.parse(user.toString());
         json.put("code", 200);
         json.put("success", true);
@@ -287,16 +320,22 @@ public class UserController {
      * 更改用户密码，这将需要重新登录
      *
      * @param accessToken 位于请求头的用户令牌
-     * @param oldPassword 需要验证的旧密码
-     * @param newPassword 需要更新的新密码
+     *                    <p>oldPassword 需要验证的旧密码
+     *                    <p>newPassword 需要更新的新密码
      * @return <p>返回带有多个变量的json对象</p>
      * <li>成功：success=true</li>
      * <li>失败：success=false</li>
      * <li>详细信息见message</li>
      */
     @PostMapping("/changePassword")
-    public String changePassword(@RequestHeader String accessToken, @RequestParam String oldPassword, @RequestParam String newPassword) {
+    public String changePassword(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        log.debug("changePassword:" + jsonParam);
+        String oldPassword = jsonParam.getString("oldPassword");
+        String newPassword = jsonParam.getString("newPassword");
         try {
+            if (StringFilter.hasNull(new String[]{oldPassword, newPassword})) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
             UserService.changePassword(accessToken, oldPassword, newPassword);
         } catch (SQLException e) {
             JSONObject json = new JSONObject();
