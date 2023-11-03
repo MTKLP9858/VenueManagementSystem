@@ -16,7 +16,7 @@ import java.sql.SQLException;
  * 参数index[int],msg[String]
  */
 
-@Slf4j//TODO
+@Slf4j
 @Controller
 @RestController
 @RequestMapping("/bar")
