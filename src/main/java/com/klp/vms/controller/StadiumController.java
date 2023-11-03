@@ -6,7 +6,9 @@ import com.klp.vms.entity.Order;
 import com.klp.vms.entity.Stadium;
 import com.klp.vms.entity.Venue;
 import com.klp.vms.exception.RuntimeError;
+import com.klp.vms.method.StringFilter;
 import com.klp.vms.service.StadiumService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,6 +21,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
 
+@Slf4j
 @Controller
 @RestController
 @RequestMapping("/stadium")
@@ -27,16 +30,23 @@ public class StadiumController {
      * 拉取场地的图片
      *
      * @param accessToken 管理员令牌/用户令牌
-     * @param stadiumName 场馆名字
-     * @param imgIndex    图片的索引，如：0，1，2，3，4...  等，类型为int
+     *                    <p>stadiumName 场馆名字
+     *                    <p>imgIndex[int]    图片的索引，如：0，1，2，3，4...
      * @return <p>返回带有多个变量的json对象</p>
      * <li>成功：返回图片二进制</li>
      * <li>失败：success=false</li>
      * <li>详细信息见message</li>
      */
     @PostMapping("/queryImg")
-    public ResponseEntity<byte[]> queryImg(@RequestHeader String accessToken, @RequestParam int imgIndex, @RequestParam String stadiumName) {
+    public ResponseEntity<byte[]> queryImg(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        log.debug("queryImg:" + jsonParam);
+        int imgIndex = jsonParam.getIntValue("imgIndex");
+        String stadiumName = jsonParam.getString("stadiumName");
         try {
+            if (stadiumName == null) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
+
             byte[] img = StadiumService.queryImg(accessToken, imgIndex, stadiumName);
             return new ResponseEntity<>(img, HttpStatus.OK);
         } catch (RuntimeError e) {
@@ -56,7 +66,7 @@ public class StadiumController {
     }
 
     /**
-     * 添加图片，总是在图片列表的最后添加
+     * 添加图片，总是在图片列表的最后添加||需要提交的格式为表单(form)
      *
      * @param accessToken 管理员令牌
      * @param stadiumName 场馆名字
@@ -68,6 +78,7 @@ public class StadiumController {
      */
     @PostMapping("/addImg")
     public String addImg(@RequestHeader String accessToken, @RequestParam String stadiumName, @RequestParam MultipartFile img) {
+        log.debug("addImg:" + stadiumName);
         try {
             StadiumService.addImg(accessToken, img, stadiumName);
         } catch (SQLException | ParseException e) {
@@ -86,7 +97,7 @@ public class StadiumController {
     }
 
     /**
-     * 按索引更新图片，将会替换旧图片
+     * 按索引更新图片，将会替换旧图片||需要提交的格式为表单(form)
      *
      * @param accessToken 管理员令牌
      * @param stadiumName 场馆名字
@@ -99,6 +110,7 @@ public class StadiumController {
      */
     @PostMapping("/updateImg")
     public String updateImg(@RequestHeader String accessToken, @RequestParam String stadiumName, @RequestParam int imgIndex, @RequestParam MultipartFile img) {
+        log.debug("updateImg:" + stadiumName);
         try {
             StadiumService.updateImg(accessToken, imgIndex, img, stadiumName);
         } catch (SQLException | ParseException e) {
@@ -120,16 +132,22 @@ public class StadiumController {
      * 按索引删除图片
      *
      * @param accessToken 管理员令牌
-     * @param stadiumName 场馆名字
-     * @param imgIndex    图片列表的索引，如：0，1，2，3，4。。。等，类型为int
+     *                    <p>stadiumName 场馆名字
+     *                    <p>imgIndex    图片列表的索引，如：0，1，2，3，4。。。等，类型为int
      * @return <p>返回带有多个变量的json对象</p>
      * <li>成功：success=true</li>
      * <li>失败：success=false</li>
      * <li>详细信息见message</li>
      */
     @PostMapping("/deleteImg")
-    public String deleteImg(@RequestHeader String accessToken, @RequestParam String stadiumName, @RequestParam int imgIndex) {
+    public String deleteImg(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        log.debug("deleteImg:" + jsonParam);
+        int imgIndex = jsonParam.getIntValue("imgIndex");
+        String stadiumName = jsonParam.getString("stadiumName");
         try {
+            if (stadiumName == null) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
             StadiumService.deleteImg(accessToken, imgIndex, stadiumName);
         } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
@@ -150,7 +168,7 @@ public class StadiumController {
      * 查询该场馆所有场地的所有订单（列表）
      *
      * @param accessToken 管理员令牌
-     * @param stadiumName 场馆名字
+     *                    <p>stadiumName 场馆名字
      * @return 返回一个包含order对象的jsonArray字符串，若返回0个订单，则应返回"[]" 。
      * 先用jsonArray解析可得到一些jsonObject，接着解析jsonObject可得到单个订单的信息。
      * 示例：
@@ -161,9 +179,14 @@ public class StadiumController {
      * {"number":1697772399387, "userid":"user1", "stadiumName":"stadium1", "venueUUID":"063fd8c6-097e-49a0-b2ea-93bded6b43d4", "state":"已支付", "payTime":1697772399000, "occupyStartTime":1697772999000, "occupyEndTime":1697773599000, "information":"infor111111111", "message":"message2222222222"}]
      */
     @PostMapping("/queryAllOrders")
-    public String queryAllOrders(@RequestHeader String accessToken, @RequestParam String stadiumName) {
+    public String queryAllOrders(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        log.debug("queryAllOrders:" + jsonParam);
+        String stadiumName = jsonParam.getString("stadiumName");
         List<Order> orders;
         try {
+            if (stadiumName == null) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
             orders = StadiumService.queryAllOrders(accessToken, stadiumName);
         } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
@@ -183,7 +206,7 @@ public class StadiumController {
      * 查询该场馆所有场地的所有场馆（列表）
      *
      * @param accessToken 管理员令牌
-     * @param stadiumName 场馆名字
+     *                    <p>stadiumName 场馆名字
      * @return 返回一个包含order对象的jsonArray字符串，若返回0个订单，则应返回"[]" 。
      * 先用jsonArray解析可得到一些jsonObject，接着解析jsonObject可得到单个订单的信息。
      * 示例：
@@ -192,9 +215,14 @@ public class StadiumController {
      * {"area":"area2","price":30.5,"name":"venue1","stadium":"stadium1","state":"已开启","uuid":"6da6ca46-fb37-4fc9-a16f-c705e39748ef"}]
      */
     @PostMapping("/queryAllVenue")
-    public String queryAllVenue(@RequestHeader String accessToken, @RequestParam String stadiumName) {
+    public String queryAllVenue(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        log.debug("queryAllVenue:" + jsonParam);
+        String stadiumName = jsonParam.getString("stadiumName");
         List<Venue> orders;
         try {
+            if (stadiumName == null) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
             orders = StadiumService.queryAllVenue(accessToken, stadiumName);
         } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
@@ -213,20 +241,32 @@ public class StadiumController {
     /**
      * 添加场馆（超级管理员）
      *
-     * @param accessToken  超级管理员令牌
-     * @param stadiumName  新建的场馆名字
-     * @param address      新建的场馆地址
-     * @param introduction 新增的场馆介绍，没有可以写空字符串（不是NULL）
-     * @param contact      新建的场馆联系方式
-     * @param adminUserID  新建场馆的管理员id,需验证
+     * @param accessToken 超级管理员令牌
+     *                    <p>stadiumName  新建的场馆名字
+     *                    <p>address      新建的场馆地址
+     *                    <p>introduction 新增的场馆介绍，可以为null
+     *                    <p>contact      新建的场馆联系方式
+     *                    <p>adminUserID  新建场馆的管理员id,需验证
      * @return <p>返回带有多个变量的json对象</p>
      * <li>成功：success=true</li>
      * <li>失败：success=false</li>
      * <li>详细信息见message</li>
      */
     @PostMapping("/add")
-    public String add(@RequestHeader String accessToken, @RequestParam String stadiumName, @RequestParam String address, @RequestParam String introduction, @RequestParam String contact, @RequestParam String adminUserID) {
+    public String add(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        log.debug("add:" + jsonParam);
+        String stadiumName = jsonParam.getString("stadiumName");
+        String address = jsonParam.getString("address");
+        String introduction = jsonParam.getString("introduction");
+        String contact = jsonParam.getString("contact");
+        String adminUserID = jsonParam.getString("adminUserID");
         try {
+            if (StringFilter.hasNull(new String[]{stadiumName, address, contact, adminUserID})) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
+            if (introduction == null) {
+                introduction = "";
+            }
             StadiumService.add(accessToken, stadiumName, address, introduction, contact, adminUserID);
         } catch (SQLException e) {
             JSONObject json = new JSONObject();
@@ -247,15 +287,20 @@ public class StadiumController {
      * 删除场馆（超级管理员）
      *
      * @param accessToken 超级管理员令牌
-     * @param stadiumName 需要被删除的的场馆名字
+     *                    <p>stadiumName 需要被删除的的场馆名字
      * @return <p>返回带有多个变量的json对象</p>
      * <li>成功：success=true</li>
      * <li>失败：success=false</li>
      * <li>详细信息见message</li>
      */
     @PostMapping("/delete")
-    public String delete(@RequestHeader String accessToken, @RequestParam String stadiumName) {
+    public String delete(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        log.debug("delete:" + jsonParam);
+        String stadiumName = jsonParam.getString("stadiumName");
         try {
+            if (stadiumName == null) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
             StadiumService.delete(accessToken, stadiumName);
         } catch (SQLException e) {
             JSONObject json = new JSONObject();
@@ -276,7 +321,7 @@ public class StadiumController {
      * 获取场馆信息
      *
      * @param accessToken 管理员令牌/用户令牌
-     * @param stadiumName 需要查找的场馆名字
+     *                    <p>stadiumName 需要查找的场馆名字
      * @return <p>返回带有多个变量的json对象</p>
      * <li>
      * <p>成功：success=true</p>
@@ -290,9 +335,14 @@ public class StadiumController {
      * <li>详细信息见message</li>
      */
     @PostMapping("/query")
-    public String query(@RequestHeader String accessToken, @RequestParam String stadiumName) {
+    public String query(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        log.debug("query:" + jsonParam);
+        String stadiumName = jsonParam.getString("stadiumName");
         Stadium stadium;
         try {
+            if (stadiumName == null) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
             stadium = StadiumService.query(accessToken, stadiumName);
         } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
@@ -310,20 +360,27 @@ public class StadiumController {
     }
 
     /**
-     * 更改场馆信息（未完善）
+     * 更改场馆信息
      *
      * @param accessToken 管理员令牌
-     * @param stadiumName 场馆名字
-     * @param column      需要更改的信息类型："name", "address", "introduction", "contact", "adminUserID" ；只能从中选一
-     * @param value       需要更改的值（请勿轻易修改AdminUserID和名字等信息，需要完善）！！！！name和adminUserID的信息无法在其他表中被修改
+     *                    <p>stadiumName 场馆名字
+     *                    <p>column      需要更改的信息类型："name", "address", "introduction", "contact", "adminUserID";选择其中之一
+     *                    <p>value       需要更改的值
      * @return <p>返回带有多个变量的json对象</p>
      * <li>成功：success=true</li>
      * <li>失败：success=false</li>
      * <li>详细信息见message</li>
      */
     @PostMapping("/update")
-    public String update(@RequestHeader String accessToken, @RequestParam String stadiumName, @RequestParam String column, @RequestParam Object value) {
+    public String update(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
+        log.debug("update:" + jsonParam);
+        String stadiumName = jsonParam.getString("stadiumName");
+        String column = jsonParam.getString("column");
+        String value = jsonParam.getString("value");
         try {
+            if (StringFilter.hasNull(new String[]{stadiumName, column, value})) {
+                throw new RuntimeError("Incomplete parameter inputs!", 1501);
+            }
             StadiumService.update(accessToken, stadiumName, column, value);
         } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
