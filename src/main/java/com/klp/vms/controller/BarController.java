@@ -5,6 +5,7 @@ import com.klp.vms.dao.BarDao;
 import com.klp.vms.entity.User;
 import com.klp.vms.exception.RuntimeError;
 import com.klp.vms.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +16,7 @@ import java.sql.SQLException;
  * 参数index[int],msg[String]
  */
 
+@Slf4j//TODO
 @Controller
 @RestController
 @RequestMapping("/bar")

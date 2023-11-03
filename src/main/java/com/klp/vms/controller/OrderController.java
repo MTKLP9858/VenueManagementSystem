@@ -9,6 +9,7 @@ import com.klp.vms.exception.RuntimeError;
 import com.klp.vms.service.OrderService;
 import com.klp.vms.service.UserService;
 import com.klp.vms.service.VenueService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +17,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 
+@Slf4j//TODO
 @Controller
 @RestController
 @RequestMapping("/order")

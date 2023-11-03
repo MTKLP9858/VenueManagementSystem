@@ -218,12 +218,12 @@ public class StadiumController {
     public String queryAllVenue(@RequestHeader String accessToken, @RequestBody JSONObject jsonParam) {
         log.debug("queryAllVenue:" + jsonParam);
         String stadiumName = jsonParam.getString("stadiumName");
-        List<Venue> orders;
+        List<Venue> venues;
         try {
             if (stadiumName == null) {
                 throw new RuntimeError("Incomplete parameter inputs!", 1501);
             }
-            orders = StadiumService.queryAllVenue(accessToken, stadiumName);
+            venues = StadiumService.queryAllVenue(accessToken, stadiumName);
         } catch (SQLException | ParseException e) {
             JSONObject json = new JSONObject();
             json.put("code", 9);
@@ -233,7 +233,7 @@ public class StadiumController {
         } catch (RuntimeError e) {
             return e.toString();
         }
-        JSONArray jsonArray = (JSONArray) JSONArray.parse(orders.toString());
+        JSONArray jsonArray = (JSONArray) JSONArray.parse(venues.toString());
         return jsonArray.toString();
     }
 
