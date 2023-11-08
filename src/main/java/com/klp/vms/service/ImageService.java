@@ -31,11 +31,11 @@ public class ImageService {
         File file = new File(ImageDao.ImgTempPath + img.getOriginalFilename());
         try {
             FileUtils.copyInputStreamToFile(img.getInputStream(), file);
-            if (!isImage(file)) throw new RuntimeError("image was broken, add failed", 165);
+            if (!isImage(file)) throw new RuntimeError("image was broken, add failed", 1304);
             ImageDao imageDao = new ImageDao();
             return imageDao.execInsert(file);
         } catch (IOException e) {
-            throw new RuntimeError("FileInputStream error, file or path to file doesn't exists", 154);
+            throw new RuntimeError("FileInputStream error, file or path to file doesn't exists", 1504);
         }
     }
 
@@ -45,11 +45,11 @@ public class ImageService {
         try {
             if (!isImage(file)) {
                 delete(index);
-                throw new RuntimeError("image was broken, query failed", 165);
+                throw new RuntimeError("image was broken, query failed", 1304);
             }
             return Files.readAllBytes(file.toPath());
         } catch (IOException e) {
-            throw new RuntimeError(e.getMessage(), 151);
+            throw new RuntimeError(e.getMessage(), 9);
         }
     }
 
@@ -61,10 +61,10 @@ public class ImageService {
         File file = new File(ImageDao.ImgTempPath + img.getOriginalFilename());
         try {
             FileUtils.copyInputStreamToFile(img.getInputStream(), file);
-            if (!isImage(file)) throw new RuntimeError("image was broken, update failed", 165);
+            if (!isImage(file)) throw new RuntimeError("image was broken, update failed", 1304);
             return new ImageDao().execUpdate(index, file);
         } catch (IOException e) {
-            throw new RuntimeError(e.getMessage(), 151);
+            throw new RuntimeError(e.getMessage(), 9);
         }
     }
 }

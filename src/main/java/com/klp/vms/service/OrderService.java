@@ -28,7 +28,7 @@ public class OrderService {
         if (orders.isEmpty()) {
             new OrderDao().execUpdate("venueUUID", venueUUID, number);
         } else {
-            throw new RuntimeError("There are conflicting orders!", 180);
+            throw new RuntimeError("There are conflicting orders!", 1401);
         }
     }
 
@@ -47,7 +47,7 @@ public class OrderService {
                     if (orders.isEmpty()) {
                         new OrderDao().execUpdate(column, value, number);
                     } else {
-                        throw new RuntimeError("There are conflicting orders!", 180);
+                        throw new RuntimeError("There are conflicting orders!", 1401);
                     }
                 }
                 case "occupyEndTime" -> {
@@ -58,10 +58,10 @@ public class OrderService {
                     if (orders.isEmpty()) {
                         new OrderDao().execUpdate(column, value, number);
                     } else {
-                        throw new RuntimeError("There are conflicting orders!", 180);
+                        throw new RuntimeError("There are conflicting orders!", 1401);
                     }
                 }
-                default -> throw new RuntimeError("Illegal column!", 283);
+                default -> throw new RuntimeError("Illegal column!", 1502);
             }
         }
     }
@@ -73,20 +73,20 @@ public class OrderService {
         if (orderList.size() == 1) {
             order = orderList.get(0);
         } else {
-            throw new RuntimeError("Can't find this order!", 404);
+            throw new RuntimeError("Can't find this order!", 1402);
         }
 
         //用户不能查看不是自己的订单
         if (user.getOp() == User.OP.USER) {
             if (!Objects.equals(user.getUserid(), order.getUserid())) {
-                throw new RuntimeError("Permission denied", 270);
+                throw new RuntimeError("Permission denied: This order isn't yours!", 1104);
             }
         }
         //管理员不能查看不是自己场馆的订单
         if (user.getOp() == User.OP.ADMIN) {
             Stadium stadium = new StadiumDao().execQuery(order.getStadiumName());
             if (!Objects.equals(stadium.getAdminUserID(), user.getUserid())) {
-                throw new RuntimeError("Permission denied", 270);
+                throw new RuntimeError("Permission denied: This order isn't your stadium's!", 1105);
             }
         }
         return order;
@@ -113,7 +113,7 @@ public class OrderService {
         order.setNumber(new Date().getTime());
         Venue venue = VenueService.query(accessToken, venueUUID);
         if (venue == null) {
-            throw new RuntimeError("No such venueUUID!", 403);
+            throw new RuntimeError("No such venueUUID!", 1301);
         }
         order.setUserid(userid);
         order.setStadiumName(venue.getStadium());
@@ -144,13 +144,13 @@ public class OrderService {
         } else {
             System.out.println(now);
             System.out.println(startTime);
-            throw new RuntimeError("The time format is incorrect!", 533);
+            throw new RuntimeError("The time format is incorrect!", 1601);
         }
 
         ////////////////////////////////////////
         //查询重复订单
         if (!queryOrderByTime(venueUUID, occupyStartTime, occupyEndTime).isEmpty()) {
-            throw new RuntimeError("Another user has already occupied the time period!", 500);
+            throw new RuntimeError("Another user has already occupied the time period!", 1401);
         }
         ////////////////////////////////////////
 

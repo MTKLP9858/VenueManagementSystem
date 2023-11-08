@@ -27,11 +27,10 @@ public class UserService {
         try {
             User user = verifyAccessToken(access_token);
             img.transferTo(file);
-            if (!ImageService.isImage(file)) throw new RuntimeError("avatar image broken, please upload again", 155);
+            if (!ImageService.isImage(file)) throw new RuntimeError("avatar image broken, please upload again", 1304);
             return new UserDao().updateAvatar(user.getUserid(), file);
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeError(e.getMessage(), 151);
+            throw new RuntimeError(e.getMessage(), 9);
         }
     }
 
@@ -40,22 +39,22 @@ public class UserService {
         UserDao userDao = new UserDao();
         User user = verifyAccessToken(access_token);
         File file = userDao.queryAvatar(user.getUserid());
-        if (file == null) throw new RuntimeError("avatar not found", 156);
-        if (!ImageService.isImage(file)) throw new RuntimeError("avatar image broken, please upload again", 155);
+        if (file == null) throw new RuntimeError("avatar not found", 1504);
+        if (!ImageService.isImage(file)) throw new RuntimeError("avatar image broken, please upload again", 1304);
         try {
             return Files.readAllBytes(file.toPath());
         } catch (IOException e) {
-            throw new RuntimeError(e.getMessage(), 151);
+            throw new RuntimeError(e.getMessage(), 9);
         }
     }
 
     public static void rename(String newUsername, String access_token) throws SQLException, RuntimeError {
         if (newUsername == null || Objects.equals(newUsername.trim(), "")) {
-            throw new RuntimeError("The name entered is empty", 121);
+            throw new RuntimeError("The name entered is empty", 1501);
         }
         User user = verifyAccessToken(access_token);
         if (Objects.equals(user.getUsername(), newUsername.trim())) {
-            throw new RuntimeError("The new name duplicates the old name!", 120);
+            throw new RuntimeError("The new name duplicates the old name!", 1308);
         }
         new UserDao().execUpdate("username", newUsername.trim(), user.getUserid());
     }
@@ -82,7 +81,7 @@ public class UserService {
     public static User verifyAccessToken(String access_token) throws SQLException, RuntimeError {
         ArrayList<User> listOfUser = new UserDao().execQuery("access_token", access_token);
         if (listOfUser.isEmpty()) {
-            throw new RuntimeError("No such access_token", 111);
+            throw new RuntimeError("No such access_token", 1201);
         }
         User user = listOfUser.get(0);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -91,13 +90,13 @@ public class UserService {
             date = sdf.parse(user.getAccess_token_age());
         } catch (ParseException e) {
             updateAccessToken(user.getUserid());
-            throw new RuntimeError("access_token_age error,please update", 112);
+            throw new RuntimeError("access_token_age error,please update", 1204);
         }
         if (date.after(new Date())) {
             return user;
         } else {
             updateAccessToken(user.getUserid());
-            throw new RuntimeError("The access_token has expired", 113);
+            throw new RuntimeError("The access_token has expired", 1310);
         }
     }
 
@@ -105,7 +104,7 @@ public class UserService {
     public static String updateAccessToken(String userid) throws SQLException, RuntimeError {
         User user = new UserDao().execQuery(userid);
         if (user == null) {
-            throw new RuntimeError("No Such UserID!", 101);
+            throw new RuntimeError("No Such UserID!", 1201);
         }
 
         String uuid = String.valueOf(UUID.randomUUID());
@@ -121,7 +120,7 @@ public class UserService {
     public static @NotNull User verifyRefreshToken(String refresh_token) throws SQLException, RuntimeError {
         ArrayList<User> listOfUser = new UserDao().execQuery("refresh_token", refresh_token);
         if (listOfUser.isEmpty()) {
-            throw new RuntimeError("No such refresh_token", 121);
+            throw new RuntimeError("No such refresh_token", 1201);
         }
         User user = listOfUser.get(0);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -130,20 +129,20 @@ public class UserService {
             date = sdf.parse(user.getRefresh_token_age());
         } catch (ParseException e) {
             updateRefreshToken(user.getUserid());
-            throw new RuntimeError("refresh_token_age error,please update", 122);
+            throw new RuntimeError("refresh_token_age error,please update", 1204);
         }
         if (date.after(new Date())) {
             return user;
         } else {
             updateRefreshToken(user.getUserid());
-            throw new RuntimeError("The refresh_token has expired", 123);
+            throw new RuntimeError("The refresh_token has expired", 1310);
         }
     }
 
     public static String updateRefreshToken(String userid) throws SQLException, RuntimeError {
         User user = new UserDao().execQuery(userid);
         if (user == null) {
-            throw new RuntimeError("No Such UserID!", 101);
+            throw new RuntimeError("No Such UserID!", 1201);
         }
         String uuid = String.valueOf(UUID.randomUUID());
 
@@ -158,10 +157,10 @@ public class UserService {
     public static User login(String userid, String password) throws SQLException, RuntimeError {
         User user = new UserDao().execQuery(userid);
         if (user == null) {
-            throw new RuntimeError("No Such UserID!", 101);
+            throw new RuntimeError("No Such UserID!", 1201);
         }
         if (!Objects.equals(user.getPassword(), password)) {
-            throw new RuntimeError("The password is incorrect!", 102);
+            throw new RuntimeError("The password is incorrect!", 1311);
         }
         if (user.getOp() == 5) {
             try {
@@ -185,7 +184,7 @@ public class UserService {
     public static User register(String userid, String username, String password, int op) throws SQLException, RuntimeError {
         User userCheck = new UserDao().execQuery(userid);
         if (userCheck != null) {
-            throw new RuntimeError("This UserID already exists!", 107);
+            throw new RuntimeError("This UserID already exists!", 1302);
         }
         User user = new User(op);
         user.setUserid(userid);
@@ -209,13 +208,13 @@ public class UserService {
     public static void changePassword(String accessToken, String oldPassword, String newPassword) throws RuntimeError, SQLException {
         User user = verifyAccessToken(accessToken);
         String userid = user.getUserid();
-        if (Objects.equals(oldPassword, newPassword)) {
-            throw new RuntimeError("The old password is the same as the new password!", 501);
-        }
         if (Objects.equals(user.getPassword(), oldPassword)) {
             new UserDao().execUpdate("password", newPassword, userid);
         } else {
-            throw new RuntimeError("The password is incorrect!", 102);
+            throw new RuntimeError("The password is incorrect!", 1311);
+        }
+        if (Objects.equals(oldPassword, newPassword)) {
+            throw new RuntimeError("The old password is the same as the new password!", 1308);
         }
         UserService.updateAccessToken(userid);
         UserService.updateRefreshToken(userid);
