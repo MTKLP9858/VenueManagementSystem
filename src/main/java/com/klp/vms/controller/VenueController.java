@@ -62,7 +62,7 @@ public class VenueController {
             return e.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("code", 213);
+        json.put("code", 200);
         json.put("success", true);
         json.put("message", "add venue success!");
         return json.toString();
@@ -101,7 +101,7 @@ public class VenueController {
             return e.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("code", 321);
+        json.put("code", 200);
         json.put("success", true);
         json.put("message", "delete venue success!");
         return json.toString();
@@ -150,7 +150,7 @@ public class VenueController {
             return e.toString();
         }
         JSONObject json = JSON.parseObject(venue.toString());
-        json.put("code", 432);
+        json.put("code", 200);
         json.put("success", true);
         return json.toString();
     }
@@ -200,7 +200,7 @@ public class VenueController {
             return e.toString();
         }
         JSONObject json = JSON.parseObject(venue.toString());
-        json.put("code", 432);
+        json.put("code", 200);
         json.put("success", true);
         return json.toString();
     }
@@ -243,7 +243,7 @@ public class VenueController {
             return e.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("code", 232);
+        json.put("code", 200);
         json.put("success", true);
         return json.toString();
     }
@@ -279,7 +279,7 @@ public class VenueController {
             return e.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("code", 232);
+        json.put("code", 200);
         json.put("success", true);
         return json.toString();
     }
@@ -314,7 +314,7 @@ public class VenueController {
             return e.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("code", 232);
+        json.put("code", 200);
         json.put("success", true);
         return json.toString();
     }
@@ -355,7 +355,7 @@ public class VenueController {
             return e.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("code", 232);
+        json.put("code", 200);
         json.put("success", true);
         return json.toString();
     }
@@ -395,7 +395,7 @@ public class VenueController {
             return e.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("code", 232);
+        json.put("code", 200);
         json.put("success", true);
         return json.toString();
     }
@@ -470,7 +470,7 @@ public class VenueController {
             return e.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("code", 324);
+        json.put("code", 200);
         json.put("success", true);
         return json.toString();
     }
@@ -503,7 +503,7 @@ public class VenueController {
             return e.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("code", 432);
+        json.put("code", 200);
         json.put("success", true);
         return json.toString();
     }
@@ -543,7 +543,7 @@ public class VenueController {
             return e.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("code", 414);
+        json.put("code", 200);
         json.put("success", true);
         return json.toString();
     }

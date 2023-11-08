@@ -125,7 +125,7 @@ public class OrderController {
             }
             User user = UserService.verifyAccessToken(accessToken);
             if (user.getOp() == User.OP.USER) {
-                throw new RuntimeError("You are not an administrator! Permission denied!", 271);
+                throw new RuntimeError("You are not an administrator! Permission denied!", 1102);
             } else if (user.getOp() == User.OP.ADMIN) {
                 String venueUUID = VenueService.getUUID(venueName, venueArea, stadium);
                 VenueService.verifyAdminOfVenueByUUID(accessToken, venueUUID);
@@ -134,7 +134,7 @@ public class OrderController {
                 String venueUUID = VenueService.getUUID(venueName, venueArea, stadium);
                 orders = OrderService.queryOrderByTime(venueUUID, occupyStartTime, occupyEndTime);
             } else {
-                throw new RuntimeError("You don't have a OP?", 403);
+                throw new RuntimeError("You don't have a OP?", 1101);
             }
 
         } catch (SQLException | ParseException e) {
@@ -180,13 +180,13 @@ public class OrderController {
             }
             User user = UserService.verifyAccessToken(accessToken);
             if (user.getOp() == User.OP.USER) {
-                throw new RuntimeError("You are not an administrator! Permission denied!", 271);
+                throw new RuntimeError("You are not an administrator! Permission denied!", 1102);
             } else if (user.getOp() == User.OP.ADMIN) {
                 orders = OrderService.queryOrderInStadiumByTime(stadium, occupyStartTime, occupyEndTime);
             } else if (user.getOp() == User.OP.SU) {
                 orders = OrderService.queryOrderInStadiumByTime(stadium, occupyStartTime, occupyEndTime);
             } else {
-                throw new RuntimeError("You don't have a OP?", 403);
+                throw new RuntimeError("You don't have a OP?", 1101);
             }
 
         } catch (SQLException e) {

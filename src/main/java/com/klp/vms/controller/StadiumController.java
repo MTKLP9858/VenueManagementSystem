@@ -91,7 +91,7 @@ public class StadiumController {
             return e.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("code", 324);
+        json.put("code", 200);
         json.put("success", true);
         return json.toString();
     }
@@ -123,7 +123,7 @@ public class StadiumController {
             return e.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("code", 432);
+        json.put("code", 200);
         json.put("success", true);
         return json.toString();
     }
@@ -159,7 +159,7 @@ public class StadiumController {
             return e.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("code", 414);
+        json.put("code", 200);
         json.put("success", true);
         return json.toString();
     }
@@ -278,7 +278,7 @@ public class StadiumController {
             return e.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("code", 1000);
+        json.put("code", 200);
         json.put("success", true);
         return json.toString();
     }
@@ -312,7 +312,7 @@ public class StadiumController {
             return e.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("code", 1000);
+        json.put("code", 200);
         json.put("success", true);
         return json.toString();
     }
@@ -354,7 +354,7 @@ public class StadiumController {
             return e.toString();
         }
         JSONObject json = JSONObject.parseObject(stadium.toString());
-        json.put("code", 1000);
+        json.put("code", 200);
         json.put("success", true);
         return json.toString();
     }
@@ -392,7 +392,7 @@ public class StadiumController {
             return e.toString();
         }
         JSONObject json = new JSONObject();
-        json.put("code", 1000);
+        json.put("code", 200);
         json.put("success", true);
         return json.toString();
     }

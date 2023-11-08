@@ -30,7 +30,7 @@ public class BarController {
                 throw new RuntimeError("Incomplete parameter inputs!", 1501);
             }
             if (UserService.verifyAccessToken(accessToken).getOp() != User.OP.SU) {
-                throw new RuntimeError("you are not a super admin!", 666);
+                throw new RuntimeError("you are not a super admin!", 1103);
             }
             new BarDao().execInsert(msg);
         } catch (SQLException e) {
@@ -55,7 +55,7 @@ public class BarController {
         int index = jsonParam.getIntValue("index");
         try {
             if (UserService.verifyAccessToken(accessToken).getOp() != User.OP.SU) {
-                throw new RuntimeError("you are not a super admin!", 666);
+                throw new RuntimeError("you are not a super admin!", 1103);
             }
             new BarDao().execDelete(index);
         } catch (SQLException e) {
@@ -81,7 +81,7 @@ public class BarController {
         JSONObject json;
         try {
             if (UserService.verifyAccessToken(accessToken).getOp() != User.OP.SU) {
-                throw new RuntimeError("you are not a super admin!", 666);
+                throw new RuntimeError("you are not a super admin!", 1103);
             }
             json = new BarDao().execQuery();
         } catch (SQLException e) {
@@ -110,7 +110,7 @@ public class BarController {
                 throw new RuntimeError("Incomplete parameter inputs!", 1501);
             }
             if (UserService.verifyAccessToken(accessToken).getOp() != User.OP.SU) {
-                throw new RuntimeError("you are not a super admin!", 666);
+                throw new RuntimeError("you are not a super admin!", 1103);
             }
             new BarDao().execUpdate(index, msg);
         } catch (SQLException e) {
