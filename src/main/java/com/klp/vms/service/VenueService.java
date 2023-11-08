@@ -20,11 +20,11 @@ public class VenueService {
 
     public static void verifyAdminOfVenueByUUID(String accessToken, String uuid) throws SQLException, RuntimeError, ParseException {
         User user = UserService.verifyAccessToken(accessToken);
-        if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
+        if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 1102);
         String stadiumFromUUID = new VenueDao().execQuery(uuid).getStadium();
         String adminUserID = StadiumService.getAdminUser(stadiumFromUUID).getUserid();
         if (!Objects.equals(user.getUserid(), adminUserID) && user.getOp() == User.OP.ADMIN) {
-            throw new RuntimeError("You are not the administrator of this venue!Permission denied!", 271);
+            throw new RuntimeError("You are not the administrator of this venue!Permission denied!", 1105);
         }
     }
 
@@ -34,13 +34,13 @@ public class VenueService {
         String stadiumFromUUID = new VenueDao().execQuery(uuid).getStadium();
         String adminUserID = StadiumService.getAdminUser(stadiumFromUUID).getUserid();
         if (!Objects.equals(user.getUserid(), adminUserID) && user.getOp() == User.OP.ADMIN) {
-            throw new RuntimeError("You are not the administrator of this venue!Permission denied!", 271);
+            throw new RuntimeError("You are not the administrator of this venue!Permission denied!", 1105);
         }
         int size = new VenueDao().getSizeOfImageList(uuid);
         if (imgIndex < size) {
             return new VenueDao().imgQuery(imgIndex, uuid);
         } else {
-            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 269);
+            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 1506);
         }
     }
 
@@ -58,7 +58,7 @@ public class VenueService {
         if (imgIndex < size) {
             return new VenueDao().imgDelete(imgIndex, uuid);
         } else {
-            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 269);
+            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 1506);
         }
     }
 
@@ -69,10 +69,10 @@ public class VenueService {
 
     public static int add(String accessToken, String name, String area, String stadium, double price, String introduction) throws SQLException, RuntimeError, ParseException {
         User user = UserService.verifyAccessToken(accessToken);
-        if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
+        if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 1102);
         String adminUserID = StadiumService.getAdminUser(stadium).getUserid();
         if (!Objects.equals(user.getUserid(), adminUserID) && user.getOp() == User.OP.ADMIN) {
-            throw new RuntimeError("You are not the administrator of this venue! Permission denied!", 271);
+            throw new RuntimeError("You are not the administrator of this venue! Permission denied!", 1105);
         }
         Venue venue = new Venue();
         venue.setName(name);
@@ -86,17 +86,17 @@ public class VenueService {
 
     public static int delete(String accessToken, String uuid) throws SQLException, RuntimeError, ParseException {
         User user = UserService.verifyAccessToken(accessToken);
-        if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 270);
+        if (user.getOp() == User.OP.USER) throw new RuntimeError("Permission denied", 1102);
         Venue venue = new VenueDao().execQuery(uuid);
         String stadiumFromUUID = venue.getStadium();
         String adminUserID = StadiumService.getAdminUser(stadiumFromUUID).getUserid();
         if (!Objects.equals(user.getUserid(), adminUserID) && user.getOp() == User.OP.ADMIN) {
-            throw new RuntimeError("You are not the administrator of this venue! Permission denied!", 271);
+            throw new RuntimeError("You are not the administrator of this venue! Permission denied!", 1105);
         }
         if (Objects.equals(venue.getState(), Venue.STATE.CLOSED)) {
             return new VenueDao().execDelete(uuid);
         } else {
-            throw new RuntimeError("The venue has not been completely closed!", 310);
+            throw new RuntimeError("The venue has not been completely closed!", 1312);
         }
     }
 
@@ -110,7 +110,7 @@ public class VenueService {
         String stadiumFromUUID = new VenueDao().execQuery(uuid).getStadium();
         String adminUserID = StadiumService.getAdminUser(stadiumFromUUID).getUserid();
         if (!Objects.equals(user.getUserid(), adminUserID) && user.getOp() == User.OP.ADMIN) {
-            throw new RuntimeError("You are not the administrator of this venue! Permission denied!", 271);
+            throw new RuntimeError("You are not the administrator of this venue! Permission denied!", 1105);
         }
         return new VenueDao().execQuery(uuid);
     }
@@ -122,7 +122,7 @@ public class VenueService {
                 case "name", "area", "stadium", "introduction", "price" -> {//限制column为Stadium的列名
                     return new VenueDao().execUpdate(column, value, uuid);
                 }
-                default -> throw new RuntimeError("Illegal column!", 283);
+                default -> throw new RuntimeError("Illegal column!", 1502);
             }
         }
         return -1;
@@ -133,7 +133,7 @@ public class VenueService {
         if (price >= 0) {
             new VenueDao().execUpdate("state", price, uuid);
         } else {
-            throw new RuntimeError("The price cannot be negative", 303);
+            throw new RuntimeError("The price cannot be negative", 1313);
         }
     }
 
@@ -147,7 +147,7 @@ public class VenueService {
         orders = OrderService.StateFilter(orders, new String[]{Order.STATE.PAID, Order.STATE.USING, Order.STATE.PAYING});
         if (!orders.isEmpty()) {
             new VenueDao().execUpdate("state", Venue.STATE.CLOSING, uuid);
-            throw new RuntimeError("Some orders are not yet fulfilled, so this venue cannot be closed! But it's closing now.", 101);
+            throw new RuntimeError("Some orders are not yet fulfilled, so this venue cannot be closed! But it's closing now.", 1314);
         } else {
             new VenueDao().execUpdate("state", Venue.STATE.CLOSED, uuid);
         }
@@ -156,7 +156,7 @@ public class VenueService {
     public static void open(String uuid) throws SQLException, RuntimeError, ParseException {
         Venue venue = VenueService.query(uuid);
         if (Objects.equals(venue.getState(), Venue.STATE.OPENED)) {
-            throw new RuntimeError("Already opened!", 601);
+            throw new RuntimeError("Already opened!", 1308);
         }
         if (Objects.equals(venue.getState(), Venue.STATE.CLOSING) || Objects.equals(venue.getState(), Venue.STATE.CLOSED)) {
             new VenueDao().execUpdate("state", Venue.STATE.OPENED, uuid);
