@@ -300,7 +300,7 @@ public class OrderDao implements Dao<Order> {
         return list;
     }
 
-    public List<Order> execQuery(long number) throws SQLException, RuntimeError, ParseException {
+    public List<Order> execQuery(long number) throws SQLException, ParseException {
         return execQuery("number", String.valueOf(number));
     }
 

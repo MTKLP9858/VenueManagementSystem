@@ -48,7 +48,7 @@ public class StadiumDao implements Dao<Stadium> {
     public void imgInsert(int index, MultipartFile img, String name) throws SQLException, RuntimeError {
         JSONArray json = this.getImageList(name);
         if (index > json.size()) {
-            throw new RuntimeError("Insert fail: The index you input is bigger then image_list's size", 270);
+            throw new RuntimeError("Insert fail: The index you input is bigger then image_list's size", 1506);
         }
         String img_index = ImageService.add(img);
         try {
@@ -59,7 +59,7 @@ public class StadiumDao implements Dao<Stadium> {
             throw new SQLException(e);
         } catch (IndexOutOfBoundsException e) {
             new ImageDao().execDelete(img_index);
-            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 271);
+            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 1506);
         }
     }
 
@@ -69,7 +69,7 @@ public class StadiumDao implements Dao<Stadium> {
         try {
             img_index = json.getString(index);
         } catch (IndexOutOfBoundsException e) {
-            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 273);
+            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 1506);
         }
         //del from image_list_string
         json.remove(index);
@@ -84,7 +84,7 @@ public class StadiumDao implements Dao<Stadium> {
         try {
             img_index = json.getString(index);
         } catch (IndexOutOfBoundsException e) {
-            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 272);
+            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 1506);
         }
         return ImageService.query(img_index);
     }
@@ -95,7 +95,7 @@ public class StadiumDao implements Dao<Stadium> {
         try {
             img_index = json.getString(index);
         } catch (IndexOutOfBoundsException e) {
-            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 271);
+            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 1506);
         }
         return ImageService.update(img_index, img);
     }
@@ -124,7 +124,7 @@ public class StadiumDao implements Dao<Stadium> {
     public Stadium execQuery(String name) throws SQLException, RuntimeError, ParseException {
         List<Stadium> stadiumList = execQuery("name", name);
         if (stadiumList.size() != 1) {
-            throw new RuntimeError("The target was not found or there are multiple identical targets!", 371);
+            throw new RuntimeError("The target was not found or there are multiple identical targets!", 1201);
         }
         return stadiumList.get(0);
     }

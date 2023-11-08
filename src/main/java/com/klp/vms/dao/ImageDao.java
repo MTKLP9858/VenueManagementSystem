@@ -47,9 +47,9 @@ public class ImageDao {
             stat.executeUpdate();
             return uuid;
         } catch (IOException e) {
-            throw new RuntimeError("FileInputStream error, file or path to file doesn't exists", 154);
+            throw new RuntimeError("FileInputStream error: " + e.getMessage() + ", file or path to file doesn't exists", 1504);
         } catch (SQLException e) {
-            throw new RuntimeError("Database error, check if the database path or data table exists, and try again!", 11);
+            throw new RuntimeError("Database error: " + e.getMessage() + ", check if the database path or data table exists, and try again!", 9);
         }
     }
 
@@ -60,7 +60,7 @@ public class ImageDao {
             int r = stat.executeUpdate();
             return r > 0;
         } catch (SQLException e) {
-            throw new RuntimeError("Database error, check if the database path or data table exists", 11);
+            throw new RuntimeError("Database error: " + e.getMessage() + ", check if the database path or data table exists", 9);
         }
     }
 
@@ -81,9 +81,9 @@ public class ImageDao {
                 return null;
             }
         } catch (IOException e) {
-            throw new RuntimeError("FileInputStream error, file or path to file doesn't exists", 154);
+            throw new RuntimeError("FileInputStream error: " + e.getMessage() + ", file or path to file doesn't exists", 1504);
         } catch (SQLException e) {
-            throw new RuntimeError("Database error, check if the database path or data table exists", 11);
+            throw new RuntimeError("Database error: " + e.getMessage() + ", check if the database path or data table exists", 9);
         }
         return file;
     }
@@ -98,9 +98,9 @@ public class ImageDao {
             int r = stat.executeUpdate();
             return r > 0;
         } catch (IOException e) {
-            throw new RuntimeError("FileInputStream error, file or path to file doesn't exists", 154);
+            throw new RuntimeError("FileInputStream error: " + e.getMessage() + ", file or path to file doesn't exists", 1504);
         } catch (SQLException e) {
-            throw new RuntimeError("Database error, check if the database path or data table exists", 11);
+            throw new RuntimeError("Database error: " + e.getMessage() + ", check if the database path or data table exists", 9);
         }
     }
 }

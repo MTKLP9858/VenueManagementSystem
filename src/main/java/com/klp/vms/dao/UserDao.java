@@ -25,14 +25,14 @@ public class UserDao implements Dao<User> {
             if (rs.next()) {
                 byte[] bytes = rs.getBytes("avatar");
                 try (FileOutputStream fos = new FileOutputStream(file)) {
-                    if (bytes == null) throw new RuntimeError("avatar not found", 157);
+                    if (bytes == null) throw new RuntimeError("avatar not found", 1202);
                     fos.write(bytes);
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeError("FileInputStream error, file or path to file doesn't exists", 154);
+            throw new RuntimeError("FileInputStream error: " + e.getMessage() + ", file or path to file doesn't exists", 1504);
         } catch (SQLException e) {
-            throw new RuntimeError("Database error, check if the database path or data table exists", 11);
+            throw new RuntimeError("Database error: " + e.getMessage() + ", check if the database path or data table exists", 9);
         }
         return file;
     }
@@ -52,9 +52,9 @@ public class UserDao implements Dao<User> {
             return r > 0;
         } catch (IOException e) {
             e.printStackTrace();
-            throw new RuntimeError("FileInputStream error, file or path to file doesn't exists: " + e.getMessage(), 154);
+            throw new RuntimeError("FileInputStream error: " + e.getMessage() + ", file or path to file doesn't exists", 1504);
         } catch (SQLException e) {
-            throw new RuntimeError("Database error, check if the database path or data table exists", 11);
+            throw new RuntimeError("Database error: " + e.getMessage() + ", check if the database path or data table exists", 9);
         }
     }
 

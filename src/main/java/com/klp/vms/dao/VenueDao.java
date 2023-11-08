@@ -49,7 +49,7 @@ public class VenueDao implements Dao<Venue> {//场地
     public void imgInsert(int index, MultipartFile img, String uuid) throws SQLException, RuntimeError {
         JSONArray json = getImageList(uuid);
         if (index > json.size()) {
-            throw new RuntimeError("Insert fail: The index you input is bigger then image_list's size", 270);
+            throw new RuntimeError("Insert fail: The index you input is bigger then image_list's size", 1506);
         }
         String img_index = ImageService.add(img);
         try {
@@ -60,7 +60,7 @@ public class VenueDao implements Dao<Venue> {//场地
             throw new SQLException(e);
         } catch (IndexOutOfBoundsException e) {
             new ImageDao().execDelete(img_index);
-            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 271);
+            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 1506);
         }
     }
 
@@ -70,7 +70,7 @@ public class VenueDao implements Dao<Venue> {//场地
         try {
             img_index = json.getString(index);
         } catch (IndexOutOfBoundsException e) {
-            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 273);
+            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 1506);
         }
         //del from image_list_string
         json.remove(index);
@@ -85,7 +85,7 @@ public class VenueDao implements Dao<Venue> {//场地
         try {
             img_index = json.getString(index);
         } catch (IndexOutOfBoundsException e) {
-            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 272);
+            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 1506);
         }
         return ImageService.query(img_index);
     }
@@ -96,7 +96,7 @@ public class VenueDao implements Dao<Venue> {//场地
         try {
             img_index = json.getString(index);
         } catch (IndexOutOfBoundsException e) {
-            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 271);
+            throw new RuntimeError("IndexOutOfBoundsException: The index you input is bigger then image_list's size", 1506);
         }
         return ImageService.update(img_index, img);
     }
@@ -115,12 +115,12 @@ public class VenueDao implements Dao<Venue> {//场地
     public int execInsert(Venue venue) throws RuntimeError, SQLException, ParseException {
         if (venue == null) return 0;
         if (new StadiumDao().execQuery("name", venue.getStadium()).isEmpty()) {
-            throw new RuntimeError("no such value in Stadium.name!", 223);
+            throw new RuntimeError("no such value in Stadium.name!", 1301);
         }
 
         String uuid = getUUID(venue.getName(), venue.getArea(), venue.getStadium());
         if (uuid != null) {
-            throw new RuntimeError("The same venue exists!", 223);
+            throw new RuntimeError("The same venue exists!", 1302);
         }
         String sql = "insert into Venue (uuid,name, area, stadium, introduction, state, price) VALUES (?,?,?,?,?,?,?);";
         try (Stat stat = new Stat(sql)) {
@@ -178,7 +178,7 @@ public class VenueDao implements Dao<Venue> {//场地
     public Venue execQuery(String uuid) throws SQLException, RuntimeError, ParseException {
         ArrayList<Venue> list = execQuery("uuid", uuid);
         if (list.size() != 1) {
-            throw new RuntimeError("The target was not found or there are multiple identical targets!", 371);
+            throw new RuntimeError("The target was not found or there are multiple identical targets!", 1201);
         }
         return list.get(0);
     }
@@ -215,22 +215,22 @@ public class VenueDao implements Dao<Venue> {//场地
         if (column == null || value == null || uuid == null) return 0;
         Venue venue = execQuery(uuid);
         if (venue == null) {
-            throw new RuntimeError("Target not found!", 220);
+            throw new RuntimeError("Target not found!", 1201);
         }
 //      凭UUID查询是否存在该场馆
         if (new StadiumDao().execQuery("name", venue.getStadium()).isEmpty()) {
 //          如果没有该场馆，证明该uuid对应的venue失效，执行删除
 //            execDelete(null, venue.getStadium());
-            throw new RuntimeError("error!", 219);
+            throw new RuntimeError("error!没有该场馆，证明该uuid对应的venue失效，执行删除", 1306);
         }
         if (Objects.equals(column, "stadium")) {
-            if (new StadiumDao().execQuery("name", (String) value).isEmpty()) {
-                throw new RuntimeError("no such value in Stadium.name!", 223);
+            if (new StadiumDao().execQuery("name", value).isEmpty()) {
+                throw new RuntimeError("no such value in Stadium.name!", 1301);
             }
         }
         if (Objects.equals(column, "name")) {
             if (getUUID((String) value, venue.getArea(), venue.getStadium()) != null) {
-                throw new RuntimeError("The same Stadium.name exists!", 224);
+                throw new RuntimeError("The same Stadium.name exists!", 1302);
             }
         }
         String sql = "UPDATE Venue SET " + column + "=? WHERE uuid=?;";
